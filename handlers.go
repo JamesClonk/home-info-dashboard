@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/unrolled/render"
 )
 
@@ -41,13 +43,26 @@ func ForecastsHandler(rw http.ResponseWriter, req *http.Request) {
 		Title: "Weather App - Forecasts",
 	}
 
-	data, err := getData("http://www.yr.no/place/Switzerland/Bern/Bützberg/forecast.xml")
+	vars := mux.Vars(req)
+	canton := vars["canton"]
+	city := vars["city"]
+
+	req.ParseForm()
+	if len(canton) == 0 {
+		canton = req.Form.Get("canton")
+	}
+	if len(city) == 0 {
+		city = req.Form.Get("city")
+	}
+
+	forecast, err := GetWeatherForecast(canton, city)
 	if err != nil {
 		page.Content = err
 		r.HTML(rw, http.StatusInternalServerError, "error", page)
 		return
 	}
 
-	page.Content = string(data)
+	page.Title += fmt.Sprintf(" - %s", city)
+	page.Content = forecast
 	r.HTML(rw, http.StatusOK, "forecasts", page)
 }
