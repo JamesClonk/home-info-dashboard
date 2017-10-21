@@ -5,8 +5,20 @@
     <h1 class="title">{{ .Content.Forecast.Location.Name }}</h1>
     <h2 class="subtitle">{{ .Content.Forecast.Location.Country }}</h2>
   </div>
+</section>
+
+<section class="section">
   <div class="container">
-    <p>{{ .Content.Forecast.Forecast.Tabular.Time }}</p>
+    {{ range .Content.Forecast.Forecast.Tabular.Time }}
+    <div class="columns">
+      <div class="column">{{ .From }} - {{ .To }}</div>
+      <div class="column">{{ .Symbol.Name }}<br/>{{ .Precipitation.Value }}</div>
+      <div class="column">{{ .WindDirection.Degree }}<br/>{{ .WindDirection.Name }}</div>
+      <div class="column">{{ .WindSpeed.MPS }} mps<br/>{{ .WindSpeed.Name }}</div>
+      <div class="column">{{ .Temperature.Value }} {{ .Temperature.Unit }}</div>
+      <div class="column">{{ .Pressure.Value }} {{ .Pressure.Unit }}</div>
+    </div>
+    {{ end }}
   </div>
 </section>
 
