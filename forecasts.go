@@ -18,6 +18,12 @@ type WeatherForecast struct {
 			GeoBaseID string `xml:"geobaseid,attr"`
 		} `xml:"location"`
 	} `xml:"location"`
+	Credit struct {
+		Link struct {
+			Text string `xml:"text,attr"`
+			URL  string `xml:"url,attr"`
+		} `xml:"link"`
+	} `xml:"credit"`
 }
 
 func getData(url string) ([]byte, error) {
