@@ -1,4 +1,4 @@
-PHONY: run gin binary
+PHONY: run gin binary setup
 
 all: run
 
@@ -10,3 +10,7 @@ gin:
 
 binary:
 	go build -o weatherapp
+
+setup:
+	go get -v -u github.com/codegangsta/gin
+	go get -v -u github.com/Masterminds/glide
