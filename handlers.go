@@ -12,6 +12,7 @@ var r *render.Render
 
 type Page struct {
 	Title   string
+	Active  string
 	Content interface{}
 }
 
@@ -26,7 +27,8 @@ func init() {
 
 func IndexHandler(rw http.ResponseWriter, req *http.Request) {
 	page := &Page{
-		Title: "Weather App",
+		Title:  "Weather App",
+		Active: "home",
 	}
 	r.HTML(rw, http.StatusOK, "index", page)
 }
@@ -40,7 +42,8 @@ func NotFoundHandler(rw http.ResponseWriter, req *http.Request) {
 
 func ForecastsHandler(rw http.ResponseWriter, req *http.Request) {
 	page := &Page{
-		Title: "Weather App - Forecasts",
+		Title:  "Weather App - Forecasts",
+		Active: "forecasts",
 	}
 
 	vars := mux.Vars(req)
@@ -54,15 +57,31 @@ func ForecastsHandler(rw http.ResponseWriter, req *http.Request) {
 	if len(city) == 0 {
 		city = req.Form.Get("city")
 	}
+	page.Title += fmt.Sprintf(" - %s", city)
 
 	forecast, err := GetWeatherForecast(canton, city)
 	if err != nil {
-		page.Content = err
-		r.HTML(rw, http.StatusInternalServerError, "error", page)
+		page.Content = struct {
+			Canton string
+			City   string
+			Error  error
+		}{
+			canton,
+			city,
+			err,
+		}
+		r.HTML(rw, http.StatusNotFound, "forecast_error", page)
 		return
 	}
 
-	page.Title += fmt.Sprintf(" - %s", city)
-	page.Content = forecast
+	page.Content = struct {
+		Canton   string
+		City     string
+		Forecast *WeatherForecast
+	}{
+		canton,
+		city,
+		forecast,
+	}
 	r.HTML(rw, http.StatusOK, "forecasts", page)
 }

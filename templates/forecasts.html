@@ -1,70 +1,19 @@
+{{ template "location_selection" . }}
+
 <section class="section">
   <div class="container">
-
-    <form action="/forecasts" method="post">
-      <label class="label">Location:</label>
-      <div class="field has-addons">
-        <div class="control has-icons-left">
-          <span class="select">
-            <select name="canton">
-              <option>Aargau</option>
-              <option>Appenzell Ausserrhoden</option>
-              <option>Appenzell Innerrhoden</option>
-              <option>Basel-Country</option>
-              <option>Basel-City</option>
-              <option selected>Bern</option>
-              <option>Fribourg</option>
-              <option>Geneva</option>
-              <option>Glarus</option>
-              <option>Graubünden</option>
-              <option>Jura</option>
-              <option>Luzern</option>
-              <option>Neuchâtel</option>
-              <option>Nidwalden</option>
-              <option>Obwalden</option>
-              <option>Schaffhausen</option>
-              <option>Schwyz</option>
-              <option>Solothurn</option>
-              <option>St. Gallen</option>
-              <option>Thurgau</option>
-              <option>Ticino</option>
-              <option>Uri</option>
-              <option>Valais</option>
-              <option>Vaud</option>
-              <option>Zug</option>
-              <option>Zürich</option>
-            </select>
-          </span>
-          <span class="icon is-small is-left">
-            <i class="fa fa-globe"></i>
-          </span>
-        </div>
-        <div class="control has-icons-left">
-          <input class="input" type="text" placeholder="City" name="city" value="Bern">
-          <span class="icon is-small is-left">
-            <i class="fa fa-building"></i>
-          </span>
-        </div>
-        <div class="control">
-          <input type="submit" class="button is-info" value="Show">
-        </div>
-      </div>
-    </form>
-
+    <h1 class="title">{{ .Content.Forecast.Location.Name }}</h1>
+    <h2 class="subtitle">{{ .Content.Forecast.Location.Country }}</h2>
   </div>
-</section>
-
-<section class="section">
   <div class="container">
-    <h1 class="title">{{ .Content.Location.Name }}</h1>
-    <h2 class="subtitle">{{ .Content.Location.Country }}</h1>
+    <p>{{ .Content.Forecast.Forecast.Tabular.Time }}</p>
   </div>
 </section>
 
 <footer class="footer is-paddingless">
   <div class="container">
     <div class="content has-text-centered">
-      <p>{{ .Content.Credit.Link.Text }}<br/><a href="{{ .Content.Credit.Link.URL }}">{{ .Content.Credit.Link.URL }}</a></p>
+      <p>{{ .Content.Forecast.Credit.Link.Text }}<br/><a href="{{ .Content.Forecast.Credit.Link.URL }}">{{ .Content.Forecast.Credit.Link.URL }}</a></p>
     </div>
   </div>
 </footer>

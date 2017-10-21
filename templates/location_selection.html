@@ -1,0 +1,55 @@
+<section class="section">
+  <div class="container">
+
+    <form action="/forecasts" method="post">
+      <label class="label">Location:</label>
+      <div class="field has-addons">
+        <div class="control has-icons-left">
+          <span class="select">
+            <select name="canton">
+              <option {{ with .Content }}{{ if eq .Canton `Aargau`}}selected{{ end }}{{ end }}>Aargau</option>
+              <option {{ with .Content }}{{ if eq .Canton `Appenzell Ausserrhoden`}}selected{{ end }}{{ end }}>Appenzell Ausserrhoden</option>
+              <option {{ with .Content }}{{ if eq .Canton `Appenzell Innerrhoden`}}selected{{ end }}{{ end }}>Appenzell Innerrhoden</option>
+              <option {{ with .Content }}{{ if eq .Canton `Basel-Country`}}selected{{ end }}{{ end }}>Basel-Country</option>
+              <option {{ with .Content }}{{ if eq .Canton `Basel-City`}}selected{{ end }}{{ end }}>Basel-City</option>
+              <option {{ with .Content }}{{ if eq .Canton `Bern`}}selected{{ end }}{{ end }}>Bern</option>
+              <option {{ with .Content }}{{ if eq .Canton `Fribourg`}}selected{{ end }}{{ end }}>Fribourg</option>
+              <option {{ with .Content }}{{ if eq .Canton `Geneva`}}selected{{ end }}{{ end }}>Geneva</option>
+              <option {{ with .Content }}{{ if eq .Canton `Glarus`}}selected{{ end }}{{ end }}>Glarus</option>
+              <option {{ with .Content }}{{ if eq .Canton `Graubünden`}}selected{{ end }}{{ end }}>Graubünden</option>
+              <option {{ with .Content }}{{ if eq .Canton `Jura`}}selected{{ end }}{{ end }}>Jura</option>
+              <option {{ with .Content }}{{ if eq .Canton `Luzern`}}selected{{ end }}{{ end }}>Luzern</option>
+              <option {{ with .Content }}{{ if eq .Canton `Neuchâtel`}}selected{{ end }}{{ end }}>Neuchâtel</option>
+              <option {{ with .Content }}{{ if eq .Canton `Nidwalden`}}selected{{ end }}{{ end }}>Nidwalden</option>
+              <option {{ with .Content }}{{ if eq .Canton `Obwalden`}}selected{{ end }}{{ end }}>Obwalden</option>
+              <option {{ with .Content }}{{ if eq .Canton `Schaffhausen`}}selected{{ end }}{{ end }}>Schaffhausen</option>
+              <option {{ with .Content }}{{ if eq .Canton `Schwyz`}}selected{{ end }}{{ end }}>Schwyz</option>
+              <option {{ with .Content }}{{ if eq .Canton `Solothurn`}}selected{{ end }}{{ end }}>Solothurn</option>
+              <option {{ with .Content }}{{ if eq .Canton `St. Gallen`}}selected{{ end }}{{ end }}>St. Gallen</option>
+              <option {{ with .Content }}{{ if eq .Canton `Thurgau`}}selected{{ end }}{{ end }}>Thurgau</option>
+              <option {{ with .Content }}{{ if eq .Canton `Ticino`}}selected{{ end }}{{ end }}>Ticino</option>
+              <option {{ with .Content }}{{ if eq .Canton `Uri`}}selected{{ end }}{{ end }}>Uri</option>
+              <option {{ with .Content }}{{ if eq .Canton `Valais`}}selected{{ end }}{{ end }}>Valais</option>
+              <option {{ with .Content }}{{ if eq .Canton `Vaud`}}selected{{ end }}{{ end }}>Vaud</option>
+              <option {{ with .Content }}{{ if eq .Canton `Zug`}}selected{{ end }}{{ end }}>Zug</option>
+              <option {{ with .Content }}{{ if eq .Canton `Zürich`}}selected{{ end }}{{ end }}>Zürich</option>
+            </select>
+          </span>
+          <span class="icon is-small is-left">
+            <i class="fa fa-globe"></i>
+          </span>
+        </div>
+        <div class="control has-icons-left">
+          <input class="input" type="text" placeholder="City" name="city" value="{{ .Content.City }}">
+          <span class="icon is-small is-left">
+            <i class="fa fa-building"></i>
+          </span>
+        </div>
+        <div class="control">
+          <input type="submit" class="button is-info" value="Show">
+        </div>
+      </div>
+    </form>
+
+  </div>
+</section>

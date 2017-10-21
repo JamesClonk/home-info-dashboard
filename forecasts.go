@@ -24,6 +24,38 @@ type WeatherForecast struct {
 			URL  string `xml:"url,attr"`
 		} `xml:"link"`
 	} `xml:"credit"`
+	Forecast struct {
+		Tabular struct {
+			Time []struct {
+				From   string `xml:"from,attr"`
+				To     string `xml:"to,attr"`
+				Period string `xml:"period,attr"`
+				Symbol struct {
+					Name string `xml:"name,attr"`
+				} `xml:"symbol"`
+				Precipitation struct {
+					Value string `xml:"value,attr"`
+				} `xml:"precipitation"`
+				WindDirection struct {
+					Degree string `xml:"deg,attr"`
+					Code   string `xml:"code,attr"`
+					Name   string `xml:"name,attr"`
+				} `xml:"windDirection"`
+				WindSpeed struct {
+					MPS  string `xml:"mps,attr"`
+					Name string `xml:"name,attr"`
+				} `xml:"windSpeed"`
+				Temperature struct {
+					Unit  string `xml:"unit,attr"`
+					Value string `xml:"value,attr"`
+				} `xml:"temperature"`
+				Pressure struct {
+					Unit  string `xml:"unit,attr"`
+					Value string `xml:"value,attr"`
+				} `xml:"pressure"`
+			} `xml:"time"`
+		} `xml:"tabular"`
+	} `xml:"forecast"`
 }
 
 func getData(url string) ([]byte, error) {
