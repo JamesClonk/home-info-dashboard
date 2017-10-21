@@ -1,2 +1,2 @@
-# weather_app
-Raspi Weatherstation Project
+# blubb
+trying out stuff here..
