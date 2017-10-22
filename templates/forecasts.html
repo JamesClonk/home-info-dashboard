@@ -1,24 +1,54 @@
 {{ template "location_selection" . }}
 
-<section class="section">
+<section class="section is-paddingless">
   <div class="container">
-    <h1 class="title">{{ .Content.Forecast.Location.Name }}</h1>
-    <h2 class="subtitle">{{ .Content.Forecast.Location.Country }}</h2>
+    <div class="columns">
+      <div class="column is-narrow">
+        <h1 class="title">{{ .Content.Forecast.Location.Name }}</h1>
+        <h2 class="subtitle">{{ .Content.Forecast.Location.Country }}</h2>
+      </div>
+      <div class="column">
+        <p>{{ .Content.Forecast.Location.Location.Altitude }}m</p>
+        <p><a href="https://www.google.ch/maps/place/{{ .Content.Forecast.Location.Location.Latitude }}%C2%B0+{{ .Content.Forecast.Location.Location.Longitude }}%C2%B0">{{ .Content.Forecast.Location.Location.Latitude }}°/{{ .Content.Forecast.Location.Location.Longitude }}°</a>
+        </p>
+      </div>
+    </div>
   </div>
 </section>
 
 <section class="section">
   <div class="container">
-    {{ range .Content.Forecast.Forecast.Tabular.Time }}
-    <div class="columns">
-      <div class="column">{{ .From }} - {{ .To }}</div>
-      <div class="column">{{ .Symbol.Name }}<br/>{{ .Precipitation.Value }}</div>
-      <div class="column">{{ .WindDirection.Degree }}<br/>{{ .WindDirection.Name }}</div>
-      <div class="column">{{ .WindSpeed.MPS }} mps<br/>{{ .WindSpeed.Name }}</div>
-      <div class="column">{{ .Temperature.Value }} {{ .Temperature.Unit }}</div>
-      <div class="column">{{ .Pressure.Value }} {{ .Pressure.Unit }}</div>
-    </div>
-    {{ end }}
+    <table class="table is-bordered is-striped is-fullwidth">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Weather</th>
+          <th>Wind</th>
+          <th>Temperature</th>
+          <th>Pressure</th>
+        </tr>
+      </thead>
+      <tfoot>
+        <tr>
+          <th>Date</th>
+          <th>Weather</th>
+          <th>Wind</th>
+          <th>Temperature</th>
+          <th>Pressure</th>
+        </tr>
+      </tfoot>
+      <tbody>
+        {{ range $i, $e := .Content.Forecast.Forecast.Tabular.Time }}
+        <tr {{ if eq $i 0 }}class="is-selected"{{ end }}>
+          <td>From: {{ $e.From }}<br/>To: {{ $e.To }}</td>
+          <td>{{ $e.Symbol.Name }}<br/>{{ $e.Precipitation.Value }} mm</td>
+          <td>{{ $e.WindSpeed.Name }}<br/>{{ $e.WindSpeed.MPS }} mps<br/>{{ $e.WindDirection.Name }}</td>
+          <td>{{ $e.Temperature.Value }}° {{ $e.Temperature.Unit }}</td>
+          <td>{{ $e.Pressure.Value }} {{ $e.Pressure.Unit }}</td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table>
   </div>
 </section>
 
