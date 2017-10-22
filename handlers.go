@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/unrolled/render"
@@ -75,13 +76,19 @@ func ForecastsHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	page.Content = struct {
-		Canton   string
-		City     string
-		Forecast *WeatherForecast
+		Canton           string
+		City             string
+		Forecast         *WeatherForecast
+		Today            time.Time
+		Tomorrow         time.Time
+		DayAfterTomorrow time.Time
 	}{
 		canton,
 		city,
 		forecast,
+		time.Now(),
+		time.Now().AddDate(0, 0, 1),
+		time.Now().AddDate(0, 0, 2),
 	}
 	r.HTML(rw, http.StatusOK, "forecasts", page)
 }

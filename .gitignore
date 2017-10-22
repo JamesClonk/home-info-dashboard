@@ -17,3 +17,9 @@
 gin-bin
 weatherapp
 weather_app
+
+# archives
+*.zip
+*.tgz
+*.gz
+*.tar

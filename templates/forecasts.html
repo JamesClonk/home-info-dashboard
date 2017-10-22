@@ -18,6 +18,8 @@
 
 <section class="section">
   <div class="container">
+
+    <label class="label">Today<small>, {{ .Content.Today.Weekday }} {{ $.Content.Today.Format `02.01.2006` }}</small></label>
     <table class="table is-bordered is-striped is-fullwidth">
       <thead>
         <tr>
@@ -28,7 +30,22 @@
           <th>Pressure</th>
         </tr>
       </thead>
-      <tfoot>
+      <tbody>
+        {{ range $i, $e := .Content.Forecast.Forecast.Tabular.Time }}{{ if eq $e.From.Day $.Content.Today.Day }}
+        <tr {{ if eq $i 0 }}class="is-selected"{{ end }}>
+          <td>{{ $e.From.Format `15:04` }} - {{ $e.To.Format `15:04` }}</td>
+          <td>{{ $e.Symbol.Name }}<br/>{{ $e.Precipitation.Value }} mm</td>
+          <td>{{ $e.WindSpeed.Name }}<br/>{{ $e.WindSpeed.MPS }} mps<br/>{{ $e.WindDirection.Name }}</td>
+          <td>{{ $e.Temperature.Value }}° {{ $e.Temperature.Unit }}</td>
+          <td>{{ $e.Pressure.Value }} {{ $e.Pressure.Unit }}</td>
+        </tr>
+        {{ end }}{{ end }}
+      </tbody>
+    </table>
+
+    <label class="label">Tomorrow<small>, {{ .Content.Tomorrow.Weekday }} {{ $.Content.Tomorrow.Format `02.01.2006` }}</small></label>
+    <table class="table is-bordered is-striped is-fullwidth">
+      <thead>
         <tr>
           <th>Date</th>
           <th>Weather</th>
@@ -36,17 +53,41 @@
           <th>Temperature</th>
           <th>Pressure</th>
         </tr>
-      </tfoot>
+      </thead>
       <tbody>
-        {{ range $i, $e := .Content.Forecast.Forecast.Tabular.Time }}
-        <tr {{ if eq $i 0 }}class="is-selected"{{ end }}>
-          <td>From: {{ $e.From }}<br/>To: {{ $e.To }}</td>
+        {{ range $i, $e := .Content.Forecast.Forecast.Tabular.Time }}{{ if eq $e.From.Day $.Content.Tomorrow.Day }}
+        <tr>
+          <td>{{ $e.From.Format `15:04` }} - {{ $e.To.Format `15:04` }}</td>
           <td>{{ $e.Symbol.Name }}<br/>{{ $e.Precipitation.Value }} mm</td>
           <td>{{ $e.WindSpeed.Name }}<br/>{{ $e.WindSpeed.MPS }} mps<br/>{{ $e.WindDirection.Name }}</td>
           <td>{{ $e.Temperature.Value }}° {{ $e.Temperature.Unit }}</td>
           <td>{{ $e.Pressure.Value }} {{ $e.Pressure.Unit }}</td>
         </tr>
-        {{ end }}
+        {{ end }}{{ end }}
+      </tbody>
+    </table>
+
+    <label class="label">{{ .Content.DayAfterTomorrow.Weekday }}<small>, {{ $.Content.DayAfterTomorrow.Format `02.01.2006` }}</small></label>
+    <table class="table is-bordered is-striped is-fullwidth">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Weather</th>
+          <th>Wind</th>
+          <th>Temperature</th>
+          <th>Pressure</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range $i, $e := .Content.Forecast.Forecast.Tabular.Time }}{{ if eq $e.From.Day $.Content.DayAfterTomorrow.Day }}
+        <tr>
+          <td>{{ $e.From.Format `15:04` }} - {{ $e.To.Format `15:04` }}</td>
+          <td>{{ $e.Symbol.Name }}<br/>{{ $e.Precipitation.Value }} mm</td>
+          <td>{{ $e.WindSpeed.Name }}<br/>{{ $e.WindSpeed.MPS }} mps<br/>{{ $e.WindDirection.Name }}</td>
+          <td>{{ $e.Temperature.Value }}° {{ $e.Temperature.Unit }}</td>
+          <td>{{ $e.Pressure.Value }} {{ $e.Pressure.Unit }}</td>
+        </tr>
+        {{ end }}{{ end }}
       </tbody>
     </table>
   </div>

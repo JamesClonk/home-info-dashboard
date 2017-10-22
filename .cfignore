@@ -1,0 +1,9 @@
+.env
+.git
+.gitmodules
+.gitignore
+.goplayrc
+.travis.yml
+Makefile
+Dockerfile
+_fixtures

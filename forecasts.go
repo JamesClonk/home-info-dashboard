@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 type WeatherForecast struct {
@@ -27,9 +28,9 @@ type WeatherForecast struct {
 	Forecast struct {
 		Tabular struct {
 			Time []struct {
-				From   string `xml:"from,attr"`
-				To     string `xml:"to,attr"`
-				Period string `xml:"period,attr"`
+				From   weatherDate `xml:"from,attr"`
+				To     weatherDate `xml:"to,attr"`
+				Period string      `xml:"period,attr"`
 				Symbol struct {
 					Name string `xml:"name,attr"`
 				} `xml:"symbol"`
@@ -56,6 +57,20 @@ type WeatherForecast struct {
 			} `xml:"time"`
 		} `xml:"tabular"`
 	} `xml:"forecast"`
+}
+
+type weatherDate struct {
+	time.Time
+}
+
+func (w *weatherDate) UnmarshalXMLAttr(attr xml.Attr) error {
+	const format = "2006-01-02T15:04:05" // 2017-10-22T00:00:00
+	parse, err := time.Parse(format, attr.Value)
+	if err != nil {
+		return err
+	}
+	*w = weatherDate{parse}
+	return nil
 }
 
 func getData(url string) ([]byte, error) {
