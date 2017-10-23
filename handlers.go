@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -42,23 +43,11 @@ func NotFoundHandler(rw http.ResponseWriter, req *http.Request) {
 }
 
 func ForecastsHandler(rw http.ResponseWriter, req *http.Request) {
+	canton, city := getLocation(req)
 	page := &Page{
-		Title:  "Weather App - Forecasts",
+		Title:  fmt.Sprintf("Weather App - Forecasts - %s", city),
 		Active: "forecasts",
 	}
-
-	vars := mux.Vars(req)
-	canton := vars["canton"]
-	city := vars["city"]
-
-	req.ParseForm()
-	if len(canton) == 0 {
-		canton = req.Form.Get("canton")
-	}
-	if len(city) == 0 {
-		city = req.Form.Get("city")
-	}
-	page.Title += fmt.Sprintf(" - %s", city)
 
 	forecast, err := GetWeatherForecast(canton, city)
 	if err != nil {
@@ -91,4 +80,38 @@ func ForecastsHandler(rw http.ResponseWriter, req *http.Request) {
 		time.Now().AddDate(0, 0, 2),
 	}
 	r.HTML(rw, http.StatusOK, "forecasts", page)
+}
+
+func getLocation(req *http.Request) (string, string) {
+	// first, try to read values from gorilla mux
+	vars := mux.Vars(req)
+	canton := vars["canton"]
+	city := vars["city"]
+
+	// then, parse the form and try to read the values from POST data
+	req.ParseForm()
+	if len(canton) == 0 {
+		canton = req.Form.Get("canton")
+	}
+	if len(city) == 0 {
+		city = req.Form.Get("city")
+	}
+
+	// now, try to read defaults from ENV
+	if len(canton) == 0 {
+		canton = os.Getenv("DEFAULT_CANTON")
+	}
+	if len(city) == 0 {
+		city = os.Getenv("DEFAULT_CITY")
+	}
+
+	// if we still have no values, set reasonable defaults
+	if len(canton) == 0 {
+		canton = "Bern"
+	}
+	if len(city) == 0 {
+		city = "Bern"
+	}
+
+	return canton, city
 }
