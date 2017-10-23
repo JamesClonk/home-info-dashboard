@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ .Title }}</title>
-    <link rel="stylesheet" href="css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/bulma.min.css">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bulma.min.css">
   </head>
   <body>
     <section class="hero is-primary">
@@ -13,9 +13,7 @@
         <nav class="navbar">
           <div class="container">
             <div class="navbar-brand">
-              <a class="navbar-item" href="/">
-                Logo
-              </a>
+              <a class="navbar-item" href="/">Logo</a>
               <span class="navbar-burger burger" data-target="navbarMenuHeroA">
                 <span></span>
                 <span></span>
@@ -24,20 +22,20 @@
             </div>
             <div id="navbarMenuHeroA" class="navbar-menu">
               <div class="navbar-end">
-                <a class="navbar-item is-active" href="/">
+                <a class="navbar-item {{ if eq .Active `home`}}is-active{{ end }}" href="/">
                   <span class="icon"><i class="fa fa-home"></i></span>
                   <span>Home</span>
                 </a>
-                <a class="navbar-item" href="/metrics">
+                <a class="navbar-item {{ if eq .Active `metrics`}}is-active{{ end }}" href="/metrics">
                   <span class="icon"><i class="fa fa-bar-chart"></i></span>
                   <span>Metrics</span>
                 </a>
-                <a class="navbar-item" href="/forecasts">
+                <a class="navbar-item {{ if eq .Active `forecasts`}}is-active{{ end }}" href="/forecasts">
                   <span class="icon"><i class="fa fa-thermometer-three-quarters"></i></span>
                   <span>Forecasts</span>
                 </a>
                 <span class="navbar-item">
-                  <a class="button is-primary is-inverted" href="https://github.com/JamesClonk/blubb">
+                  <a class="button is-primary is-inverted" href="https://github.com/anyandrea/weather_app">
                     <span class="icon"><i class="fa fa-github"></i></span>
                     <span>Source</span>
                   </a>
