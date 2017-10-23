@@ -37,9 +37,20 @@ func IndexHandler(rw http.ResponseWriter, req *http.Request) {
 
 func NotFoundHandler(rw http.ResponseWriter, req *http.Request) {
 	page := &Page{
-		Title: "Weather App - 404",
+		Title: "Weather App - Not Found",
 	}
-	r.HTML(rw, http.StatusOK, "not_found", page)
+	r.HTML(rw, http.StatusNotFound, "not_found", page)
+}
+
+func ErrorHandler(rw http.ResponseWriter, req *http.Request) {
+	Error(rw, fmt.Errorf("Internal Server Error"))
+}
+func Error(rw http.ResponseWriter, err error) {
+	page := &Page{
+		Title:   "Weather App - Error",
+		Content: err,
+	}
+	r.HTML(rw, http.StatusInternalServerError, "error", page)
 }
 
 func ForecastsHandler(rw http.ResponseWriter, req *http.Request) {

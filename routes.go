@@ -15,6 +15,7 @@ func setupRoutes(router *mux.Router) *mux.Router {
 	router.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
 
 	router.HandleFunc("/", IndexHandler)
+	router.HandleFunc("/error", ErrorHandler)
 
 	router.HandleFunc("/forecasts", ForecastsHandler)
 	router.HandleFunc("/forecasts/{canton}", ForecastsHandler)

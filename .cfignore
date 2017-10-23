@@ -4,6 +4,8 @@
 .gitignore
 .goplayrc
 .travis.yml
+.circleci
+cf
 Makefile
 Dockerfile
 _fixtures

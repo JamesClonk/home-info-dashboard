@@ -27,19 +27,23 @@ func main() {
 	log.Println("Server gracefully stopped")
 }
 
+func setupNegroni() *negroni.Negroni {
+	n := negroni.Classic()
+
+	r := newRouter()
+	setupRoutes(r)
+	n.UseHandler(r)
+
+	return n
+}
+
 func startHTTPServer() *http.Server {
-	handler := negroni.Classic()
-
-	router := newRouter()
-	setupRoutes(router)
-	handler.UseHandler(router)
-
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
 		port = "8080"
 	}
 	addr := ":" + port
-	server := &http.Server{Addr: addr, Handler: handler}
+	server := &http.Server{Addr: addr, Handler: setupNegroni()}
 
 	go func() {
 		log.Printf("Listening on http://0.0.0.0%s\n", addr)
