@@ -10,5 +10,8 @@ applications:
   # domains: []
   services:
   - weatherdb
+  env:
+    DEFAULT_CANTON: Bern
+    DEFAULT_CITY: Grächwil
   command: weather_app
   path: .

@@ -1,11 +1,14 @@
 .PHONY: run gin binary setup glide test
+SHELL := /bin/bash
 
 all: run
 
 run:
+	source .env
 	go run main.go
 
 gin:
+	source .env
 	gin --all run main.go
 
 binary:
