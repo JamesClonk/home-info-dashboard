@@ -4,10 +4,11 @@ applications:
   memory: 64M
   disk_quota: 128M
   instances: 2
-  # buildpack: https://github.com/cloudfoundry/buildpack-go.git
-  # hosts:
-  # - www
-  # domains: []
+  buildpack: go_buildpack
+  hosts:
+  - weatherapp
+  domains:
+  - scapp.io
   services:
   - weatherdb
   env:
