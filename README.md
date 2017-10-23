@@ -1,2 +1,3 @@
 # Weather App
-Golang webapp that displays weather data collected by a Raspberry Pi.
+The Golang companion webapp for the Raspberry Pi *Smart Temperature* platform!
+![Weather App](https://github.com/anyandrea/weather_app/raw/master/public/images/smart_temperature.png)
