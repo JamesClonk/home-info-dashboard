@@ -9,6 +9,7 @@ applications:
   - weatherapp
   domains:
   - scapp.io
+  - applicationcloud.io
   services:
   - weatherdb
   env:
