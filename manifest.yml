@@ -14,5 +14,5 @@ applications:
   env:
     DEFAULT_CANTON: Bern
     DEFAULT_CITY: Grächwil
-  command: ./weather_app
+  command: weather_app
   path: .
