@@ -12,6 +12,7 @@ applications:
   services:
   - weatherdb
   env:
+    GOPACKAGENAME: github.com/anyandrea/weather_app
     DEFAULT_CANTON: Bern
     DEFAULT_CITY: Grächwil
   command: weather_app
