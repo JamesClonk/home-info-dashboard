@@ -1,4 +1,4 @@
-package: github.com/JamesClonk/blubb
+package: github.com/anyandrea/weather_app
 import:
 - package: github.com/gorilla/mux
   version: ^1.5.0
