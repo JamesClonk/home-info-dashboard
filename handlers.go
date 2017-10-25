@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
+	"github.com/anyandrea/weather_app/lib/env"
 	"github.com/gorilla/mux"
 	"github.com/unrolled/render"
 )
@@ -108,20 +108,12 @@ func getLocation(req *http.Request) (string, string) {
 		city = req.Form.Get("city")
 	}
 
-	// now, try to read defaults from ENV
+	// now, try to read defaults from ENV, with reasonable defaults otherwise
 	if len(canton) == 0 {
-		canton = os.Getenv("DEFAULT_CANTON")
+		canton = env.Get("DEFAULT_CANTON", "Bern")
 	}
 	if len(city) == 0 {
-		city = os.Getenv("DEFAULT_CITY")
-	}
-
-	// if we still have no values, set reasonable defaults
-	if len(canton) == 0 {
-		canton = "Bern"
-	}
-	if len(city) == 0 {
-		city = "Bern"
+		city = env.Get("DEFAULT_CITY", "Bern")
 	}
 
 	return canton, city
