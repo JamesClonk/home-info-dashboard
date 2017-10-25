@@ -8,11 +8,19 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/anyandrea/weather_app/lib/database"
+	"github.com/anyandrea/weather_app/lib/database/weatherdb"
 	"github.com/anyandrea/weather_app/lib/env"
 	"github.com/urfave/negroni"
 )
 
+var (
+	wdb weatherdb.WeatherDB
+)
+
 func main() {
+	setupDatabase()
+
 	// setup SIGINT catcher for graceful shutdown
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
@@ -26,6 +34,13 @@ func main() {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	server.Shutdown(ctx)
 	log.Println("Server gracefully stopped")
+}
+
+func setupDatabase() {
+	// setup weather database
+	adapter := database.NewAdapter()
+	adapter.RunMigrations("lib/database/migrations")
+	wdb = weatherdb.NewWeatherDB(adapter)
 }
 
 func setupNegroni() *negroni.Negroni {

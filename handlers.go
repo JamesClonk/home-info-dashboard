@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/anyandrea/weather_app/lib/database/weatherdb"
 	"github.com/anyandrea/weather_app/lib/env"
 	"github.com/gorilla/mux"
 	"github.com/unrolled/render"
@@ -51,6 +52,26 @@ func Error(rw http.ResponseWriter, err error) {
 		Content: err,
 	}
 	r.HTML(rw, http.StatusInternalServerError, "error", page)
+}
+
+func MetricsHandler(rw http.ResponseWriter, req *http.Request) {
+	page := &Page{
+		Title:  "Weather App - Metrics",
+		Active: "metrics",
+	}
+
+	sensors, err := wdb.GetSensors()
+	if err != nil {
+		Error(rw, err)
+		return
+	}
+
+	page.Content = struct {
+		Sensors []*weatherdb.Sensor
+	}{
+		sensors,
+	}
+	r.HTML(rw, http.StatusOK, "metrics", page)
 }
 
 func ForecastsHandler(rw http.ResponseWriter, req *http.Request) {
