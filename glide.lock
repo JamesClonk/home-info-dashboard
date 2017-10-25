@@ -1,5 +1,5 @@
-hash: 0d2a78c7853702d210916c63d6fff765fa14992194dd48cb3c0dfe2e75786285
-updated: 2017-10-25T17:08:06.895735182+02:00
+hash: c81525b1a478b2fcd2494cd22185dd82e91b3279726947b4be59f554c4f55baa
+updated: 2017-10-25T18:29:15.320669344+02:00
 imports:
 - name: github.com/cloudfoundry-community/go-cfenv
   version: f920e9562d5f951cbf11785728f67258c38a10d0
@@ -17,10 +17,19 @@ imports:
   version: b609790bd85edf8e9ab7e0f8912750a786177bcf
   subpackages:
   - oid
+- name: github.com/mattes/migrate
+  version: 8b5365e62cb4ce94f42c2f2866d73aaab092c59d
+  subpackages:
+  - database
+  - database/mysql
+  - database/postgres
+  - database/sqlite3
+  - source
+  - source/file
 - name: github.com/mattn/go-sqlite3
   version: 5160b48509cf5c877bc22c11c373f8c7738cdb38
 - name: github.com/mitchellh/mapstructure
-  version: f3009df150dadf309fdee4a54ed65c124afad715
+  version: 06020f85339e21b2478f756a78e295255ffa4d6a
 - name: github.com/pmezard/go-difflib
   version: 792786c7400a136282c1664665ae0a8db921c6c2
   subpackages:
@@ -30,7 +39,7 @@ imports:
 - name: github.com/urfave/negroni
   version: 079cf0c7a6b0145ebcf4103ec90380370cd89917
 - name: golang.org/x/net
-  version: 7dbad50ab5b31073856416cdcfeb2796d682f844
+  version: 4b14673ba32bee7f5ac0f990a48f033919fd418b
   subpackages:
   - context
 testImports:

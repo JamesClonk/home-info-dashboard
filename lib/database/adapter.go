@@ -9,13 +9,14 @@ import (
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
 )
 
-type Adapter struct {
-	Database *sql.DB
-	URI      string
-	Type     string
+type Adapter interface {
+	GetDatabase() *sql.DB
+	GetURI() string
+	GetType() string
+	RunMigrations(string)
 }
 
-func NewAdapter() (db *Adapter) {
+func NewAdapter() (db Adapter) {
 	var databaseType, databaseUri string
 
 	// get db type
@@ -25,16 +26,16 @@ func NewAdapter() (db *Adapter) {
 	vcap, err := cfenv.Current()
 	if err != nil {
 		log.Println("Could not parse VCAP environment variables")
-		log.Fatal(err)
+		log.Println(err)
+	} else {
+		services, err := vcap.Services.WithLabel("weatherdb")
+		if err != nil || len(services) != 1 {
+			log.Println("Could not find weatherdb service in VCAP_SERVICES")
+			log.Fatal(err)
+		}
+		service := services[0]
+		databaseUri = fmt.Sprintf("%v", service.Credentials["uri"])
 	}
-
-	services, err := vcap.Services.WithLabel("weatherdb")
-	if err != nil || len(services) != 1 {
-		log.Println("Could not find weatherdb service in VCAP_SERVICES")
-		log.Fatal(err)
-	}
-	service := services[0]
-	databaseUri = fmt.Sprintf("%v", service.Credentials["uri"])
 
 	// if WEATHERDB_URI is not yet set then try to read it from ENV
 	if len(databaseUri) == 0 {

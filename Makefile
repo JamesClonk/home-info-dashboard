@@ -1,13 +1,13 @@
-.PHONY: run gin binary setup glide test
+.PHONY: run dev binary setup glide test
 SHELL := /bin/bash
 
 all: run
 
-run:
+run: binary
 	source .env
-	go run main.go
+	./weather_app
 
-gin:
+dev:
 	source .env
 	gin --all run main.go
 
