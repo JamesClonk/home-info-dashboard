@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/anyandrea/weather_app/lib/env"
 	"github.com/urfave/negroni"
 )
 
@@ -38,11 +39,7 @@ func setupNegroni() *negroni.Negroni {
 }
 
 func startHTTPServer() *http.Server {
-	port := os.Getenv("PORT")
-	if len(port) == 0 {
-		port = "8080"
-	}
-	addr := ":" + port
+	addr := ":" + env.Get("PORT", "8080")
 	server := &http.Server{Addr: addr, Handler: setupNegroni()}
 
 	go func() {
