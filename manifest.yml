@@ -17,5 +17,6 @@ applications:
     GOPACKAGENAME: github.com/anyandrea/weather_app
     DEFAULT_CANTON: Bern
     DEFAULT_CITY: Grächwil
+    WEATHERDB_TYPE: mysql
   command: weather_app
   path: .
