@@ -35,9 +35,5 @@ jobs:
         name: appcloud push
         command: |
           if [ "${CIRCLE_BRANCH}" == "master" ]; then
-            wget 'https://cli.run.pivotal.io/stable?release=linux64-binary&version=6.32.0&source=github-rel' -qO cf-cli.tgz
-            tar -xvzf cf-cli.tgz && chmod +x cf && rm cf-cli.tgz
-            ./cf login -a "https://api.lyra-836.appcloud.swisscom.com" -u "${APC_USERNAME}" -p "${APC_PASSWORD}" -o "${APC_ORGANIZATION}" -s "${APC_SPACE}"
-            ./cf push
-            ./cf logout
+            scripts/deploy.sh
           fi
