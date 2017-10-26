@@ -48,7 +48,7 @@ func (adapter *MysqlAdapter) RunMigrations(basePath string) {
 		log.Fatalln(err)
 	}
 
-	m, err := migrate.NewWithDatabaseInstance(fmt.Sprintf("file://%s/postgres", basePath), "mysql", driver)
+	m, err := migrate.NewWithDatabaseInstance(fmt.Sprintf("file://%s/mysql", basePath), "mysql", driver)
 	if err != nil {
 		log.Println("Could not create database migration instance")
 		log.Fatalln(err)

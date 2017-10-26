@@ -37,23 +37,38 @@ rm -f cf-cli.tgz || true
 
 ./cf login -a "https://api.lyra-836.appcloud.swisscom.com" -u "${APC_USERNAME}" -p "${APC_PASSWORD}" -o "${APC_ORGANIZATION}" -s "${APC_SPACE}"
 
-# make sure routes would be ready
+# make sure routes will be ready
 ./cf create-route "${APC_SPACE}" scapp.io --hostname weather-app
 ./cf create-route "${APC_SPACE}" applicationcloud.io --hostname weather-app
 ./cf create-route "${APC_SPACE}" scapp.io --hostname weatherapp
 ./cf create-route "${APC_SPACE}" applicationcloud.io --hostname weatherapp
 ./cf create-route "${APC_SPACE}" scapp.io --hostname smarttemperature
 ./cf create-route "${APC_SPACE}" applicationcloud.io --hostname smarttemperature
+./cf create-route "${APC_SPACE}" scapp.io --hostname weather-app-blue-green
+./cf create-route "${APC_SPACE}" applicationcloud.io --hostname weather-app-blue-green
+sleep 2
 
 # secure working app
 ./cf rename weather_app weather_app_old || true
 ./cf unmap-route weather_app_old scapp.io --hostname weather-app-blue-green || true
+sleep 2
 
 # push new app
 ./cf push weather_app_new --no-route
-./cf map-route weather_app scapp.io --hostname weather-app-blue-green
+./cf map-route weather_app_new scapp.io --hostname weather-app-blue-green
+./cf map-route weather_app_new applicationcloud.io --hostname weather-app-blue-green
+sleep 5
+
+# test app
+response=$(curl -sIL -w "%{http_code}" -o /dev/null "weather-app-blue-green.scapp.io")
+if [[ "${response}" != "200" ]]; then
+    ./cf delete -f weather_app_new || true
+    echo "App did not respond as expected, HTTP [${response}]"
+    exit 1
+fi
 
 # finish blue-green deployment of app
+./cf delete -f weather_app || true
 ./cf rename weather_app_new weather_app
 ./cf map-route weather_app scapp.io --hostname weather-app
 ./cf map-route weather_app applicationcloud.io --hostname weather-app
@@ -62,7 +77,8 @@ rm -f cf-cli.tgz || true
 ./cf map-route weather_app scapp.io --hostname smarttemperature
 ./cf map-route weather_app applicationcloud.io --hostname smarttemperature
 ./cf unmap-route weather_app scapp.io --hostname weather-app-blue-green || true
-./cf delete -f -r weather_app_old
+./cf unmap-route weather_app applicationcloud.io --hostname weather-app-blue-green || true
+./cf delete -f weather_app_old
 
 ./cf logout
 

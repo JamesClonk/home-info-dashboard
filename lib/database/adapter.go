@@ -34,6 +34,16 @@ func NewAdapter() (db Adapter) {
 			log.Fatal(err)
 		}
 		databaseUri = fmt.Sprintf("%v", service.Credentials["uri"])
+
+		// stupid servicebroker is giving us an improperly formatted DSN
+		if databaseType == "mysql" {
+			databaseUri = fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?multiStatements=true",
+				service.Credentials["username"],
+				service.Credentials["password"],
+				service.Credentials["hostname"],
+				service.Credentials["port"],
+				service.Credentials["database"])
+		}
 	}
 
 	// if WEATHERDB_URI is not yet set then try to read it from ENV
