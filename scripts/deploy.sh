@@ -80,6 +80,10 @@ fi
 ./cf unmap-route weather_app applicationcloud.io --hostname weather-app-blue-green || true
 ./cf delete -f weather_app_old
 
+# show status
+./cf apps
+./cf app weather_app
+
 ./cf logout
 
 rm -f cf || true
