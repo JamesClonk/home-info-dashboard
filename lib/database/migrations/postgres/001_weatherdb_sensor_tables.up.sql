@@ -1,7 +1,7 @@
 -- sensor
 CREATE TABLE IF NOT EXISTS sensor (
     pk_sensor_id    SERIAL PRIMARY KEY,
-    name            TEXT NOT NULL UNIQUE,
+    name            VARCHAR(64) NOT NULL UNIQUE,
     type            TEXT NOT NULL,
     unit            TEXT NOT NULL,
     description     TEXT NOT NULL
