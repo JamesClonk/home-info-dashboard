@@ -3,8 +3,9 @@ import:
 - package: github.com/gorilla/mux
   version: ^1.5.0
 - package: github.com/urfave/negroni
-  version: master
+  version: 079cf0c7a6b0145ebcf4103ec90380370cd89917
 - package: github.com/unrolled/render
+  version: 32bf1ea2a39e4e796d9040b5cf235258cee978c1
 - package: github.com/pmezard/go-difflib
   version: ^1.0.0
 - package: github.com/davecgh/go-spew
@@ -16,6 +17,7 @@ import:
 - package: github.com/mattn/go-sqlite3
   version: ^1.3.0
 - package: github.com/lib/pq
+  version: b609790bd85edf8e9ab7e0f8912750a786177bcf
 - package: github.com/mattes/migrate
   version: 8b5365e62cb4ce94f42c2f2866d73aaab092c59d
 testImport:
