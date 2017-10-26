@@ -6,8 +6,11 @@ applications:
   instances: 2
   buildpack: go_buildpack
   hosts:
+  - weather-app
   - weatherapp
   - smarttemperature
+  # for blue-green deployment
+  - weather-app-blue-green
   domains:
   - scapp.io
   - applicationcloud.io

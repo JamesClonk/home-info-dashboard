@@ -8,6 +8,7 @@ run: binary
 	./weather_app
 
 dev:
+	rm -f gin-bin || true
 	source .env
 	gin --all run main.go
 

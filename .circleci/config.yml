@@ -35,5 +35,6 @@ jobs:
         name: appcloud push
         command: |
           if [ "${CIRCLE_BRANCH}" == "master" ]; then
+            chmod +x scripts/deploy.sh
             scripts/deploy.sh
           fi
