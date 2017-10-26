@@ -28,13 +28,22 @@ func NewAdapter() (db Adapter) {
 		log.Println("Could not parse VCAP environment variables")
 		log.Println(err)
 	} else {
-		services, err := vcap.Services.WithLabel("weatherdb")
-		if err != nil || len(services) != 1 {
+		service, err := vcap.Services.WithName("weatherdb")
+		if err != nil {
 			log.Println("Could not find weatherdb service in VCAP_SERVICES")
 			log.Fatal(err)
 		}
-		service := services[0]
 		databaseUri = fmt.Sprintf("%v", service.Credentials["uri"])
+
+		// stupid servicebroker is giving us an improperly formatted DSN
+		if databaseType == "mysql" {
+			databaseUri = fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?multiStatements=true",
+				service.Credentials["username"],
+				service.Credentials["password"],
+				service.Credentials["hostname"],
+				service.Credentials["port"],
+				service.Credentials["database"])
+		}
 	}
 
 	// if WEATHERDB_URI is not yet set then try to read it from ENV

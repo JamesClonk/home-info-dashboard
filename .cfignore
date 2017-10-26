@@ -6,6 +6,9 @@
 .travis.yml
 .circleci
 cf
+gin-bin
 Makefile
 Dockerfile
+LICENSE
+NOTICE
 _fixtures

@@ -14,9 +14,14 @@
 .glide/
 
 # binaries
+cf
 gin-bin
 weatherapp
 weather_app
+
+# stuff
+LICENSE
+NOTICE
 
 # archives
 *.zip
