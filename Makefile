@@ -10,7 +10,7 @@ dev:
 	scripts/dev.sh
 
 binary:
-	GOARCH=amd64 GOOS=linux go build -o weather_app
+	GOARCH=amd64 GOOS=linux go build -i -o weather_app
 
 setup:
 	go get -v -u github.com/codegangsta/gin
