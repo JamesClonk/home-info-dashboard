@@ -4,13 +4,10 @@ SHELL := /bin/bash
 all: run
 
 run: binary
-	source .env
-	./weather_app
+	scripts/run.sh
 
 dev:
-	rm -f gin-bin || true
-	source .env
-	gin --all run main.go
+	scripts/dev.sh
 
 binary:
 	GOARCH=amd64 GOOS=linux go build -o weather_app

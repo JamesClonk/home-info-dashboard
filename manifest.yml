@@ -21,5 +21,6 @@ applications:
     DEFAULT_CANTON: Bern
     DEFAULT_CITY: Grächwil
     WEATHERDB_TYPE: mysql
+    WEATHERDB_MOCK_DATA: "true"
   command: weather_app
   path: .

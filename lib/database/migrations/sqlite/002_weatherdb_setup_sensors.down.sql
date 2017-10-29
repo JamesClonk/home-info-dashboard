@@ -1,0 +1,2 @@
+-- sensors
+delete from sensor;
