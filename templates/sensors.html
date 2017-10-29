@@ -1,0 +1,49 @@
+<section class="section">
+  <div class="container">
+    <label class="label">Sensors</label>
+    <table class="table is-bordered is-striped">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Unit</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .Content.Sensors }}
+        <tr>
+          <td>{{ .Id }}</td>
+          <td>{{ .Name }}</td>
+          <td>{{ .Type }}</td>
+          <td>{{ .Unit }}</td>
+          <td>{{ .Description }}</td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table>
+
+    {{ range .Content.Sensors }}
+    <label class="label">{{ .Name }} (Id: {{ .Id }})</label>
+    <table class="table is-bordered is-striped">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ with index $.Content.SensorData .Id }}
+        {{ range . }}
+        <tr>
+          <td>{{ .Timestamp.Format `2006-01-02 15:04:05` }}</td>
+          <td>{{ .Value }}{{ if ne .Type `state` }} {{ .Unit }}{{ end }}</td>
+        </tr>
+        {{ end }}
+        {{ end }}
+      </tbody>
+    </table>
+    {{ end }}
+  </div>
+</section>

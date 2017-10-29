@@ -17,7 +17,7 @@ func setupRoutes(router *mux.Router) *mux.Router {
 	router.HandleFunc("/", IndexHandler)
 	router.HandleFunc("/error", ErrorHandler)
 
-	router.HandleFunc("/metrics", MetricsHandler)
+	router.HandleFunc("/sensors", SensorsHandler)
 
 	router.HandleFunc("/forecasts", ForecastsHandler)
 	router.HandleFunc("/forecasts/{canton}", ForecastsHandler)

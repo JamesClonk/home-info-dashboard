@@ -54,10 +54,10 @@ func Error(rw http.ResponseWriter, err error) {
 	r.HTML(rw, http.StatusInternalServerError, "error", page)
 }
 
-func MetricsHandler(rw http.ResponseWriter, req *http.Request) {
+func SensorsHandler(rw http.ResponseWriter, req *http.Request) {
 	page := &Page{
-		Title:  "Weather App - Metrics",
-		Active: "metrics",
+		Title:  "Weather App - Sensors",
+		Active: "sensors",
 	}
 
 	sensors, err := wdb.GetSensors()
@@ -66,12 +66,31 @@ func MetricsHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	data := make(map[int][]*weatherdb.SensorData, 0)
+	for _, sensor := range sensors {
+		d, err := wdb.GetSensorData(sensor.Id, 10)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+
+		if env.Get("WEATHERDB_MOCK_DATA", "false") == "true" {
+			if len(d) == 0 {
+				wdb.GenerateSensorValues(sensor.Id, 25)
+			}
+		}
+
+		data[sensor.Id] = d
+	}
+
 	page.Content = struct {
-		Sensors []*weatherdb.Sensor
+		Sensors    []*weatherdb.Sensor
+		SensorData map[int][]*weatherdb.SensorData
 	}{
 		sensors,
+		data,
 	}
-	r.HTML(rw, http.StatusOK, "metrics", page)
+	r.HTML(rw, http.StatusOK, "sensors", page)
 }
 
 func ForecastsHandler(rw http.ResponseWriter, req *http.Request) {
