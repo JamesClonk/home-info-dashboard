@@ -41,6 +41,18 @@ func setupDatabase() {
 	adapter := database.NewAdapter()
 	adapter.RunMigrations("lib/database/migrations")
 	wdb = weatherdb.NewWeatherDB(adapter)
+
+	// generate fake data
+	if env.Get("WEATHERDB_MOCK_DATA", "false") == "true" {
+		sensors, err := wdb.GetSensors()
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, sensor := range sensors {
+			wdb.DropSensorValues(sensor.Id)
+			wdb.GenerateSensorValues(sensor.Id, 50)
+		}
+	}
 }
 
 func setupNegroni() *negroni.Negroni {

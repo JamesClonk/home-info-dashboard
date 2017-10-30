@@ -2,10 +2,17 @@ package weatherdb
 
 import "time"
 
+type SensorType struct {
+	Id          int    `json:"id" xml:"id,attr"`
+	Type        string `json:"type" xml:"type"`
+	Description string `json:"description" xml:"description"`
+}
+
 type Sensor struct {
 	Id          int    `json:"id" xml:"id,attr"`
 	Name        string `json:"name" xml:"name"`
 	Type        string `json:"type" xml:"type"`
+	TypeId      string `json:"type_id" xml:"type_id,attr"`
 	Unit        string `json:"unit" xml:"unit"`
 	Description string `json:"description" xml:"description"`
 }

@@ -73,13 +73,6 @@ func SensorsHandler(rw http.ResponseWriter, req *http.Request) {
 			Error(rw, err)
 			return
 		}
-
-		if env.Get("WEATHERDB_MOCK_DATA", "false") == "true" {
-			if len(d) == 0 {
-				wdb.GenerateSensorValues(sensor.Id, 25)
-			}
-		}
-
 		data[sensor.Id] = d
 	}
 
