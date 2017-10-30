@@ -1,12 +1,25 @@
+-- sensor_types
+INSERT INTO sensor_type (type, description)
+VALUES('window_state', 'Shows open/closed state of windows');
+
+INSERT INTO sensor_type (type, description)
+VALUES('door_state', 'Shows open/closed state of doors');
+
+INSERT INTO sensor_type (type, description)
+VALUES('temperature', 'Shows temperature');
+
+INSERT INTO sensor_type (type, description)
+VALUES('humidity', 'Shows air humidity');
+
 -- sensors
-INSERT INTO sensor (name, type, unit, description)
-VALUES('roof window #1', 'state', 'closed', 'Shows open/closed state of roof window');
+INSERT INTO sensor (name, fk_sensor_type_id, unit, description)
+VALUES('roof window #1', (select pk_sensor_type_id from sensor_type where type = 'window_state'), 'closed', 'Shows open/closed state of roof window');
 
-INSERT INTO sensor (name, type, unit, description)
-VALUES('roof window #2', 'state', 'closed', 'Shows open/closed state of roof window');
+INSERT INTO sensor (name, fk_sensor_type_id, unit, description)
+VALUES('roof window #2', (select pk_sensor_type_id from sensor_type where type = 'window_state'), 'closed', 'Shows open/closed state of roof window');
 
-INSERT INTO sensor (name, type, unit, description)
-VALUES('temperature #1', 'temperature', 'celsius', 'Shows temperature');
+INSERT INTO sensor (name, fk_sensor_type_id, unit, description)
+VALUES('temperature #1', (select pk_sensor_type_id from sensor_type where type = 'temperature'), 'celsius', 'Shows temperature');
 
-INSERT INTO sensor (name, type, unit, description)
-VALUES('humidity #1', 'humidity', 'percentage', 'Shows air humidity');
+INSERT INTO sensor (name, fk_sensor_type_id, unit, description)
+VALUES('humidity #1', (select pk_sensor_type_id from sensor_type where type = 'humidity'), 'percentage', 'Shows air humidity');
