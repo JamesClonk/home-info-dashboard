@@ -13,3 +13,15 @@
     </article>
   </div>
 </section>
+
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      {{ range .Content.Windows }}
+      <div class="column is-narrow">
+        <img src="/images/{{ .Image }}" alt="{{ .Title }}">
+      </div>
+      {{ end }}
+    </div>
+  </div>
+</section>
