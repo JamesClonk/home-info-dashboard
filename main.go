@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/anyandrea/weather_app/lib/database"
@@ -40,8 +41,10 @@ func setupDatabase() {
 	// setup weather database
 	adapter := database.NewAdapter()
 	if err := adapter.RunMigrations("lib/database/migrations"); err != nil {
-		log.Println("Could not run database migrations")
-		log.Fatal(err)
+		if !strings.Contains(err.Error(), "no change") {
+			log.Println("Could not run database migrations")
+			log.Fatal(err)
+		}
 	}
 	wdb = weatherdb.NewWeatherDB(adapter)
 
