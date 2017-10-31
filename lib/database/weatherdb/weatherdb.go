@@ -11,6 +11,9 @@ import (
 )
 
 type WeatherDB interface {
+	GetTemperature() (int64, error)
+	GetWindowStates() ([]*Window, error)
+	//GetDoorStates() ([]*Door, error)
 	GetSensors() ([]*Sensor, error)
 	GetSensor(id int) (*Sensor, error)
 	GetSensorType(id int) (*SensorType, error)
@@ -29,6 +32,65 @@ type weatherDB struct {
 
 func NewWeatherDB(adapter database.Adapter) WeatherDB {
 	return &weatherDB{adapter.GetDatabase(), adapter.GetType()}
+}
+
+func (wdb *weatherDB) GetTemperature() (int64, error) {
+	rows, err := wdb.Query(`
+		select sd.value
+		from sensor_data sd
+		join sensor s on s.pk_sensor_id = sd.fk_sensor_id
+		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
+		where st.type = 'temperature'
+		order by s.name asc, sd.timestamp desc
+		limit 1`)
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+
+	var temperature int64
+	if rows.Next() {
+		if err := rows.Scan(&temperature); err != nil {
+			return 0, err
+		}
+	}
+	return temperature, nil
+}
+
+func (wdb *weatherDB) GetWindowStates() ([]*Window, error) {
+	sensors, err := wdb.GetSensors()
+	if err != nil {
+		return nil, err
+	}
+
+	var windows []*Window
+	for _, sensor := range sensors {
+		if sensor.Type == "window_state" {
+			values, err := wdb.GetSensorValues(sensor.Id, 1)
+			if err != nil {
+				return nil, err
+			}
+
+			if len(values) > 0 {
+				var image string
+				switch values[0].Value {
+				case 0:
+					temp, err := wdb.GetTemperature()
+					if err != nil {
+						return nil, err
+					}
+					image = "window_open_rainy.png"
+					if temp > 15 { // TODO: use weather status from weatherstation API data, if it's raining or not, not temperature, that's silly!
+						image = "window_open_sunny.png"
+					}
+				case 1:
+					image = "window_closed.png"
+				}
+				windows = append(windows, &Window{Image: image, Title: sensor.Name})
+			}
+		}
+	}
+	return windows, nil
 }
 
 func (wdb *weatherDB) GetSensors() ([]*Sensor, error) {

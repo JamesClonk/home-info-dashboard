@@ -33,6 +33,18 @@ func IndexHandler(rw http.ResponseWriter, req *http.Request) {
 		Title:  "Weather App",
 		Active: "home",
 	}
+
+	windows, err := wdb.GetWindowStates()
+	if err != nil {
+		Error(rw, err)
+		return
+	}
+
+	page.Content = struct {
+		Windows []*weatherdb.Window
+	}{
+		windows,
+	}
 	r.HTML(rw, http.StatusOK, "index", page)
 }
 
