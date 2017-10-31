@@ -2,7 +2,8 @@
 CREATE TABLE IF NOT EXISTS sensor_type (
     pk_sensor_type_id INTEGER NOT NULL AUTO_INCREMENT,
     type              VARCHAR(32) NOT NULL UNIQUE,
-    description       TEXT NOT NULL
+    description       TEXT NOT NULL,
+    PRIMARY KEY (pk_sensor_type_id)
 );
 
 -- sensor

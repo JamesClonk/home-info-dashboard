@@ -41,7 +41,7 @@ func (adapter *PostgresAdapter) GetType() string {
 	return adapter.Type
 }
 
-func (adapter *PostgresAdapter) RunMigrations(basePath string) {
+func (adapter *PostgresAdapter) RunMigrations(basePath string) error {
 	driver, err := postgres.WithInstance(adapter.Database, &postgres.Config{})
 	if err != nil {
 		log.Println("Could not create database migration driver")
@@ -54,5 +54,5 @@ func (adapter *PostgresAdapter) RunMigrations(basePath string) {
 		log.Fatalln(err)
 	}
 
-	m.Up()
+	return m.Up()
 }

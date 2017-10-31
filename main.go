@@ -39,13 +39,17 @@ func main() {
 func setupDatabase() {
 	// setup weather database
 	adapter := database.NewAdapter()
-	adapter.RunMigrations("lib/database/migrations")
+	if err := adapter.RunMigrations("lib/database/migrations"); err != nil {
+		log.Println("Could not run database migrations")
+		log.Fatal(err)
+	}
 	wdb = weatherdb.NewWeatherDB(adapter)
 
 	// generate fake data
 	if env.Get("WEATHERDB_MOCK_DATA", "false") == "true" {
 		sensors, err := wdb.GetSensors()
 		if err != nil {
+			log.Println("Could not get sensors from database")
 			log.Fatal(err)
 		}
 		for _, sensor := range sensors {

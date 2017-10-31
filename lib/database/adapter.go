@@ -13,7 +13,7 @@ type Adapter interface {
 	GetDatabase() *sql.DB
 	GetURI() string
 	GetType() string
-	RunMigrations(string)
+	RunMigrations(string) error
 }
 
 func NewAdapter() (db Adapter) {
