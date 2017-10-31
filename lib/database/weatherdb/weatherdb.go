@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/anyandrea/weather_app/lib/database"
@@ -197,7 +198,7 @@ func (wdb *weatherDB) GenerateSensorValues(id, num int) error {
 	rand.Seed(time.Now().Unix())
 	for i := 0; i < num; i++ {
 		value := rand.Intn(100)
-		if sensor.Type == "state" {
+		if strings.Contains(sensor.Type, "state") {
 			value = value % 2
 		}
 		timestamp := time.Unix(rand.Int63n(time.Now().Unix()-94608000)+94608000, 0)

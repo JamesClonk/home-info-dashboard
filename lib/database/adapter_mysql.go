@@ -41,7 +41,7 @@ func (adapter *MysqlAdapter) GetType() string {
 	return adapter.Type
 }
 
-func (adapter *MysqlAdapter) RunMigrations(basePath string) {
+func (adapter *MysqlAdapter) RunMigrations(basePath string) error {
 	driver, err := mysql.WithInstance(adapter.Database, &mysql.Config{})
 	if err != nil {
 		log.Println("Could not create database migration driver")
@@ -54,5 +54,5 @@ func (adapter *MysqlAdapter) RunMigrations(basePath string) {
 		log.Fatalln(err)
 	}
 
-	m.Up()
+	return m.Up()
 }

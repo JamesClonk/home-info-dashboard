@@ -47,7 +47,7 @@ func (adapter *SQLiteAdapter) GetType() string {
 	return adapter.Type
 }
 
-func (adapter *SQLiteAdapter) RunMigrations(basePath string) {
+func (adapter *SQLiteAdapter) RunMigrations(basePath string) error {
 	driver, err := sqlite.WithInstance(adapter.Database, &sqlite.Config{})
 	if err != nil {
 		log.Println("Could not create database migration driver")
@@ -60,5 +60,5 @@ func (adapter *SQLiteAdapter) RunMigrations(basePath string) {
 		log.Fatalln(err)
 	}
 
-	m.Up()
+	return m.Up()
 }

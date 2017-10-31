@@ -1,4 +1,5 @@
-.env
+.env_mysql
+.env_sqlite
 .git
 .gitmodules
 .gitignore
