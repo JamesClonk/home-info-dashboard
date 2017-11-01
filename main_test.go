@@ -18,7 +18,12 @@ func init() {
 	os.Setenv("PORT", "8080")
 	os.Setenv("DEFAULT_CANTON", "Bern")
 	os.Setenv("DEFAULT_CITY", "Bern")
+	os.Setenv("WEATHERDB_TYPE", "sqlite")
+	os.Setenv("WEATHERDB_URI", "sqlite3://_fixtures/test.db")
+	os.Setenv("WEATHERDB_TYPE", "sqlite")
+	setupDatabase()
 	n = setupNegroni()
+
 }
 
 func Test_Main_404(t *testing.T) {
