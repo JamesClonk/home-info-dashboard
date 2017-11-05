@@ -21,8 +21,8 @@ func init() {
 	os.Setenv("WEATHERDB_TYPE", "sqlite")
 	os.Setenv("WEATHERDB_URI", "sqlite3://_fixtures/test.db")
 	os.Setenv("WEATHERDB_TYPE", "sqlite")
-	setupDatabase()
-	n = setupNegroni()
+	db := setupDatabase()
+	n = setupNegroni(db)
 
 }
 
