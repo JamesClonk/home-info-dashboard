@@ -12,22 +12,20 @@ import (
 	"github.com/anyandrea/weather_app/lib/database"
 	"github.com/anyandrea/weather_app/lib/database/weatherdb"
 	"github.com/anyandrea/weather_app/lib/env"
+	"github.com/anyandrea/weather_app/lib/web/router"
 	"github.com/urfave/negroni"
 )
 
-var (
-	wdb weatherdb.WeatherDB
-)
-
 func main() {
-	setupDatabase()
+	env.MustGet("WEATHERAPI_PASSWORD")
+	wdb := setupDatabase()
 
 	// setup SIGINT catcher for graceful shutdown
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 
 	// start a http server with negroni
-	server := startHTTPServer()
+	server := startHTTPServer(wdb)
 
 	// wait for SIGINT
 	<-stop
@@ -37,7 +35,7 @@ func main() {
 	log.Println("Server gracefully stopped")
 }
 
-func setupDatabase() {
+func setupDatabase() weatherdb.WeatherDB {
 	// setup weather database
 	adapter := database.NewAdapter()
 	if err := adapter.RunMigrations("lib/database/migrations"); err != nil {
@@ -46,7 +44,7 @@ func setupDatabase() {
 			log.Fatal(err)
 		}
 	}
-	wdb = weatherdb.NewWeatherDB(adapter)
+	wdb := weatherdb.NewWeatherDB(adapter)
 
 	// generate fake data
 	if env.Get("WEATHERDB_MOCK_DATA", "false") == "true" {
@@ -60,21 +58,22 @@ func setupDatabase() {
 			wdb.GenerateSensorValues(sensor.Id, 50)
 		}
 	}
+
+	return wdb
 }
 
-func setupNegroni() *negroni.Negroni {
+func setupNegroni(wdb weatherdb.WeatherDB) *negroni.Negroni {
 	n := negroni.Classic()
 
-	r := newRouter()
-	setupRoutes(r)
+	r := router.New(wdb)
 	n.UseHandler(r)
 
 	return n
 }
 
-func startHTTPServer() *http.Server {
+func startHTTPServer(wdb weatherdb.WeatherDB) *http.Server {
 	addr := ":" + env.Get("PORT", "8080")
-	server := &http.Server{Addr: addr, Handler: setupNegroni()}
+	server := &http.Server{Addr: addr, Handler: setupNegroni(wdb)}
 
 	go func() {
 		log.Printf("Listening on http://0.0.0.0%s\n", addr)
