@@ -12,9 +12,7 @@
       </div>
     </article>
   </div>
-</section>
 
-<section class="section">
   <div class="container">
     <div class="columns">
       {{ range .Content.Windows }}
@@ -23,5 +21,71 @@
       </div>
       {{ end }}
     </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <canvas id="myChart" width="400" height="200"></canvas>
+    <script>
+    var data = {
+        labels: ["January", "February", "March", "April", "May", "June", "July"],
+        datasets: [
+            {
+                label: "Humidity",
+                yAxisID: 'H',
+                backgroundColor: "rgba(100,100,255,0.2)",
+                borderColor: "rgba(100,100,255,0.5)",
+                data: [21, 25, 33, 41, 44, 59, 55]
+            },
+            {
+                label: "Temperature",
+                yAxisID: 'T',
+                backgroundColor: "rgba(255,100,100,0.2)",
+                borderColor: "rgba(255,100,100,0.5)",
+                data: [2, 6, 11, 16, 21, 23, 25]
+            }
+        ]
+    };
+
+    var ctx = document.getElementById("myChart").getContext('2d');
+    var myChart = new Chart.Line(ctx, {
+        data: data,
+        options: {
+            tooltips: {
+                callbacks: {
+                    label: function (t, d) {
+                        if (t.datasetIndex === 0) {
+                            return t.yLabel + '%'
+                        } else if (t.datasetIndex === 1) {
+                            return t.yLabel + '° Celsius'
+                        }
+                    }
+                }
+            },
+            scales: {
+                yAxes: [{
+                    id: 'H',
+                    type: 'linear',
+                    position: 'right',
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return value + '%';
+                        }
+                    }
+                },{
+                    id: 'T',
+                    type: 'linear',
+                    position: 'left',
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return value + '°';
+                        }
+                    }
+                }]
+            }
+        }
+    });
+    </script>
   </div>
 </section>
