@@ -1,6 +1,8 @@
-hash: c81525b1a478b2fcd2494cd22185dd82e91b3279726947b4be59f554c4f55baa
-updated: 2017-10-25T18:29:15.320669344+02:00
+hash: fec92787809be6178cac9e8c9f03fe8b3bb8e5b1fd23e55c40af0fda808fb518
+updated: 2017-11-05T18:16:52.324525956+01:00
 imports:
+- name: github.com/abbot/go-http-auth
+  version: 0ddd408d5d60ea76e320503cc7dd091992dee608
 - name: github.com/cloudfoundry-community/go-cfenv
   version: f920e9562d5f951cbf11785728f67258c38a10d0
 - name: github.com/davecgh/go-spew
@@ -38,8 +40,13 @@ imports:
   version: 32bf1ea2a39e4e796d9040b5cf235258cee978c1
 - name: github.com/urfave/negroni
   version: 079cf0c7a6b0145ebcf4103ec90380370cd89917
+- name: golang.org/x/crypto
+  version: bd6f299fb381e4c3393d1c4b1f0b94f5e77650c8
+  subpackages:
+  - bcrypt
+  - blowfish
 - name: golang.org/x/net
-  version: 4b14673ba32bee7f5ac0f990a48f033919fd418b
+  version: 01c190206fbdffa42f334f4b2bf2220f50e64920
   subpackages:
   - context
 testImports:
