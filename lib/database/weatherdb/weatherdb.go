@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/anyandrea/weather_app/lib/database"
+	"github.com/anyandrea/weather_app/lib/util"
 )
 
 type WeatherDB interface {
@@ -72,19 +73,9 @@ func (wdb *weatherDB) GetWindowStates() ([]*Window, error) {
 			}
 
 			if len(values) > 0 {
-				var image string
-				switch values[0].Value {
-				case 0:
-					temp, err := wdb.GetTemperature()
-					if err != nil {
-						return nil, err
-					}
-					image = "window_open_rainy.png"
-					if temp > 15 { // TODO: use weather status from weatherstation API data, if it's raining or not, not temperature, that's silly!
-						image = "window_open_sunny.png"
-					}
-				case 1:
-					image = "window_closed.png"
+				image, err := util.GetWindowImage(values[0].Value)
+				if err != nil {
+					return nil, err
 				}
 				windows = append(windows, &Window{Image: image, Title: sensor.Name})
 			}

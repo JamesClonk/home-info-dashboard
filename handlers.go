@@ -6,7 +6,8 @@ import (
 	"time"
 
 	"github.com/anyandrea/weather_app/lib/database/weatherdb"
-	"github.com/anyandrea/weather_app/lib/env"
+	"github.com/anyandrea/weather_app/lib/forecasts"
+	"github.com/anyandrea/weather_app/lib/util"
 	"github.com/gorilla/mux"
 	"github.com/unrolled/render"
 )
@@ -105,7 +106,7 @@ func ForecastsHandler(rw http.ResponseWriter, req *http.Request) {
 		Active: "forecasts",
 	}
 
-	forecast, err := GetWeatherForecast(canton, city)
+	forecast, err := forecasts.Get(canton, city)
 	if err != nil {
 		page.Content = struct {
 			Canton string
@@ -123,7 +124,7 @@ func ForecastsHandler(rw http.ResponseWriter, req *http.Request) {
 	page.Content = struct {
 		Canton           string
 		City             string
-		Forecast         *WeatherForecast
+		Forecast         forecasts.WeatherForecast
 		Today            time.Time
 		Tomorrow         time.Time
 		DayAfterTomorrow time.Time
@@ -153,13 +154,5 @@ func getLocation(req *http.Request) (string, string) {
 		city = req.Form.Get("city")
 	}
 
-	// now, try to read defaults from ENV, with reasonable defaults otherwise
-	if len(canton) == 0 {
-		canton = env.Get("DEFAULT_CANTON", "Bern")
-	}
-	if len(city) == 0 {
-		city = env.Get("DEFAULT_CITY", "Bern")
-	}
-
-	return canton, city
+	return util.GetDefaultLocation(canton, city)
 }
