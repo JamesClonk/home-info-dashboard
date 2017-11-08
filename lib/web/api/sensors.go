@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func Sensors(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func GetSensors(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		sensors, err := wdb.GetSensors()
 		if err != nil {
@@ -22,7 +22,7 @@ func Sensors(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Req
 	}
 }
 
-func Sensor(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func GetSensor(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		var err error
 
@@ -53,7 +53,7 @@ func Sensor(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Requ
 	}
 }
 
-func SensorValues(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func GetSensorValues(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		var err error
 
@@ -92,6 +92,43 @@ func SensorValues(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *htt
 		}
 
 		web.Render().JSON(rw, http.StatusNotFound, nil)
+	}
+}
+
+func AddSensor(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+	return func(rw http.ResponseWriter, req *http.Request) {
+		req.ParseForm()
+		sensor := &weatherdb.Sensor{
+			Name:        req.Form.Get("name"),
+			Type:        req.Form.Get("type"),
+			TypeId:      req.Form.Get("type_id"),
+			Description: req.Form.Get("description"),
+		}
+
+		if err := wdb.InsertSensor(sensor); err != nil {
+			Error(rw, err)
+			return
+		}
+
+		web.Render().JSON(rw, http.StatusCreated, *sensor)
+	}
+}
+
+func AddSensorType(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+	return func(rw http.ResponseWriter, req *http.Request) {
+		req.ParseForm()
+		sensorType := &weatherdb.SensorType{
+			Type:        req.Form.Get("type"),
+			Unit:        req.Form.Get("unit"),
+			Description: req.Form.Get("description"),
+		}
+
+		if err := wdb.InsertSensorType(sensorType); err != nil {
+			Error(rw, err)
+			return
+		}
+
+		web.Render().JSON(rw, http.StatusCreated, *sensorType)
 	}
 }
 

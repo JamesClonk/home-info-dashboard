@@ -7,5 +7,5 @@ import (
 )
 
 func Error(rw http.ResponseWriter, err error) {
-	web.Render().JSON(rw, http.StatusInternalServerError, err)
+	web.Render().JSON(rw, http.StatusInternalServerError, err.Error())
 }

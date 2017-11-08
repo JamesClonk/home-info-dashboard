@@ -2,6 +2,7 @@
 CREATE TABLE IF NOT EXISTS sensor_type (
     pk_sensor_type_id INTEGER NOT NULL AUTO_INCREMENT,
     type              VARCHAR(32) NOT NULL UNIQUE,
+    unit              TEXT NOT NULL,
     description       TEXT NOT NULL,
     PRIMARY KEY (pk_sensor_type_id)
 );
@@ -11,7 +12,6 @@ CREATE TABLE IF NOT EXISTS sensor (
     pk_sensor_id        INTEGER NOT NULL AUTO_INCREMENT,
     name                VARCHAR(64) NOT NULL UNIQUE,
     fk_sensor_type_id   INTEGER NOT NULL,
-    unit                TEXT NOT NULL,
     description         TEXT NOT NULL,
     PRIMARY KEY (pk_sensor_id),
     FOREIGN KEY (fk_sensor_type_id) REFERENCES sensor_type (pk_sensor_type_id) ON DELETE CASCADE

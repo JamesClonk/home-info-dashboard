@@ -5,6 +5,7 @@ import "time"
 type SensorType struct {
 	Id          int    `json:"id" xml:"id,attr"`
 	Type        string `json:"type" xml:"type"`
+	Unit        string `json:"unit" xml:"unit"`
 	Description string `json:"description" xml:"description"`
 }
 
