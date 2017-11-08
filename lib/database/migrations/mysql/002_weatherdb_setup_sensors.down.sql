@@ -1,5 +1,5 @@
 -- sensors
-delete from sensor;
+DELETE FROM sensor;
 
 -- sensor_types
-delete from sensor_type;
+DELETE FROM sensor_type;

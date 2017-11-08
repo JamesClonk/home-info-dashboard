@@ -92,6 +92,5 @@ func Test_Main_Forecasts(t *testing.T) {
 	assert.Contains(t, body, `<h2 class="subtitle">Switzerland</h2>`)
 	assert.Contains(t, body, `<p>549m</p>`)
 	assert.Contains(t, body, `<a href="https://www.google.ch/maps/place/46.94809%C2%B0+7.44744%C2%B0" target="_blank" rel="noopener noreferrer">46.94809°/7.44744°</a>`)
-	assert.Contains(t, body, `<tr class="is-selected">`)
 	assert.Contains(t, body, `<p>Weather forecast from Yr, delivered by the Norwegian Meteorological Institute and the NRK<br/><a href="http://www.yr.no/place/Switzerland/Bern/Berne/">http://www.yr.no/place/Switzerland/Bern/Berne/</a></p>`)
 }

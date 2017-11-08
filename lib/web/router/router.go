@@ -31,16 +31,18 @@ func setupRoutes(wdb weatherdb.WeatherDB, router *mux.Router) *mux.Router {
 	router.HandleFunc("/forecasts/{canton}/{city}", html.Forecasts)
 
 	// API
-	router.HandleFunc("/sensor", api.Sensors(wdb)).Methods("GET")
-	router.HandleFunc("/sensor/all", api.Sensors(wdb)).Methods("GET")
-	router.HandleFunc("/sensor/list", api.Sensors(wdb)).Methods("GET")
-	router.HandleFunc("/sensor/{id}", api.Sensor(wdb)).Methods("GET")
+	router.HandleFunc("/sensor", api.GetSensors(wdb)).Methods("GET")
+	router.HandleFunc("/sensor/all", api.GetSensors(wdb)).Methods("GET")
+	router.HandleFunc("/sensor/list", api.GetSensors(wdb)).Methods("GET")
+	router.HandleFunc("/sensor/{id}", api.GetSensor(wdb)).Methods("GET")
 
-	router.HandleFunc("/sensor/{id}/values", api.SensorValues(wdb)).Methods("GET")
-	router.HandleFunc("/sensor/{id}/values/{limit}", api.SensorValues(wdb)).Methods("GET")
+	router.HandleFunc("/sensor/{id}/values", api.GetSensorValues(wdb)).Methods("GET")
+	router.HandleFunc("/sensor/{id}/values/{limit}", api.GetSensorValues(wdb)).Methods("GET")
 
 	// secured API
 	authenticator := auth.NewBasicAuthenticator("weatherapp", secret)
+	router.HandleFunc("/sensor", auth.JustCheck(authenticator, api.AddSensor(wdb))).Methods("POST")
+	router.HandleFunc("/sensor_type", auth.JustCheck(authenticator, api.AddSensorType(wdb))).Methods("POST")
 	router.HandleFunc("/sensor/{id}/value", auth.JustCheck(authenticator, api.AddSensorValue(wdb))).Methods("POST")
 
 	return router
