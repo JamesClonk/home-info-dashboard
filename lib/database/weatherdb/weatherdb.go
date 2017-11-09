@@ -27,8 +27,9 @@ type WeatherDB interface {
 	InsertSensor(*Sensor) error
 	InsertSensorType(*SensorType) error
 	InsertSensorValue(int, int, time.Time) error
-	GenerateSensorValues(int, int) error
+	DeleteSensor(int) error
 	DeleteSensorValues(int) error
+	GenerateSensorValues(int, int) error
 }
 
 type weatherDB struct {
@@ -356,6 +357,32 @@ func (wdb *weatherDB) InsertSensorValue(sensorId, value int, timestamp time.Time
 	return err
 }
 
+func (wdb *weatherDB) DeleteSensor(sensorId int) error {
+	stmt, err := wdb.Prepare(`
+		delete from sensor
+		where pk_sensor_id = ?`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(sensorId)
+	return err
+}
+
+func (wdb *weatherDB) DeleteSensorValues(sensorId int) error {
+	stmt, err := wdb.Prepare(`
+		delete from sensor_data
+		where fk_sensor_id = ?`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(sensorId)
+	return err
+}
+
 func (wdb *weatherDB) GenerateSensorValues(id, num int) error {
 	sensor, err := wdb.GetSensorById(id)
 	if err != nil {
@@ -375,17 +402,4 @@ func (wdb *weatherDB) GenerateSensorValues(id, num int) error {
 		}
 	}
 	return nil
-}
-
-func (wdb *weatherDB) DeleteSensorValues(sensorId int) error {
-	stmt, err := wdb.Prepare(`
-		delete from sensor_data
-		where fk_sensor_id = ?`)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(sensorId)
-	return err
 }

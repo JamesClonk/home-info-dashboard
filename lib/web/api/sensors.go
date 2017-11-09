@@ -70,3 +70,33 @@ func AddSensor(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.R
 		web.Render().JSON(rw, http.StatusCreated, *sensor)
 	}
 }
+
+func DeleteSensor(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+	return func(rw http.ResponseWriter, req *http.Request) {
+		var err error
+
+		vars := mux.Vars(req)
+		id := vars["id"]
+
+		if len(id) > 0 {
+			var sensorId int64
+			if len(id) > 0 {
+				sensorId, err = strconv.ParseInt(id, 10, 64)
+				if err != nil {
+					Error(rw, err)
+					return
+				}
+			}
+
+			if err := wdb.DeleteSensor(int(sensorId)); err != nil {
+				Error(rw, err)
+				return
+			}
+
+			web.Render().JSON(rw, http.StatusNoContent, nil)
+			return
+		}
+
+		web.Render().JSON(rw, http.StatusNotFound, nil)
+	}
+}
