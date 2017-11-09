@@ -31,6 +31,10 @@ func setupRoutes(wdb weatherdb.WeatherDB, router *mux.Router) *mux.Router {
 	router.HandleFunc("/forecasts/{canton}/{city}", html.Forecasts)
 
 	// API
+	router.HandleFunc("/sensor_type", api.GetSensorTypes(wdb)).Methods("GET")
+	router.HandleFunc("/sensor_type/all", api.GetSensorTypes(wdb)).Methods("GET")
+	router.HandleFunc("/sensor_type/list", api.GetSensorTypes(wdb)).Methods("GET")
+
 	router.HandleFunc("/sensor", api.GetSensors(wdb)).Methods("GET")
 	router.HandleFunc("/sensor/all", api.GetSensors(wdb)).Methods("GET")
 	router.HandleFunc("/sensor/list", api.GetSensors(wdb)).Methods("GET")
