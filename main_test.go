@@ -153,11 +153,25 @@ func Test_Main_Sensors(t *testing.T) {
 }
 
 func Test_Main_SensorValues(t *testing.T) {
-	// response := httptest.NewRecorder()
-	// req, err := http.NewRequest("GET", "/sensor/??/value", nil)
-	// if err != nil {
-	// 	t.Error(err)
-	// }
+	response := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/sensor/3/values", nil)
+	if err != nil {
+		t.Error(err)
+	}
 
-	// TODO: test create/read/delete
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body := response.Body.String()
+	assert.Contains(t, body, `
+  {
+    "timestamp": "1974-10-01T07:02:15+01:00",
+    "value": 15
+  },
+  {
+    "timestamp": "1973-07-30T15:47:18+01:00",
+    "value": 41
+  }`)
+
+	// TODO: test create/delete
 }
