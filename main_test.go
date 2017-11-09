@@ -1,9 +1,11 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/exec"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,9 +21,13 @@ func init() {
 	os.Setenv("DEFAULT_CANTON", "Bern")
 	os.Setenv("DEFAULT_CITY", "Bern")
 	os.Setenv("WEATHERDB_TYPE", "sqlite")
-	os.Setenv("WEATHERDB_URI", "sqlite3://_fixtures/test.db")
+	os.Setenv("WEATHERDB_URI", "sqlite3://_fixtures/temp.db")
 	os.Setenv("WEATHERDB_TYPE", "sqlite")
-	// TODO: copy & overwrite each time: _fixtures/fixtures.db to _fixtures/test.db
+
+	if err := exec.Command("cp", "-f", "_fixtures/test.db", "_fixtures/temp.db").Run(); err != nil {
+		log.Fatal(err)
+	}
+
 	db := setupDatabase()
 	n = setupNegroni(db)
 
