@@ -110,8 +110,47 @@ func Test_Main_Forecasts(t *testing.T) {
 }
 
 func Test_Main_SensorTypes(t *testing.T) {
+	// ----------------------- Unauthorized -----------------------
 	response := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", "/sensor_type", nil)
+	req, err := http.NewRequest("POST", "/sensor_type", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusUnauthorized, response.Code)
+
+	body := response.Body.String()
+	assert.Contains(t, response.Body.String(), `Unauthorized`)
+
+	// ----------------------- CREATE -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("POST", "/sensor_type", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.SetBasicAuth(testUser, testPassword)
+
+	form := url.Values{}
+	form.Add("type", "pressure")
+	form.Add("unit", "psi")
+	form.Add("description", "atmospheric pressure")
+	req.PostForm = form
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusCreated, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `{
+  "id": 5,
+  "type": "pressure",
+  "unit": "psi",
+  "description": "atmospheric pressure"
+}`)
+
+	// ----------------------- READ -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/sensor_type", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -119,7 +158,7 @@ func Test_Main_SensorTypes(t *testing.T) {
 	n.ServeHTTP(response, req)
 	assert.Equal(t, http.StatusOK, response.Code)
 
-	body := response.Body.String()
+	body = response.Body.String()
 	assert.Contains(t, body, `
     "type": "temperature",
     "unit": "celsius",
@@ -132,12 +171,8 @@ func Test_Main_SensorTypes(t *testing.T) {
     "description": "Shows air humidity"
   }`)
 
-	// TODO: test create/update/delete
-}
-
-func Test_Main_Sensors(t *testing.T) {
-	response := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", "/sensor", nil)
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/sensor_type/5", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -145,7 +180,96 @@ func Test_Main_Sensors(t *testing.T) {
 	n.ServeHTTP(response, req)
 	assert.Equal(t, http.StatusOK, response.Code)
 
+	body = response.Body.String()
+	assert.Contains(t, body, `{
+  "id": 5,
+  "type": "pressure",
+  "unit": "psi",
+  "description": "atmospheric pressure"
+}`)
+
+	// TODO: test update
+
+	// ----------------------- DELETE -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("DELETE", "/sensor_type/5", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.SetBasicAuth(testUser, testPassword)
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusNoContent, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `null`)
+
+	// is sensor_type gone?
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/sensor_type/5", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusInternalServerError, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `"sql: no rows in result set"`)
+}
+
+func Test_Main_Sensors(t *testing.T) {
+	// ----------------------- Unauthorized -----------------------
+	response := httptest.NewRecorder()
+	req, err := http.NewRequest("POST", "/sensor", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusUnauthorized, response.Code)
+
 	body := response.Body.String()
+	assert.Contains(t, response.Body.String(), `Unauthorized`)
+
+	// ----------------------- CREATE -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("POST", "/sensor", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.SetBasicAuth(testUser, testPassword)
+
+	form := url.Values{}
+	form.Add("name", "Badezimmer")
+	form.Add("type", "temperature")
+	form.Add("description", "Badezimmer Temperatur")
+	req.PostForm = form
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusCreated, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `{
+  "id": 5,
+  "name": "Badezimmer",
+  "type": "temperature",
+  "type_id": "3",
+  "unit": "celsius",
+  "description": "Badezimmer Temperatur"
+}`)
+
+	// ----------------------- READ -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/sensor", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body = response.Body.String()
 	assert.Contains(t, body, `
     "name": "temperature #1",
     "type": "temperature",
@@ -153,16 +277,60 @@ func Test_Main_Sensors(t *testing.T) {
     "unit": "celsius",
     "description": "Shows temperature"`)
 	assert.Contains(t, body, `
-  {
-    "id": 1,
-    "name": "roof window #1",
-    "type": "window_state",
-    "type_id": "1",
-    "unit": "closed",
-    "description": "Shows open/closed state of roof window"
-  }`)
+    "id": 5,
+    "name": "Badezimmer",
+    "type": "temperature",
+    "type_id": "3",
+    "unit": "celsius",
+    "description": "Badezimmer Temperatur"`)
 
-	// TODO: test create/update/delete
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/sensor/1", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `{
+  "id": 1,
+  "name": "roof window #1",
+  "type": "window_state",
+  "type_id": "1",
+  "unit": "closed",
+  "description": "Shows open/closed state of roof window"
+}`)
+
+	// TODO: test update
+
+	// ----------------------- DELETE -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("DELETE", "/sensor/5", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.SetBasicAuth(testUser, testPassword)
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusNoContent, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `null`)
+
+	// is sensor gone?
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/sensor/5", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusInternalServerError, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `"sql: no rows in result set"`)
 }
 
 func Test_Main_SensorValues(t *testing.T) {
@@ -203,7 +371,6 @@ func Test_Main_SensorValues(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	req.SetBasicAuth(testUser, testPassword)
 
 	n.ServeHTTP(response, req)
 	assert.Equal(t, http.StatusOK, response.Code)
@@ -220,5 +387,30 @@ func Test_Main_SensorValues(t *testing.T) {
     "value": 41
   }`)
 
-	// TODO: test delete
+	// ----------------------- DELETE -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("DELETE", "/sensor/3/values", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.SetBasicAuth(testUser, testPassword)
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusNoContent, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `null`)
+
+	// is everything gone?
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/sensor/3/values", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `[]`)
 }
