@@ -3,6 +3,7 @@ package weatherdb
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -33,6 +34,7 @@ type WeatherDB interface {
 	DeleteSensorType(int) error
 	DeleteSensorValues(int) error
 	GenerateSensorValues(int, int) error
+	Housekeeping(int, int) error
 }
 
 type weatherDB struct {
@@ -491,10 +493,87 @@ func (wdb *weatherDB) GenerateSensorValues(id, num int) error {
 		if strings.Contains(sensor.Type, "state") {
 			value = value % 2
 		}
-		timestamp := time.Unix(rand.Int63n(time.Now().Unix()-94608000)+94608000, 0)
+		timestamp := time.Unix(rand.Int63n(time.Now().Unix()-666666)+666666, 0).UTC()
 
 		if err := wdb.InsertSensorValue(id, value, timestamp); err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+func (wdb *weatherDB) Housekeeping(days, rows int) (err error) {
+	// housekeeping logic: select count(*) from sensor_data where timestamp < now - $days
+	// if count > $rows, then: delete from sensor_data where timestamp < now - $days
+	cutOff := time.Now().AddDate(0, -days, 0).UTC()
+
+	var getStmt, deleteStmt *sql.Stmt
+	if wdb.DatabaseType == "mysql" {
+		getStmt, err = wdb.Prepare(`
+		select count(*)
+		from sensor_data
+		where fk_sensor_id = ?
+		and unix_timestamp(timestamp) > unix_timestamp(date_sub(now(), interval ` + fmt.Sprintf("%v", days) + ` day))`)
+		deleteStmt, err = wdb.Prepare(`
+		delete from sensor_data
+		where fk_sensor_id = ?
+		and unix_timestamp(timestamp) < unix_timestamp(date_sub(now(), interval ` + fmt.Sprintf("%v", days) + ` day))`)
+	} else {
+		getStmt, err = wdb.Prepare(`
+		select count(*)
+		from sensor_data
+		where fk_sensor_id = ?
+		and timestamp > ?`)
+		deleteStmt, err = wdb.Prepare(`
+		delete from sensor_data
+		where fk_sensor_id = ?
+		and timestamp < ?`)
+	}
+	if err != nil {
+		return err
+	}
+	defer getStmt.Close()
+	defer deleteStmt.Close()
+
+	sensors, err := wdb.GetSensors()
+	if err != nil {
+		return err
+	}
+
+	for _, sensor := range sensors {
+		var row *sql.Rows
+		var err error
+		if wdb.DatabaseType == "mysql" {
+			row, err = getStmt.Query(sensor.Id)
+		} else {
+			row, err = getStmt.Query(sensor.Id, cutOff)
+		}
+		if err != nil {
+			return err
+		}
+		defer row.Close()
+
+		if row.Next() {
+			var count int64
+			if err := row.Scan(&count); err != nil {
+				return err
+			}
+
+			log.Printf("Housekeeping: Sensor [%s] has [%v] minimum rows ...\n", sensor.Name, count)
+
+			if count > int64(rows) {
+				log.Printf("Housekeeping: Will now delete excess rows of sensor [%s] ...\n", sensor.Name)
+
+				var err error
+				if wdb.DatabaseType == "mysql" {
+					_, err = deleteStmt.Exec(sensor.Id)
+				} else {
+					_, err = deleteStmt.Exec(sensor.Id, cutOff)
+				}
+				if err != nil {
+					return err
+				}
+			}
 		}
 	}
 	return nil

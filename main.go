@@ -59,6 +59,18 @@ func setupDatabase() weatherdb.WeatherDB {
 		}
 	}
 
+	// spawn housekeeping background job
+	go func(wdb weatherdb.WeatherDB) {
+		for {
+			// retention policy of 33 days and minimum 50'000 values
+			if err := wdb.Housekeeping(33, 50000); err != nil {
+				log.Println("Database housekeeping failed")
+				log.Fatal(err)
+			}
+			time.Sleep(12 * time.Hour)
+		}
+	}(wdb)
+
 	return wdb
 }
 
