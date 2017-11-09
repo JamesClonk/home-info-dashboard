@@ -54,7 +54,7 @@ func setupDatabase() weatherdb.WeatherDB {
 			log.Fatal(err)
 		}
 		for _, sensor := range sensors {
-			wdb.DropSensorValues(sensor.Id)
+			wdb.DeleteSensorValues(sensor.Id)
 			wdb.GenerateSensorValues(sensor.Id, 50)
 		}
 	}

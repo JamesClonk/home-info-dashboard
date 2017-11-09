@@ -17,9 +17,9 @@ type WeatherDB interface {
 	GetWindowStates() ([]*Window, error)
 	//GetDoorStates() ([]*Door, error)
 	GetSensors() ([]*Sensor, error)
-	GetSensor(int) (*Sensor, error)
+	GetSensorById(int) (*Sensor, error)
 	GetSensorByName(string) (*Sensor, error)
-	GetSensorType(int) (*SensorType, error)
+	GetSensorTypeById(int) (*SensorType, error)
 	GetSensorTypeByType(string) (*SensorType, error)
 	GetSensorTypes() ([]*SensorType, error)
 	GetSensorData(int, int) ([]*SensorData, error)
@@ -28,7 +28,7 @@ type WeatherDB interface {
 	InsertSensorType(*SensorType) error
 	InsertSensorValue(int, int, time.Time) error
 	GenerateSensorValues(int, int) error
-	DropSensorValues(int) error
+	DeleteSensorValues(int) error
 }
 
 type weatherDB struct {
@@ -111,7 +111,7 @@ func (wdb *weatherDB) GetSensors() ([]*Sensor, error) {
 	return ss, nil
 }
 
-func (wdb *weatherDB) GetSensor(id int) (*Sensor, error) {
+func (wdb *weatherDB) GetSensorById(id int) (*Sensor, error) {
 	stmt, err := wdb.Prepare(`
 		select s.pk_sensor_id, s.name, st.type, st.pk_sensor_type_id, st.unit, s.description
 		from sensor s
@@ -159,7 +159,7 @@ func (wdb *weatherDB) InsertSensor(sensor *Sensor) (err error) {
 	// figure out sensor type
 	var sensorType *SensorType
 	if sensorTypeId > 0 { // by id
-		sensorType, err = wdb.GetSensorType(int(sensorTypeId))
+		sensorType, err = wdb.GetSensorTypeById(int(sensorTypeId))
 		if err != nil {
 			return err
 		}
@@ -196,7 +196,7 @@ func (wdb *weatherDB) InsertSensor(sensor *Sensor) (err error) {
 	return nil
 }
 
-func (wdb *weatherDB) GetSensorType(id int) (*SensorType, error) {
+func (wdb *weatherDB) GetSensorTypeById(id int) (*SensorType, error) {
 	stmt, err := wdb.Prepare(`
 		select pk_sensor_type_id, type, unit, description
 		from sensor_type
@@ -357,7 +357,7 @@ func (wdb *weatherDB) InsertSensorValue(sensorId, value int, timestamp time.Time
 }
 
 func (wdb *weatherDB) GenerateSensorValues(id, num int) error {
-	sensor, err := wdb.GetSensor(id)
+	sensor, err := wdb.GetSensorById(id)
 	if err != nil {
 		return err
 	}
@@ -377,7 +377,7 @@ func (wdb *weatherDB) GenerateSensorValues(id, num int) error {
 	return nil
 }
 
-func (wdb *weatherDB) DropSensorValues(sensorId int) error {
+func (wdb *weatherDB) DeleteSensorValues(sensorId int) error {
 	stmt, err := wdb.Prepare(`
 		delete from sensor_data
 		where fk_sensor_id = ?`)

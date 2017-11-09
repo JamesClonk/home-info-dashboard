@@ -38,7 +38,7 @@ func GetSensor(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.R
 				}
 			}
 
-			sensor, err := wdb.GetSensor(int(sensorId))
+			sensor, err := wdb.GetSensorById(int(sensorId))
 			if err != nil {
 				Error(rw, err)
 				return
