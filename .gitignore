@@ -28,3 +28,6 @@ NOTICE
 *.tgz
 *.gz
 *.tar
+
+# temporary test database
+_fixtures/temp.db

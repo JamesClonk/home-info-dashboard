@@ -3,7 +3,6 @@ package router
 import (
 	"net/http"
 
-	auth "github.com/abbot/go-http-auth"
 	"github.com/anyandrea/weather_app/lib/database/weatherdb"
 	"github.com/anyandrea/weather_app/lib/util"
 	"github.com/anyandrea/weather_app/lib/web/api"
@@ -43,23 +42,26 @@ func setupRoutes(wdb weatherdb.WeatherDB, router *mux.Router) *mux.Router {
 	router.HandleFunc("/sensor/{id}/values/{limit}", api.GetSensorValues(wdb)).Methods("GET")
 
 	// secured API
-	authenticator := auth.NewBasicAuthenticator("weatherapp", secret)
-	router.HandleFunc("/sensor_type", auth.JustCheck(authenticator, api.AddSensorType(wdb))).Methods("POST")
-	router.HandleFunc("/sensor_type/{id}", auth.JustCheck(authenticator, api.DeleteSensorType(wdb))).Methods("DELETE")
+	router.HandleFunc("/sensor_type", basicAuth(api.AddSensorType(wdb))).Methods("POST")
+	router.HandleFunc("/sensor_type/{id}", basicAuth(api.DeleteSensorType(wdb))).Methods("DELETE")
 
-	router.HandleFunc("/sensor", auth.JustCheck(authenticator, api.AddSensor(wdb))).Methods("POST")
-	router.HandleFunc("/sensor/{id}", auth.JustCheck(authenticator, api.DeleteSensor(wdb))).Methods("DELETE")
+	router.HandleFunc("/sensor", basicAuth(api.AddSensor(wdb))).Methods("POST")
+	router.HandleFunc("/sensor/{id}", basicAuth(api.DeleteSensor(wdb))).Methods("DELETE")
 
-	router.HandleFunc("/sensor/{id}/value", auth.JustCheck(authenticator, api.AddSensorValue(wdb))).Methods("POST")
-	router.HandleFunc("/sensor/{id}/values", auth.JustCheck(authenticator, api.DeleteSensorValues(wdb))).Methods("DELETE")
+	router.HandleFunc("/sensor/{id}/value", basicAuth(api.AddSensorValue(wdb))).Methods("POST")
+	router.HandleFunc("/sensor/{id}/values", basicAuth(api.DeleteSensorValues(wdb))).Methods("DELETE")
 
 	return router
 }
 
-func secret(user, realm string) string {
-	username, password := util.GetUserAndPassword()
-	if user == username {
-		return password
+func basicAuth(fn http.HandlerFunc) http.HandlerFunc {
+	return func(rw http.ResponseWriter, req *http.Request) {
+		user, pass, _ := req.BasicAuth()
+		username, password := util.GetUserAndPassword()
+		if user != username && pass != password {
+			http.Error(rw, "Unauthorized.", 401)
+			return
+		}
+		fn(rw, req)
 	}
-	return ""
 }

@@ -85,10 +85,6 @@ type SliceOfStruct struct {
 	Value []Basic
 }
 
-type Func struct {
-	Foo func() string
-}
-
 type Tagged struct {
 	Extra string `mapstructure:"bar,what,what"`
 	Value string `mapstructure:"foo"`
@@ -116,8 +112,6 @@ type TypeConversionResult struct {
 	StringToUint       uint
 	StringToBool       bool
 	StringToFloat      float32
-	StringToStrSlice   []string
-	StringToIntSlice   []int
 	SliceToMap         map[string]interface{}
 	MapToSlice         []interface{}
 }
@@ -437,7 +431,7 @@ func TestDecode_DecodeHookType(t *testing.T) {
 func TestDecode_Nil(t *testing.T) {
 	t.Parallel()
 
-	var input interface{}
+	var input interface{} = nil
 	result := Basic{
 		Vstring: "foo",
 	}
@@ -485,42 +479,6 @@ func TestDecode_NilInterfaceHook(t *testing.T) {
 
 	if result.W != nil {
 		t.Errorf("W should be nil: %#v", result.W)
-	}
-}
-
-func TestDecode_FuncHook(t *testing.T) {
-	t.Parallel()
-
-	input := map[string]interface{}{
-		"foo": "baz",
-	}
-
-	decodeHook := func(f, t reflect.Type, v interface{}) (interface{}, error) {
-		if t.Kind() != reflect.Func {
-			return v, nil
-		}
-		val := v.(string)
-		return func() string { return val }, nil
-	}
-
-	var result Func
-	config := &DecoderConfig{
-		DecodeHook: decodeHook,
-		Result:     &result,
-	}
-
-	decoder, err := NewDecoder(config)
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
-
-	err = decoder.Decode(input)
-	if err != nil {
-		t.Fatalf("got an err: %s", err)
-	}
-
-	if result.Foo() != "baz" {
-		t.Errorf("Foo call result should be 'baz': %s", result.Foo())
 	}
 }
 
@@ -586,8 +544,6 @@ func TestDecode_TypeConversion(t *testing.T) {
 		"StringToUint":       "42",
 		"StringToBool":       "1",
 		"StringToFloat":      "42.42",
-		"StringToStrSlice":   "A",
-		"StringToIntSlice":   "42",
 		"SliceToMap":         []interface{}{},
 		"MapToSlice":         map[string]interface{}{},
 	}
@@ -626,8 +582,6 @@ func TestDecode_TypeConversion(t *testing.T) {
 		StringToUint:       42,
 		StringToBool:       true,
 		StringToFloat:      42.42,
-		StringToStrSlice:   []string{"A"},
-		StringToIntSlice:   []int{42},
 		SliceToMap:         map[string]interface{}{},
 		MapToSlice:         []interface{}{},
 	}

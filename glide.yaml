@@ -20,11 +20,6 @@ import:
   version: b609790bd85edf8e9ab7e0f8912750a786177bcf
 - package: github.com/mattes/migrate
   version: 8b5365e62cb4ce94f42c2f2866d73aaab092c59d
-- package: github.com/abbot/go-http-auth
-  version: ^0.4.0
-- package: golang.org/x/crypto
-  subpackages:
-  - bcrypt
 testImport:
 - package: github.com/stretchr/testify
   version: ^1.1.4
