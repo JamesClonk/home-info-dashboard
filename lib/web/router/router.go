@@ -45,11 +45,13 @@ func setupRoutes(wdb weatherdb.WeatherDB, router *mux.Router) *mux.Router {
 	// secured API
 	authenticator := auth.NewBasicAuthenticator("weatherapp", secret)
 	router.HandleFunc("/sensor_type", auth.JustCheck(authenticator, api.AddSensorType(wdb))).Methods("POST")
+	router.HandleFunc("/sensor_type/{id}", auth.JustCheck(authenticator, api.DeleteSensorType(wdb))).Methods("DELETE")
 
 	router.HandleFunc("/sensor", auth.JustCheck(authenticator, api.AddSensor(wdb))).Methods("POST")
 	router.HandleFunc("/sensor/{id}", auth.JustCheck(authenticator, api.DeleteSensor(wdb))).Methods("DELETE")
 
 	router.HandleFunc("/sensor/{id}/value", auth.JustCheck(authenticator, api.AddSensorValue(wdb))).Methods("POST")
+	router.HandleFunc("/sensor/{id}/values", auth.JustCheck(authenticator, api.DeleteSensorValues(wdb))).Methods("DELETE")
 
 	return router
 }

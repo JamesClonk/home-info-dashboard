@@ -28,6 +28,7 @@ type WeatherDB interface {
 	InsertSensorType(*SensorType) error
 	InsertSensorValue(int, int, time.Time) error
 	DeleteSensor(int) error
+	DeleteSensorType(int) error
 	DeleteSensorValues(int) error
 	GenerateSensorValues(int, int) error
 }
@@ -367,6 +368,19 @@ func (wdb *weatherDB) DeleteSensor(sensorId int) error {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(sensorId)
+	return err
+}
+
+func (wdb *weatherDB) DeleteSensorType(sensorTypeId int) error {
+	stmt, err := wdb.Prepare(`
+		delete from sensor_type
+		where pk_sensor_type_id = ?`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(sensorTypeId)
 	return err
 }
 
