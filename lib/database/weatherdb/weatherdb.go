@@ -27,6 +27,8 @@ type WeatherDB interface {
 	InsertSensor(*Sensor) error
 	InsertSensorType(*SensorType) error
 	InsertSensorValue(int, int, time.Time) error
+	UpdateSensor(*Sensor) error
+	UpdateSensorType(*SensorType) error
 	DeleteSensor(int) error
 	DeleteSensorType(int) error
 	DeleteSensorValues(int) error
@@ -198,6 +200,58 @@ func (wdb *weatherDB) InsertSensor(sensor *Sensor) (err error) {
 	return nil
 }
 
+func (wdb *weatherDB) UpdateSensor(sensor *Sensor) (err error) {
+	var sensorTypeId int64
+	if len(sensor.TypeId) > 0 {
+		sensorTypeId, err = strconv.ParseInt(sensor.TypeId, 10, 64)
+		if err != nil {
+			return err
+		}
+	}
+
+	// figure out sensor type
+	var sensorType *SensorType
+	if sensorTypeId > 0 { // by id
+		sensorType, err = wdb.GetSensorTypeById(int(sensorTypeId))
+		if err != nil {
+			return err
+		}
+	} else { // by type
+		sensorType, err = wdb.GetSensorTypeByType(sensor.Type)
+		if err != nil {
+			return err
+		}
+	}
+
+	stmt, err := wdb.Prepare(`
+		update sensor
+		set name = ?,
+		fk_sensor_type_id = ?,
+		description = ?
+		where pk_sensor_id = ?`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	if _, err = stmt.Exec(sensor.Name, sensorType.Id, sensor.Description, sensor.Id); err != nil {
+		return err
+	}
+
+	// make sure to get updated values
+	sensorNew, err := wdb.GetSensorById(sensor.Id)
+	if err != nil {
+		return err
+	}
+	sensor.Name = sensorNew.Name
+	sensor.Type = sensorNew.Type
+	sensor.TypeId = sensorNew.TypeId
+	sensor.Unit = sensorNew.Unit
+	sensor.Description = sensorNew.Description
+
+	return nil
+}
+
 func (wdb *weatherDB) GetSensorTypeById(id int) (*SensorType, error) {
 	stmt, err := wdb.Prepare(`
 		select pk_sensor_type_id, type, unit, description
@@ -271,6 +325,34 @@ func (wdb *weatherDB) InsertSensorType(sensorType *SensorType) (err error) {
 		return err
 	}
 	sensorType.Id = sensorTypeNew.Id
+	sensorType.Type = sensorTypeNew.Type
+	sensorType.Unit = sensorTypeNew.Unit
+	sensorType.Description = sensorTypeNew.Description
+
+	return nil
+}
+
+func (wdb *weatherDB) UpdateSensorType(sensorType *SensorType) (err error) {
+	stmt, err := wdb.Prepare(`
+		update sensor_type
+		set type = ?,
+		unit = ?,
+		description = ?
+		where pk_sensor_type_id = ?`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	if _, err = stmt.Exec(sensorType.Type, sensorType.Unit, sensorType.Description, sensorType.Id); err != nil {
+		return err
+	}
+
+	// make sure to get updated values
+	sensorTypeNew, err := wdb.GetSensorTypeById(sensorType.Id)
+	if err != nil {
+		return err
+	}
 	sensorType.Type = sensorTypeNew.Type
 	sensorType.Unit = sensorTypeNew.Unit
 	sensorType.Description = sensorTypeNew.Description
