@@ -1,4 +1,4 @@
-.PHONY: run dev binary setup glide test
+.PHONY: run dev binary setup glide start-mysql stop-mysql test update
 SHELL := /bin/bash
 
 all: run
@@ -34,3 +34,7 @@ stop-mysql:
 
 test:
 	GOARCH=amd64 GOOS=linux go test $$(go list ./... | grep -v /vendor/)
+
+update:
+	git fetch --all
+	git merge upstream/master
