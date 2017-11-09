@@ -43,9 +43,11 @@ func setupRoutes(wdb weatherdb.WeatherDB, router *mux.Router) *mux.Router {
 
 	// secured API
 	router.HandleFunc("/sensor_type", basicAuth(api.AddSensorType(wdb))).Methods("POST")
+	router.HandleFunc("/sensor_type/{id}", basicAuth(api.UpdateSensorType(wdb))).Methods("PUT")
 	router.HandleFunc("/sensor_type/{id}", basicAuth(api.DeleteSensorType(wdb))).Methods("DELETE")
 
 	router.HandleFunc("/sensor", basicAuth(api.AddSensor(wdb))).Methods("POST")
+	router.HandleFunc("/sensor/{id}", basicAuth(api.UpdateSensor(wdb))).Methods("PUT")
 	router.HandleFunc("/sensor/{id}", basicAuth(api.DeleteSensor(wdb))).Methods("DELETE")
 
 	router.HandleFunc("/sensor/{id}/value", basicAuth(api.AddSensorValue(wdb))).Methods("POST")

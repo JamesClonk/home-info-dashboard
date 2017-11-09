@@ -188,7 +188,47 @@ func Test_Main_SensorTypes(t *testing.T) {
   "description": "atmospheric pressure"
 }`)
 
-	// TODO: test update
+	// ----------------------- UPDATE -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("PUT", "/sensor_type/5", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.SetBasicAuth(testUser, testPassword)
+
+	form = url.Values{}
+	form.Add("type", "druck")
+	form.Add("unit", "bar")
+	form.Add("description", "atmosphärischer druck")
+	req.PostForm = form
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `{
+  "id": 5,
+  "type": "druck",
+  "unit": "bar",
+  "description": "atmosphärischer druck"
+}`)
+
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/sensor_type/5", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `{
+  "id": 5,
+  "type": "druck",
+  "unit": "bar",
+  "description": "atmosphärischer druck"
+}`)
 
 	// ----------------------- DELETE -----------------------
 	response = httptest.NewRecorder()
@@ -303,7 +343,51 @@ func Test_Main_Sensors(t *testing.T) {
   "description": "Shows open/closed state of roof window"
 }`)
 
-	// TODO: test update
+	// ----------------------- UPDATE -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("PUT", "/sensor/5", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.SetBasicAuth(testUser, testPassword)
+
+	form = url.Values{}
+	form.Add("name", "Wohnzimmer")
+	form.Add("type", "humidity")
+	form.Add("description", "Wohnzimmer Luftfeuchtigkeit")
+	req.PostForm = form
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `{
+  "id": 5,
+  "name": "Wohnzimmer",
+  "type": "humidity",
+  "type_id": "4",
+  "unit": "percentage",
+  "description": "Wohnzimmer Luftfeuchtigkeit"
+}`)
+
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/sensor/5", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `{
+  "id": 5,
+  "name": "Wohnzimmer",
+  "type": "humidity",
+  "type_id": "4",
+  "unit": "percentage",
+  "description": "Wohnzimmer Luftfeuchtigkeit"
+}`)
 
 	// ----------------------- DELETE -----------------------
 	response = httptest.NewRecorder()

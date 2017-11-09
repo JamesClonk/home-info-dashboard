@@ -36,5 +36,7 @@ test:
 	GOARCH=amd64 GOOS=linux go test $$(go list ./... | grep -v /vendor/)
 
 update:
+	git checkout master
 	git fetch --all
 	git merge upstream/master
+	git push
