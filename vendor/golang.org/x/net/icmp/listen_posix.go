@@ -57,7 +57,7 @@ func ListenPacket(network, address string) (*PacketConn, error) {
 			proto = iana.ProtocolIPv6ICMP
 		}
 	}
-	var cerr error
+	var err error
 	var c net.PacketConn
 	switch family {
 	case syscall.AF_INET, syscall.AF_INET6:
@@ -65,35 +65,33 @@ func ListenPacket(network, address string) (*PacketConn, error) {
 		if err != nil {
 			return nil, os.NewSyscallError("socket", err)
 		}
+		defer syscall.Close(s)
 		if runtime.GOOS == "darwin" && family == syscall.AF_INET {
 			if err := syscall.SetsockoptInt(s, iana.ProtocolIP, sysIP_STRIPHDR, 1); err != nil {
-				syscall.Close(s)
 				return nil, os.NewSyscallError("setsockopt", err)
 			}
 		}
 		sa, err := sockaddr(family, address)
 		if err != nil {
-			syscall.Close(s)
 			return nil, err
 		}
 		if err := syscall.Bind(s, sa); err != nil {
-			syscall.Close(s)
 			return nil, os.NewSyscallError("bind", err)
 		}
 		f := os.NewFile(uintptr(s), "datagram-oriented icmp")
-		c, cerr = net.FilePacketConn(f)
-		f.Close()
+		defer f.Close()
+		c, err = net.FilePacketConn(f)
 	default:
-		c, cerr = net.ListenPacket(network, address)
+		c, err = net.ListenPacket(network, address)
 	}
-	if cerr != nil {
-		return nil, cerr
+	if err != nil {
+		return nil, err
 	}
 	switch proto {
 	case iana.ProtocolICMP:
-		return &PacketConn{c: c, p4: ipv4.NewPacketConn(c)}, nil
+		return &PacketConn{c: c, ipc: ipv4.NewPacketConn(c)}, nil
 	case iana.ProtocolIPv6ICMP:
-		return &PacketConn{c: c, p6: ipv6.NewPacketConn(c)}, nil
+		return &PacketConn{c: c, ipc: ipv6.NewPacketConn(c)}, nil
 	default:
 		return &PacketConn{c: c}, nil
 	}

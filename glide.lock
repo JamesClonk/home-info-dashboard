@@ -1,8 +1,6 @@
-hash: fec92787809be6178cac9e8c9f03fe8b3bb8e5b1fd23e55c40af0fda808fb518
-updated: 2017-11-05T18:16:52.324525956+01:00
+hash: 7f93b295b8679ec2dd202967a39ff342aaa4c01ab698e979d8780313fa3b4d3c
+updated: 2017-11-09T10:15:54.51173849+01:00
 imports:
-- name: github.com/abbot/go-http-auth
-  version: 0ddd408d5d60ea76e320503cc7dd091992dee608
 - name: github.com/cloudfoundry-community/go-cfenv
   version: f920e9562d5f951cbf11785728f67258c38a10d0
 - name: github.com/davecgh/go-spew
@@ -14,7 +12,7 @@ imports:
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
-  version: 24fca303ac6da784b9e8269f724ddeb0b2eea5e7
+  version: 7f08801859139f86dfafd1c296e2cba9a80d292e
 - name: github.com/lib/pq
   version: b609790bd85edf8e9ab7e0f8912750a786177bcf
   subpackages:
@@ -31,7 +29,7 @@ imports:
 - name: github.com/mattn/go-sqlite3
   version: 5160b48509cf5c877bc22c11c373f8c7738cdb38
 - name: github.com/mitchellh/mapstructure
-  version: 06020f85339e21b2478f756a78e295255ffa4d6a
+  version: f3009df150dadf309fdee4a54ed65c124afad715
 - name: github.com/pmezard/go-difflib
   version: 792786c7400a136282c1664665ae0a8db921c6c2
   subpackages:
@@ -40,13 +38,8 @@ imports:
   version: 32bf1ea2a39e4e796d9040b5cf235258cee978c1
 - name: github.com/urfave/negroni
   version: 079cf0c7a6b0145ebcf4103ec90380370cd89917
-- name: golang.org/x/crypto
-  version: bd6f299fb381e4c3393d1c4b1f0b94f5e77650c8
-  subpackages:
-  - bcrypt
-  - blowfish
 - name: golang.org/x/net
-  version: 01c190206fbdffa42f334f4b2bf2220f50e64920
+  version: 7dbad50ab5b31073856416cdcfeb2796d682f844
   subpackages:
   - context
 testImports:

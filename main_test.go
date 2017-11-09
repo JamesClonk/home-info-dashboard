@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"os/exec"
 	"testing"
@@ -13,13 +14,20 @@ import (
 )
 
 var (
-	n *negroni.Negroni
+	n            *negroni.Negroni
+	testUser     = "test"
+	testPassword = "test12345"
 )
 
 func init() {
 	os.Setenv("PORT", "8080")
+
 	os.Setenv("DEFAULT_CANTON", "Bern")
 	os.Setenv("DEFAULT_CITY", "Bern")
+
+	os.Setenv("WEATHERAPI_USERNAME", testUser)
+	os.Setenv("WEATHERAPI_PASSWORD", testPassword)
+
 	os.Setenv("WEATHERDB_TYPE", "sqlite")
 	os.Setenv("WEATHERDB_URI", "sqlite3://_fixtures/temp.db")
 	os.Setenv("WEATHERDB_TYPE", "sqlite")
@@ -30,7 +38,6 @@ func init() {
 
 	db := setupDatabase()
 	n = setupNegroni(db)
-
 }
 
 func Test_Main_404(t *testing.T) {
@@ -159,16 +166,50 @@ func Test_Main_Sensors(t *testing.T) {
 }
 
 func Test_Main_SensorValues(t *testing.T) {
+	// ----------------------- Unauthorized -----------------------
 	response := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", "/sensor/3/values", nil)
+	req, err := http.NewRequest("POST", "/sensor/3/value", nil)
 	if err != nil {
 		t.Error(err)
 	}
 
 	n.ServeHTTP(response, req)
-	assert.Equal(t, http.StatusOK, response.Code)
+	assert.Equal(t, http.StatusUnauthorized, response.Code)
 
 	body := response.Body.String()
+	assert.Contains(t, response.Body.String(), `Unauthorized`)
+
+	// ----------------------- CREATE -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("POST", "/sensor/3/value", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.SetBasicAuth(testUser, testPassword)
+
+	form := url.Values{}
+	form.Add("value", "123456789")
+	req.PostForm = form
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusCreated, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `123456789`)
+
+	// ----------------------- READ -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/sensor/3/values", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.SetBasicAuth(testUser, testPassword)
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `"value": 123456789`)
 	assert.Contains(t, body, `
   {
     "timestamp": "1974-10-01T07:02:15+01:00",
@@ -179,5 +220,5 @@ func Test_Main_SensorValues(t *testing.T) {
     "value": 41
   }`)
 
-	// TODO: test create/delete
+	// TODO: test delete
 }
