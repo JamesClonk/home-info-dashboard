@@ -6,7 +6,7 @@ all: run
 run: binary
 	scripts/run.sh
 
-dev: start-mysql
+dev: stop-mysql start-mysql
 	scripts/dev.sh
 
 binary:

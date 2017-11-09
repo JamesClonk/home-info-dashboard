@@ -118,3 +118,25 @@ func DeleteSensorValues(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, re
 		web.Render().JSON(rw, http.StatusNotFound, nil)
 	}
 }
+
+func Housekeeping(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+	return func(rw http.ResponseWriter, req *http.Request) {
+		req.ParseForm()
+		days, err := strconv.ParseInt(req.Form.Get("days"), 10, 64)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		rows, err := strconv.ParseInt(req.Form.Get("rows"), 10, 64)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+
+		if err := wdb.Housekeeping(int(days), int(rows)); err != nil {
+			Error(rw, err)
+			return
+		}
+		web.Render().JSON(rw, http.StatusNoContent, nil)
+	}
+}
