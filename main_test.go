@@ -21,6 +21,7 @@ func init() {
 	os.Setenv("WEATHERDB_TYPE", "sqlite")
 	os.Setenv("WEATHERDB_URI", "sqlite3://_fixtures/test.db")
 	os.Setenv("WEATHERDB_TYPE", "sqlite")
+	// TODO: copy & overwrite each time: _fixtures/fixtures.db to _fixtures/test.db
 	db := setupDatabase()
 	n = setupNegroni(db)
 
@@ -93,4 +94,70 @@ func Test_Main_Forecasts(t *testing.T) {
 	assert.Contains(t, body, `<p>549m</p>`)
 	assert.Contains(t, body, `<a href="https://www.google.ch/maps/place/46.94809%C2%B0+7.44744%C2%B0" target="_blank" rel="noopener noreferrer">46.94809°/7.44744°</a>`)
 	assert.Contains(t, body, `<p>Weather forecast from Yr, delivered by the Norwegian Meteorological Institute and the NRK<br/><a href="http://www.yr.no/place/Switzerland/Bern/Berne/">http://www.yr.no/place/Switzerland/Bern/Berne/</a></p>`)
+}
+
+func Test_Main_SensorTypes(t *testing.T) {
+	response := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/sensor_type", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body := response.Body.String()
+	assert.Contains(t, body, `
+    "type": "temperature",
+    "unit": "celsius",
+    "description": "Shows temperature"`)
+	assert.Contains(t, body, `
+  {
+    "id": 4,
+    "type": "humidity",
+    "unit": "percentage",
+    "description": "Shows air humidity"
+  }`)
+
+	// TODO: test create/update/delete
+}
+
+func Test_Main_Sensors(t *testing.T) {
+	response := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/sensor", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body := response.Body.String()
+	assert.Contains(t, body, `
+    "name": "temperature #1",
+    "type": "temperature",
+    "type_id": "3",
+    "unit": "celsius",
+    "description": "Shows temperature"`)
+	assert.Contains(t, body, `
+  {
+    "id": 1,
+    "name": "roof window #1",
+    "type": "window_state",
+    "type_id": "1",
+    "unit": "closed",
+    "description": "Shows open/closed state of roof window"
+  }`)
+
+	// TODO: test create/update/delete
+}
+
+func Test_Main_SensorValues(t *testing.T) {
+	// response := httptest.NewRecorder()
+	// req, err := http.NewRequest("GET", "/sensor/??/value", nil)
+	// if err != nil {
+	// 	t.Error(err)
+	// }
+
+	// TODO: test create/read/delete
 }
