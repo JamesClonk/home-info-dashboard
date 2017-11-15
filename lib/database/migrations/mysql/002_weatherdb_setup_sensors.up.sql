@@ -23,3 +23,6 @@ VALUES('temperature #1', (select pk_sensor_type_id from sensor_type where type =
 
 INSERT INTO sensor (name, fk_sensor_type_id, description)
 VALUES('humidity #1', (select pk_sensor_type_id from sensor_type where type = 'humidity'), 'Shows air humidity');
+
+INSERT INTO sensor (name, fk_sensor_type_id, description)
+VALUES('forecast_temperature', (select pk_sensor_type_id from sensor_type where type = 'temperature'), 'Shows weather forecast temperature');

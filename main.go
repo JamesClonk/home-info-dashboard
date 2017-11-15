@@ -6,12 +6,15 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/anyandrea/weather_app/lib/database"
 	"github.com/anyandrea/weather_app/lib/database/weatherdb"
 	"github.com/anyandrea/weather_app/lib/env"
+	"github.com/anyandrea/weather_app/lib/forecasts"
+	"github.com/anyandrea/weather_app/lib/util"
 	"github.com/anyandrea/weather_app/lib/web/router"
 	"github.com/urfave/negroni"
 )
@@ -59,7 +62,14 @@ func setupDatabase() weatherdb.WeatherDB {
 		}
 	}
 
-	// spawn housekeeping background job
+	// background jobs
+	spawnHousekeeping(wdb)
+	spawnForecastCollection(wdb)
+
+	return wdb
+}
+
+func spawnHousekeeping(wdb weatherdb.WeatherDB) {
 	go func(wdb weatherdb.WeatherDB) {
 		for {
 			// retention policy of 33 days and minimum 50'000 values
@@ -70,8 +80,41 @@ func setupDatabase() weatherdb.WeatherDB {
 			time.Sleep(12 * time.Hour)
 		}
 	}(wdb)
+}
 
-	return wdb
+func spawnForecastCollection(wdb weatherdb.WeatherDB) {
+	go func(wdb weatherdb.WeatherDB) {
+		sensor, err := wdb.GetSensorByName("forecast_temperature")
+		if err != nil {
+			log.Println("Could not select sensor [forecast_temperature]")
+			log.Fatal(err)
+		}
+
+		for {
+			canton, city := util.GetDefaultLocation("", "")
+			forecast, err := forecasts.Get(canton, city)
+			if err != nil {
+				log.Println("Weather forecast collection failed")
+				log.Fatal(err)
+			}
+
+			if len(forecast.Forecast.Tabular.Time) > 0 {
+				value, err := strconv.ParseInt(forecast.Forecast.Tabular.Time[0].Temperature.Value, 10, 64)
+				if err != nil {
+					log.Println("Could not read temperature value for [forecast_temperature]")
+					log.Fatal(err)
+				}
+
+				if err := wdb.InsertSensorValue(sensor.Id, int(value), time.Now()); err != nil {
+					log.Println("Could not insert temperature value for [forecast_temperature]")
+					log.Fatal(err)
+				}
+				log.Printf("Weather forecast [forecast_temperature:%v] for [%s/%s] stored to database\n", value, canton, city)
+			}
+
+			time.Sleep(1 * time.Hour)
+		}
+	}(wdb)
 }
 
 func setupNegroni(wdb weatherdb.WeatherDB) *negroni.Negroni {

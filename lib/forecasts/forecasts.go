@@ -52,8 +52,8 @@ func Get(canton, city string) (data WeatherForecast, err error) {
 
 	// check memory first
 	if forecast, ok := memo[fmt.Sprintf("%s:%s", canton, city)]; ok {
-		// is it older than 1 hour?
-		if time.Now().After(forecast.Timestamp.Add(1 * time.Hour)) {
+		// is it older than ~1 hour?
+		if time.Now().After(forecast.Timestamp.Add(58 * time.Minute)) {
 			if err := updateWeatherForecast(canton, city); err != nil {
 				return WeatherForecast{}, err
 			}
@@ -69,8 +69,8 @@ func Get(canton, city string) (data WeatherForecast, err error) {
 func updateWeatherForecast(canton, city string) error {
 	log.Printf("update weather forecast data for [%s/%s] ...\n", canton, city)
 
-	//data, err := getData(fmt.Sprintf("http://www.yr.no/place/Switzerland/%s/%s/forecast_hour_by_hour.xml", canton, city))
-	data, err := getData(fmt.Sprintf("http://www.yr.no/place/Switzerland/%s/%s/forecast.xml", canton, city))
+	data, err := getData(fmt.Sprintf("http://www.yr.no/place/Switzerland/%s/%s/forecast_hour_by_hour.xml", canton, city))
+	//data, err := getData(fmt.Sprintf("http://www.yr.no/place/Switzerland/%s/%s/forecast.xml", canton, city))
 	if err != nil {
 		return err
 	}

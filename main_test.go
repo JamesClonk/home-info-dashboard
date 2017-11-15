@@ -291,7 +291,7 @@ func Test_Main_Sensors(t *testing.T) {
 
 	body = response.Body.String()
 	assert.Contains(t, body, `{
-  "id": 5,
+  "id": 6,
   "name": "Badezimmer",
   "type": "temperature",
   "type_id": "3",
@@ -317,7 +317,7 @@ func Test_Main_Sensors(t *testing.T) {
     "unit": "celsius",
     "description": "Shows temperature"`)
 	assert.Contains(t, body, `
-    "id": 5,
+    "id": 6,
     "name": "Badezimmer",
     "type": "temperature",
     "type_id": "3",
@@ -463,12 +463,12 @@ func Test_Main_SensorValues(t *testing.T) {
 	assert.Contains(t, body, `"value": 123456789`)
 	assert.Contains(t, body, `
   {
-    "timestamp": "1974-10-01T07:02:15+01:00",
-    "value": 15
+    "timestamp": "1981-05-16T05:20:46Z",
+    "value": 98
   },
   {
-    "timestamp": "1973-07-30T15:47:18+01:00",
-    "value": 41
+    "timestamp": "1980-12-15T17:17:16Z",
+    "value": 16
   }`)
 
 	// ----------------------- DELETE -----------------------
