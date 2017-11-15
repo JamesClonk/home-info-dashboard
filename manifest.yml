@@ -21,7 +21,7 @@ applications:
     DEFAULT_CANTON: Bern
     DEFAULT_CITY: Grächwil
     WEATHERDB_TYPE: mysql
-    WEATHERDB_MOCK_DATA: "true"
+    WEATHERDB_MOCK_DATA: "false"
     WEATHERAPI_PASSWORD: '$apr1$HgKK9qnB$iisUDv3IBoi94OkIyZekV0'
   command: weather_app
   path: .
