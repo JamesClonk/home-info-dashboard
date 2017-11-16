@@ -25,6 +25,7 @@ type WeatherDB interface {
 	GetSensorTypes() ([]*SensorType, error)
 	GetSensorData(int, int) ([]*SensorData, error)
 	GetSensorValues(int, int) ([]*SensorValue, error)
+	GetHourlyAggregates(int) ([]*SensorValue, error)
 	InsertSensor(*Sensor) error
 	InsertSensorType(*SensorType) error
 	InsertSensorValue(int, int, time.Time) error
@@ -408,6 +409,39 @@ func (wdb *weatherDB) GetSensorValues(id, limit int) ([]*SensorValue, error) {
 	}
 
 	stmt, err := wdb.Prepare(sql)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	values := []*SensorValue{}
+	for rows.Next() {
+		var value SensorValue
+		if err := rows.Scan(&value.Timestamp, &value.Value); err != nil {
+			return nil, err
+		}
+		values = append(values, &value)
+	}
+	return values, nil
+}
+
+func (wdb *weatherDB) GetHourlyAggregates(id int) ([]*SensorValue, error) {
+	stmt, err := wdb.Prepare(`
+		select UNIX_TIMESTAMP(DATE_ADD(the_date, INTERVAL the_hour HOUR)), the_value
+		from (select
+		    DATE(FROM_UNIXTIME(timestamp)) as the_date,
+		    HOUR(FROM_UNIXTIME(timestamp)) as the_hour,
+		    ROUND(AVG(value)) as the_value
+		    from sensor_data sd
+			where fk_sensor_id = ?
+		    group by 1,2
+		) x`)
 	if err != nil {
 		return nil, err
 	}

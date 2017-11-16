@@ -30,6 +30,10 @@
                   <span class="icon"><i class="fa fa-home"></i></span>
                   <span>Home</span>
                 </a>
+                <a class="navbar-item {{ if eq .Active `graphs`}}is-active{{ end }}" href="/graphs">
+                  <span class="icon"><i class="fa fa-area-chart"></i></span>
+                  <span>Graphs</span>
+                </a>
                 <a class="navbar-item {{ if eq .Active `sensors`}}is-active{{ end }}" href="/sensor_data">
                   <span class="icon"><i class="fa fa-microchip"></i></span>
                   <span>Sensors</span>

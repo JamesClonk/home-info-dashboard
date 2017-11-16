@@ -23,8 +23,10 @@ func GetWindowImage(state int64) (string, error) {
 			image = "window_open_cloudy.png"
 		} else if strings.Contains(weather, "snow") {
 			image = "window_open_snowy.png"
-		} else if strings.Contains(weather, "sun") || strings.Contains(weather, "fair") {
+		} else if strings.Contains(weather, "sun") || strings.Contains(weather, "fair") || strings.Contains(weather, "clear sky") {
 			image = "window_open_sunny.png"
+		} else if strings.Contains(weather, "clear") {
+			image = "window_open_clear.png"
 		}
 	case 1:
 		image = "window_closed.png"

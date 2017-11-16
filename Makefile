@@ -30,7 +30,7 @@ start-mysql:
 
 stop-mysql:
 	docker kill weatherdb || true
-	docker rm -f weatherdb
+	docker rm -f weatherdb || true
 
 test:
 	GOARCH=amd64 GOOS=linux go test $$(go list ./... | grep -v /vendor/)

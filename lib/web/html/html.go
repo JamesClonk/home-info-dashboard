@@ -50,6 +50,36 @@ func Error(rw http.ResponseWriter, err error) {
 	web.Render().HTML(rw, http.StatusInternalServerError, "error", page)
 }
 
+func Graphs(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+	return func(rw http.ResponseWriter, req *http.Request) {
+		page := &Page{
+			Title:  "Weather App - Graphs",
+			Active: "graphs",
+		}
+
+		sensors, err := wdb.GetSensors()
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+
+		data := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
+		for _, sensor := range sensors {
+			if sensor.Type == "temperature" {
+				aggregate, err := wdb.GetHourlyAggregates(sensor.Id)
+				if err != nil {
+					Error(rw, err)
+					return
+				}
+				data[*sensor] = aggregate
+			}
+		}
+		page.Content = data
+
+		web.Render().HTML(rw, http.StatusOK, "graphs", page)
+	}
+}
+
 func Sensors(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		page := &Page{

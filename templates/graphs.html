@@ -1,0 +1,45 @@
+<section class="section">
+  <div class="container">
+    <canvas id="data_chart" width="400" height="200"></canvas>
+    <script>
+    var data = {
+        //labels: ["January", "February", "March", "April", "May", "June", "July"],
+        datasets: [
+        {{ range $sensor, $data := .Content }}
+            {
+                label: "Temperature",
+                yAxisID: 'T',
+                data: [{{ range $data }}{{ .Value }},{{ end }}]
+            },
+        {{ end }}
+        ]
+    };
+
+    var ctx = document.getElementById("data_chart").getContext('2d');
+    var data_chart = new Chart.Line(ctx, {
+        data: data,
+        options: {
+            tooltips: {
+                callbacks: {
+                    label: function (t, d) {
+                        return t.yLabel + '° Celsius'
+                    }
+                }
+            },
+            scales: {
+                yAxes: [{
+                    id: 'T',
+                    type: 'linear',
+                    position: 'left',
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return value + '°';
+                        }
+                    }
+                }]
+            }
+        }
+    });
+    </script>
+  </div>
+</section>
