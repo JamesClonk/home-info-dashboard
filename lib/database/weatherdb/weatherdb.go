@@ -434,7 +434,8 @@ func (wdb *weatherDB) GetSensorValues(id, limit int) ([]*SensorValue, error) {
 
 func (wdb *weatherDB) GetHourlyAverages(id, limit int) ([]*SensorValue, error) {
 	stmt, err := wdb.Prepare(`
-        select date_add(the_day, interval the_hour hour), the_value
+    select hour, value
+    from (select date_add(the_day, interval the_hour hour) as hour, the_value as value
         from (select
             date(sd.timestamp) as the_day,
             hour(sd.timestamp) as the_hour,
@@ -444,8 +445,8 @@ func (wdb *weatherDB) GetHourlyAverages(id, limit int) ([]*SensorValue, error) {
             group by 1,2
             order by 1 desc, 2 desc
         ) avg
-        limit ?
-        `)
+        limit ?) sort
+    order by 1 asc`)
 	if err != nil {
 		return nil, err
 	}
@@ -470,14 +471,16 @@ func (wdb *weatherDB) GetHourlyAverages(id, limit int) ([]*SensorValue, error) {
 
 func (wdb *weatherDB) GetDailyAverages(id, limit int) ([]*SensorValue, error) {
 	stmt, err := wdb.Prepare(`
-        select
+    select day, value
+    from (select
         date(sd.timestamp) as day,
         round(avg(sd.value)) as value
         from sensor_data sd
         where sd.fk_sensor_id = ?
         group by 1
         order by 1 desc
-        limit ?`)
+        limit ?) sort
+    order by 1 asc`)
 	if err != nil {
 		return nil, err
 	}
