@@ -63,9 +63,11 @@ func Graphs(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Requ
 			return
 		}
 
-		var labels []string
-		temperature := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
-		humidity := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
+		var weeklyLabels, hourlyLabels []string
+		weeklyTemperature := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
+		hourlyTemperature := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
+		weeklyHumidity := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
+		hourlyHumidity := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
 		for _, sensor := range sensors {
 			switch sensor.Type {
 			case "temperature":
@@ -74,12 +76,26 @@ func Graphs(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Requ
 					Error(rw, err)
 					return
 				}
-				temperature[*sensor] = values
+				hourlyTemperature[*sensor] = values
 
-				if len(labels) == 0 {
+				if len(hourlyLabels) == 0 {
 					// collect labels
 					for _, value := range values {
-						labels = append(labels, value.Timestamp.String())
+						hourlyLabels = append(hourlyLabels, value.Timestamp.Format("02.01. - 15:04"))
+					}
+				}
+
+				values, err = wdb.GetDailyAverages(sensor.Id, 28)
+				if err != nil {
+					Error(rw, err)
+					return
+				}
+				weeklyTemperature[*sensor] = values
+
+				if len(weeklyLabels) == 0 {
+					// collect labels
+					for _, value := range values {
+						weeklyLabels = append(weeklyLabels, value.Timestamp.Format("02.01.2006"))
 					}
 				}
 			case "humidity":
@@ -88,18 +104,31 @@ func Graphs(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Requ
 					Error(rw, err)
 					return
 				}
-				humidity[*sensor] = values
+				hourlyHumidity[*sensor] = values
+
+				values, err = wdb.GetDailyAverages(sensor.Id, 48)
+				if err != nil {
+					Error(rw, err)
+					return
+				}
+				weeklyHumidity[*sensor] = values
 			}
 		}
 
 		page.Content = struct {
-			Temperature map[weatherdb.Sensor][]*weatherdb.SensorValue
-			Humidity    map[weatherdb.Sensor][]*weatherdb.SensorValue
-			Labels      []string
+			HourlyTemperature map[weatherdb.Sensor][]*weatherdb.SensorValue
+			HourlyHumidity    map[weatherdb.Sensor][]*weatherdb.SensorValue
+			HourlyLabels      []string
+			WeeklyTemperature map[weatherdb.Sensor][]*weatherdb.SensorValue
+			WeeklyHumidity    map[weatherdb.Sensor][]*weatherdb.SensorValue
+			WeeklyLabels      []string
 		}{
-			temperature,
-			humidity,
-			labels,
+			hourlyTemperature,
+			hourlyHumidity,
+			hourlyLabels,
+			weeklyTemperature,
+			weeklyHumidity,
+			weeklyLabels,
 		}
 
 		web.Render().HTML(rw, http.StatusOK, "graphs", page)

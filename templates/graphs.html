@@ -1,9 +1,10 @@
 <script src="/js/chart.bundle.min.2.7.1.js"></script>
 <script src="/js/palette.min.js"></script>
 
-<section class="section">
+<section class="section is-paddingless">
   <div class="container">
-    <canvas id="data_chart" width="400" height="200"></canvas>
+    <label class="label">48 hours - temperature and humidity</label>
+    <canvas id="hour_chart" width="100%" height="25%"></canvas>
     <script>
     var colors = palette('sol-accent', 8).map(function(hex) { return '#' + hex; });
     var colorIndex = 0;
@@ -17,9 +18,9 @@
     }
 
     var data = {
-        labels: [{{ range $index, $element := .Content.Labels }}{{ if $index }},{{ end }}"{{ $element }}"{{ end }}],
+        labels: [{{ range $index, $element := .Content.HourlyLabels }}{{ if $index }},{{ end }}"{{ $element }}"{{ end }}],
         datasets: [
-        {{ range $sensor, $data := .Content.Humidity }}
+        {{ range $sensor, $data := .Content.HourlyHumidity }}
             {
                 label: "{{ $sensor.Name }}",
                 yAxisID: 'H',
@@ -27,7 +28,7 @@
                 borderColor: dynamicColor()
             },
         {{ end }}
-        {{ range $sensor, $data := .Content.Temperature }}
+        {{ range $sensor, $data := .Content.HourlyTemperature }}
             {
                 label: "{{ $sensor.Name }}",
                 yAxisID: 'T',
@@ -38,22 +39,136 @@
         ]
     };
 
-    var ctx = document.getElementById("data_chart").getContext('2d');
-    var data_chart = new Chart.Line(ctx, {
+    var ctx = document.getElementById("hour_chart").getContext('2d');
+    var hour_chart = new Chart.Line(ctx, {
         data: data,
         options: {
             tooltips: {
+                mode: 'index',
+                intersect: false,
                 callbacks: {
-                    label: function (t, d) {
-                        if (t.yAxisID == "H") {
-                            return t.yLabel + '%'
+                    label: function (tooltipItem, data) {
+                        if (tooltipItem.datasetIndex >= 0 && tooltipItem.datasetIndex < {{ len .Content.HourlyHumidity }}) {
+                            return tooltipItem.yLabel + '%'
                         } else {
-                            return t.yLabel + '° Celsius'
+                            return tooltipItem.yLabel + '°C'
                         }
                     }
                 }
             },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
             scales: {
+				xAxes: [{
+					type: "time",
+					time: {
+						format: 'DD.MM. - HH:mm',
+						tooltipFormat: 'll HH:mm'
+					},
+					scaleLabel: {
+						display: true,
+						labelString: 'Date'
+					}
+				}],
+                yAxes: [{
+                    id: 'H',
+                    type: 'linear',
+                    position: 'right',
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return value + '%';
+                        }
+                    }
+                },{
+                    id: 'T',
+                    type: 'linear',
+                    position: 'left',
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return value + '°';
+                        }
+                    }
+                }]
+            }
+        }
+    });
+    </script>
+  </div>
+</section>
+
+<section class="section is-paddingless">
+  <div class="container">
+    <label class="label">4 weeks - temperature and humidity</label>
+    <canvas id="week_chart" width="100%" height="25%"></canvas>
+    <script>
+    var colors = palette('sol-accent', 8).map(function(hex) { return '#' + hex; });
+    var colorIndex = 0;
+    var dynamicColor = function() {
+        if (colorIndex >= colors.lenght) {
+            colorIndex = 0;
+        }
+        var color = colors[colorIndex]
+        colorIndex++;
+        return color;
+    }
+
+    var data = {
+        labels: [{{ range $index, $element := .Content.WeeklyLabels }}{{ if $index }},{{ end }}"{{ $element }}"{{ end }}],
+        datasets: [
+        {{ range $sensor, $data := .Content.WeeklyHumidity }}
+            {
+                label: "{{ $sensor.Name }}",
+                yAxisID: 'H',
+                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
+                borderColor: dynamicColor()
+            },
+        {{ end }}
+        {{ range $sensor, $data := .Content.WeeklyTemperature }}
+            {
+                label: "{{ $sensor.Name }}",
+                yAxisID: 'T',
+                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
+                borderColor: dynamicColor()
+            },
+        {{ end }}
+        ]
+    };
+
+    var ctx = document.getElementById("week_chart").getContext('2d');
+    var week_chart = new Chart.Line(ctx, {
+        data: data,
+        options: {
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                    label: function (tooltipItem, data) {
+                        if (tooltipItem.datasetIndex >= 0 && tooltipItem.datasetIndex < {{ len .Content.HourlyHumidity }}) {
+                            return tooltipItem.yLabel + '%'
+                        } else {
+                            return tooltipItem.yLabel + '° Celsius'
+                        }
+                    }
+                }
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+				xAxes: [{
+					type: "time",
+					time: {
+						format: 'DD.MM.YYYY',
+						tooltipFormat: 'll'
+					},
+					scaleLabel: {
+						display: true,
+						labelString: 'Date'
+					}
+				}],
                 yAxes: [{
                     id: 'H',
                     type: 'linear',
