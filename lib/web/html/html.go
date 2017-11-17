@@ -50,6 +50,62 @@ func Error(rw http.ResponseWriter, err error) {
 	web.Render().HTML(rw, http.StatusInternalServerError, "error", page)
 }
 
+func Graphs(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+	return func(rw http.ResponseWriter, req *http.Request) {
+		page := &Page{
+			Title:  "Weather App - Graphs",
+			Active: "graphs",
+		}
+
+		sensors, err := wdb.GetSensors()
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+
+		var labels []string
+		temperature := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
+		humidity := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
+		for _, sensor := range sensors {
+			switch sensor.Type {
+			case "temperature":
+				values, err := wdb.GetHourlyAverages(sensor.Id, 48)
+				if err != nil {
+					Error(rw, err)
+					return
+				}
+				temperature[*sensor] = values
+
+				if len(labels) == 0 {
+					// collect labels
+					for _, value := range values {
+						labels = append(labels, value.Timestamp.String())
+					}
+				}
+			case "humidity":
+				values, err := wdb.GetHourlyAverages(sensor.Id, 48)
+				if err != nil {
+					Error(rw, err)
+					return
+				}
+				humidity[*sensor] = values
+			}
+		}
+
+		page.Content = struct {
+			Temperature map[weatherdb.Sensor][]*weatherdb.SensorValue
+			Humidity    map[weatherdb.Sensor][]*weatherdb.SensorValue
+			Labels      []string
+		}{
+			temperature,
+			humidity,
+			labels,
+		}
+
+		web.Render().HTML(rw, http.StatusOK, "graphs", page)
+	}
+}
+
 func Sensors(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		page := &Page{

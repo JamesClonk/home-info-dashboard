@@ -25,6 +25,8 @@ type WeatherDB interface {
 	GetSensorTypes() ([]*SensorType, error)
 	GetSensorData(int, int) ([]*SensorData, error)
 	GetSensorValues(int, int) ([]*SensorValue, error)
+	GetHourlyAverages(int, int) ([]*SensorValue, error)
+	GetDailyAverages(int, int) ([]*SensorValue, error)
 	InsertSensor(*Sensor) error
 	InsertSensorType(*SensorType) error
 	InsertSensorValue(int, int, time.Time) error
@@ -430,6 +432,74 @@ func (wdb *weatherDB) GetSensorValues(id, limit int) ([]*SensorValue, error) {
 	return values, nil
 }
 
+func (wdb *weatherDB) GetHourlyAverages(id, limit int) ([]*SensorValue, error) {
+	stmt, err := wdb.Prepare(`
+        select date_add(the_day, interval the_hour hour), the_value
+        from (select
+            date(sd.timestamp) as the_day,
+            hour(sd.timestamp) as the_hour,
+            round(avg(sd.value)) as the_value
+            from sensor_data sd
+            where sd.fk_sensor_id = ?
+            group by 1,2
+            order by 1 desc, 2 desc
+        ) avg
+        limit ?
+        `)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(id, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	values := []*SensorValue{}
+	for rows.Next() {
+		var value SensorValue
+		if err := rows.Scan(&value.Timestamp, &value.Value); err != nil {
+			return nil, err
+		}
+		values = append(values, &value)
+	}
+	return values, nil
+}
+
+func (wdb *weatherDB) GetDailyAverages(id, limit int) ([]*SensorValue, error) {
+	stmt, err := wdb.Prepare(`
+        select
+        date(sd.timestamp) as day,
+        round(avg(sd.value)) as value
+        from sensor_data sd
+        where sd.fk_sensor_id = ?
+        group by 1
+        order by 1 desc
+        limit ?`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(id, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	values := []*SensorValue{}
+	for rows.Next() {
+		var value SensorValue
+		if err := rows.Scan(&value.Timestamp, &value.Value); err != nil {
+			return nil, err
+		}
+		values = append(values, &value)
+	}
+	return values, nil
+}
+
 func (wdb *weatherDB) InsertSensorValue(sensorId, value int, timestamp time.Time) error {
 	stmt, err := wdb.Prepare(`
 		insert into sensor_data (fk_sensor_id, value, timestamp) values (?, ?, ?)`)
@@ -487,7 +557,7 @@ func (wdb *weatherDB) GenerateSensorValues(id, num int) error {
 		return err
 	}
 
-	rand.Seed(time.Now().Unix())
+	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < num; i++ {
 		value := rand.Intn(100)
 		if strings.Contains(sensor.Type, "state") {
@@ -499,6 +569,7 @@ func (wdb *weatherDB) GenerateSensorValues(id, num int) error {
 			return err
 		}
 	}
+	time.Sleep(5 * time.Millisecond)
 	return nil
 }
 
