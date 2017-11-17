@@ -63,18 +63,44 @@ func Graphs(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Requ
 			return
 		}
 
-		data := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
+		var labels []string
+		temperature := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
+		humidity := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
 		for _, sensor := range sensors {
-			if sensor.Type == "temperature" {
-				aggregate, err := wdb.GetHourlyAggregates(sensor.Id)
+			switch sensor.Type {
+			case "temperature":
+				values, err := wdb.GetHourlyAverages(sensor.Id, 48)
 				if err != nil {
 					Error(rw, err)
 					return
 				}
-				data[*sensor] = aggregate
+				temperature[*sensor] = values
+
+				if len(labels) == 0 {
+					// collect labels
+					for _, value := range values {
+						labels = append(labels, value.Timestamp.String())
+					}
+				}
+			case "humidity":
+				values, err := wdb.GetHourlyAverages(sensor.Id, 48)
+				if err != nil {
+					Error(rw, err)
+					return
+				}
+				humidity[*sensor] = values
 			}
 		}
-		page.Content = data
+
+		page.Content = struct {
+			Temperature map[weatherdb.Sensor][]*weatherdb.SensorValue
+			Humidity    map[weatherdb.Sensor][]*weatherdb.SensorValue
+			Labels      []string
+		}{
+			temperature,
+			humidity,
+			labels,
+		}
 
 		web.Render().HTML(rw, http.StatusOK, "graphs", page)
 	}

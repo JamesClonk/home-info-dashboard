@@ -1,15 +1,38 @@
+<script src="/js/chart.bundle.min.2.7.1.js"></script>
+<script src="/js/palette.min.js"></script>
+
 <section class="section">
   <div class="container">
     <canvas id="data_chart" width="400" height="200"></canvas>
     <script>
+    var colors = palette('sol-accent', 8).map(function(hex) { return '#' + hex; });
+    var colorIndex = 0;
+    var dynamicColor = function() {
+        if (colorIndex >= colors.lenght) {
+            colorIndex = 0;
+        }
+        var color = colors[colorIndex]
+        colorIndex++;
+        return color;
+    }
+
     var data = {
-        //labels: ["January", "February", "March", "April", "May", "June", "July"],
+        labels: [{{ range $index, $element := .Content.Labels }}{{ if $index }},{{ end }}"{{ $element }}"{{ end }}],
         datasets: [
-        {{ range $sensor, $data := .Content }}
+        {{ range $sensor, $data := .Content.Humidity }}
             {
-                label: "Temperature",
+                label: "{{ $sensor.Name }}",
+                yAxisID: 'H',
+                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
+                borderColor: dynamicColor()
+            },
+        {{ end }}
+        {{ range $sensor, $data := .Content.Temperature }}
+            {
+                label: "{{ $sensor.Name }}",
                 yAxisID: 'T',
-                data: [{{ range $data }}{{ .Value }},{{ end }}]
+                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
+                borderColor: dynamicColor()
             },
         {{ end }}
         ]
@@ -22,12 +45,25 @@
             tooltips: {
                 callbacks: {
                     label: function (t, d) {
-                        return t.yLabel + '° Celsius'
+                        if (t.yAxisID == "H") {
+                            return t.yLabel + '%'
+                        } else {
+                            return t.yLabel + '° Celsius'
+                        }
                     }
                 }
             },
             scales: {
                 yAxes: [{
+                    id: 'H',
+                    type: 'linear',
+                    position: 'right',
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return value + '%';
+                        }
+                    }
+                },{
                     id: 'T',
                     type: 'linear',
                     position: 'left',
