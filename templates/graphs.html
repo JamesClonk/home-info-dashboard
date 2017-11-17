@@ -1,19 +1,31 @@
 <script src="/js/chart.bundle.min.2.7.1.js"></script>
 <script src="/js/palette.min.js"></script>
+<br/>
 
 <section class="section is-paddingless">
   <div class="container">
     <label class="label">48 hours - temperature and humidity</label>
     <canvas id="hour_chart" width="100%" height="25%"></canvas>
     <script>
-    var colors = palette('sol-accent', 8).map(function(hex) { return '#' + hex; });
-    var colorIndex = 0;
-    var dynamicColor = function() {
-        if (colorIndex >= colors.lenght) {
-            colorIndex = 0;
+    var tempColors = palette('cb-OrRd', 5).map(function(hex) { return '#' + hex; });
+    var tempColorIndex = tempColors.length;
+    var tempColor = function() {
+        if (tempColorIndex == 0) {
+            tempColorIndex = tempColors.length;
         }
-        var color = colors[colorIndex]
-        colorIndex++;
+        var color = tempColors[tempColorIndex-1]
+        tempColorIndex--;
+        return color;
+    }
+
+    var humColors = palette('cb-PuBuGn', 5).map(function(hex) { return '#' + hex; });
+    var humColorIndex = humColors.length;
+    var humColor = function() {
+        if (humColorIndex == 0) {
+            humColorIndex = humColors.length;
+        }
+        var color = humColors[humColorIndex-1]
+        humColorIndex--;
         return color;
     }
 
@@ -25,7 +37,7 @@
                 label: "{{ $sensor.Name }}",
                 yAxisID: 'H',
                 data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
-                borderColor: dynamicColor()
+                borderColor: humColor()
             },
         {{ end }}
         {{ range $sensor, $data := .Content.HourlyTemperature }}
@@ -33,7 +45,7 @@
                 label: "{{ $sensor.Name }}",
                 yAxisID: 'T',
                 data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
-                borderColor: dynamicColor()
+                borderColor: tempColor()
             },
         {{ end }}
         ]
@@ -47,11 +59,11 @@
                 mode: 'index',
                 intersect: false,
                 callbacks: {
-                    label: function (tooltipItem, data) {
+                    label: function (tooltipItem, d) {
                         if (tooltipItem.datasetIndex >= 0 && tooltipItem.datasetIndex < {{ len .Content.HourlyHumidity }}) {
-                            return tooltipItem.yLabel + '%'
+                            return tooltipItem.yLabel + '% - ' + data.datasets[tooltipItem.datasetIndex].label
                         } else {
-                            return tooltipItem.yLabel + '°C'
+                            return tooltipItem.yLabel + '°C - ' + data.datasets[tooltipItem.datasetIndex].label
                         }
                     }
                 }
@@ -61,19 +73,22 @@
                 intersect: true
             },
             scales: {
-				xAxes: [{
-					type: "time",
-					time: {
-						format: 'DD.MM. - HH:mm',
-						tooltipFormat: 'll HH:mm'
-					},
-					scaleLabel: {
-						display: true,
-						labelString: 'Date'
-					}
-				}],
+                xAxes: [{
+                    type: "time",
+                    time: {
+                        format: 'DD.MM.YYYY',
+                        tooltipFormat: 'll'
+                    },
+                    scaleLabel: {
+                        display: true
+                    }
+                }],
                 yAxes: [{
                     id: 'H',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Humidity'
+                    },
                     type: 'linear',
                     position: 'right',
                     ticks: {
@@ -83,6 +98,10 @@
                     }
                 },{
                     id: 'T',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Temperature'
+                    },
                     type: 'linear',
                     position: 'left',
                     ticks: {
@@ -103,14 +122,25 @@
     <label class="label">4 weeks - temperature and humidity</label>
     <canvas id="week_chart" width="100%" height="25%"></canvas>
     <script>
-    var colors = palette('sol-accent', 8).map(function(hex) { return '#' + hex; });
-    var colorIndex = 0;
-    var dynamicColor = function() {
-        if (colorIndex >= colors.lenght) {
-            colorIndex = 0;
+    var tempColors = palette('cb-OrRd', 5).map(function(hex) { return '#' + hex; });
+    var tempColorIndex = tempColors.length;
+    var tempColor = function() {
+        if (tempColorIndex == 0) {
+            tempColorIndex = tempColors.length;
         }
-        var color = colors[colorIndex]
-        colorIndex++;
+        var color = tempColors[tempColorIndex-1]
+        tempColorIndex--;
+        return color;
+    }
+
+    var humColors = palette('cb-PuBuGn', 5).map(function(hex) { return '#' + hex; });
+    var humColorIndex = humColors.length;
+    var humColor = function() {
+        if (humColorIndex == 0) {
+            humColorIndex = humColors.length;
+        }
+        var color = humColors[humColorIndex-1]
+        humColorIndex--;
         return color;
     }
 
@@ -122,7 +152,7 @@
                 label: "{{ $sensor.Name }}",
                 yAxisID: 'H',
                 data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
-                borderColor: dynamicColor()
+                borderColor: humColor()
             },
         {{ end }}
         {{ range $sensor, $data := .Content.WeeklyTemperature }}
@@ -130,7 +160,7 @@
                 label: "{{ $sensor.Name }}",
                 yAxisID: 'T',
                 data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
-                borderColor: dynamicColor()
+                borderColor: tempColor()
             },
         {{ end }}
         ]
@@ -146,9 +176,9 @@
                 callbacks: {
                     label: function (tooltipItem, data) {
                         if (tooltipItem.datasetIndex >= 0 && tooltipItem.datasetIndex < {{ len .Content.HourlyHumidity }}) {
-                            return tooltipItem.yLabel + '%'
+                            return tooltipItem.yLabel + '% - ' + data.datasets[tooltipItem.datasetIndex].label
                         } else {
-                            return tooltipItem.yLabel + '° Celsius'
+                            return tooltipItem.yLabel + '°C - ' + data.datasets[tooltipItem.datasetIndex].label
                         }
                     }
                 }
@@ -158,19 +188,22 @@
                 intersect: true
             },
             scales: {
-				xAxes: [{
-					type: "time",
-					time: {
-						format: 'DD.MM.YYYY',
-						tooltipFormat: 'll'
-					},
-					scaleLabel: {
-						display: true,
-						labelString: 'Date'
-					}
-				}],
+                xAxes: [{
+                    type: "time",
+                    time: {
+                        format: 'DD.MM.YYYY',
+                        tooltipFormat: 'll'
+                    },
+                    scaleLabel: {
+                        display: true
+                    }
+                }],
                 yAxes: [{
                     id: 'H',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Humidity'
+                    },
                     type: 'linear',
                     position: 'right',
                     ticks: {
@@ -180,6 +213,10 @@
                     }
                 },{
                     id: 'T',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Temperature'
+                    },
                     type: 'linear',
                     position: 'left',
                     ticks: {
