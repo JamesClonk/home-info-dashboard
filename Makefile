@@ -27,6 +27,8 @@ start-mysql:
 		-e MYSQL_PASSWORD=blabb \
 		-p "3306:3306" \
 		-d mariadb:10
+	sleep 10
+	scripts/db_setup.sh
 
 stop-mysql:
 	docker kill weatherdb || true

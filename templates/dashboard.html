@@ -1,0 +1,26 @@
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      <div class="column">
+        <h1 class="title">{{ .Content.RoomTemperature }}: {{ .Content.RoomTemperatureValue }}°C</h1>
+        <h2 class="subtitle">Last Update: {{ .Content.RoomTemperatureLastUpdate }}</h2>
+      </div>
+      <div class="column">
+        <h1 class="title">{{ .Content.RoomHumidity }}: {{ .Content.RoomHumidityValue }}%</h1>
+        <h2 class="subtitle">Last Update: {{ .Content.RoomHumidityLastUpdate }}</h2>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      {{ range .Content.Windows }}
+      <div class="column is-narrow">
+        <img src="/images/{{ .Image }}" alt="{{ .Title }}">
+      </div>
+      {{ end }}
+    </div>
+  </div>
+</section>

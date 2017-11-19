@@ -32,6 +32,10 @@ func init() {
 	os.Setenv("WEATHERDB_URI", "sqlite3://_fixtures/temp.db")
 	os.Setenv("WEATHERDB_TYPE", "sqlite")
 
+	os.Setenv("CONFIG_ROOM_TEMPERATURE_SENSOR_ID", "3")
+	os.Setenv("CONFIG_ROOM_HUMIDITY_SENSOR_ID", "4")
+	os.Setenv("CONFIG_FORECAST_TEMPERATURE_SENSOR_ID", "5")
+
 	if err := exec.Command("cp", "-f", "_fixtures/test.db", "_fixtures/temp.db").Run(); err != nil {
 		log.Fatal(err)
 	}

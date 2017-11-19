@@ -23,6 +23,7 @@ func setupRoutes(wdb weatherdb.WeatherDB, router *mux.Router) *mux.Router {
 	router.HandleFunc("/", html.Index(wdb))
 	router.HandleFunc("/error", html.ErrorHandler)
 
+	router.HandleFunc("/dashboard", html.Dashboard(wdb))
 	router.HandleFunc("/graphs", html.Graphs(wdb))
 	router.HandleFunc("/sensor_data", html.Sensors(wdb))
 

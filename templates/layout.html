@@ -30,6 +30,10 @@
                   <span class="icon"><i class="fa fa-home"></i></span>
                   <span>Home</span>
                 </a>
+                <a class="navbar-item {{ if eq .Active `dashboard`}}is-active{{ end }}" href="/dashboard">
+                  <span class="icon"><i class="fa fa-dashboard"></i></span>
+                  <span>Dashboard</span>
+                </a>
                 <a class="navbar-item {{ if eq .Active `graphs`}}is-active{{ end }}" href="/graphs">
                   <span class="icon"><i class="fa fa-area-chart"></i></span>
                   <span>Graphs</span>

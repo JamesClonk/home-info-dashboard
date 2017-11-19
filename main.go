@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/anyandrea/weather_app/lib/config"
 	"github.com/anyandrea/weather_app/lib/database"
 	"github.com/anyandrea/weather_app/lib/database/weatherdb"
 	"github.com/anyandrea/weather_app/lib/env"
@@ -49,19 +50,6 @@ func setupDatabase() weatherdb.WeatherDB {
 	}
 	wdb := weatherdb.NewWeatherDB(adapter)
 
-	// generate fake data
-	if env.Get("WEATHERDB_MOCK_DATA", "false") == "true" {
-		sensors, err := wdb.GetSensors()
-		if err != nil {
-			log.Println("Could not get sensors from database")
-			log.Fatal(err)
-		}
-		for _, sensor := range sensors {
-			wdb.DeleteSensorValues(sensor.Id)
-			wdb.GenerateSensorValues(sensor.Id, 50)
-		}
-	}
-
 	// background jobs
 	spawnHousekeeping(wdb)
 	spawnForecastCollection(wdb)
@@ -84,11 +72,7 @@ func spawnHousekeeping(wdb weatherdb.WeatherDB) {
 
 func spawnForecastCollection(wdb weatherdb.WeatherDB) {
 	go func(wdb weatherdb.WeatherDB) {
-		sensor, err := wdb.GetSensorByName("forecast_temperature")
-		if err != nil {
-			log.Println("Could not select sensor [forecast_temperature]")
-			log.Fatal(err)
-		}
+		sensorId := config.Get().Forecast.TemperatureSensorID
 
 		for {
 			canton, city := util.GetDefaultLocation("", "")
@@ -101,15 +85,15 @@ func spawnForecastCollection(wdb weatherdb.WeatherDB) {
 			if len(forecast.Forecast.Tabular.Time) > 0 {
 				value, err := strconv.ParseInt(forecast.Forecast.Tabular.Time[0].Temperature.Value, 10, 64)
 				if err != nil {
-					log.Println("Could not read temperature value for [forecast_temperature]")
+					log.Println("Could not read temperature value for forecast temperature")
 					log.Fatal(err)
 				}
 
-				if err := wdb.InsertSensorValue(sensor.Id, int(value), time.Now()); err != nil {
-					log.Println("Could not insert temperature value for [forecast_temperature]")
+				if err := wdb.InsertSensorValue(sensorId, int(value), time.Now()); err != nil {
+					log.Println("Could not insert temperature value for forecast temperature")
 					log.Fatal(err)
 				}
-				log.Printf("Weather forecast [forecast_temperature:%v] for [%s/%s] stored to database\n", value, canton, city)
+				log.Printf("Weather forecast temperature:%v for %s/%s stored to database\n", value, canton, city)
 			}
 
 			time.Sleep(1 * time.Hour)
