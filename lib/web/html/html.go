@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/anyandrea/weather_app/lib/config"
 	"github.com/anyandrea/weather_app/lib/database/weatherdb"
 	"github.com/anyandrea/weather_app/lib/forecasts"
 	"github.com/anyandrea/weather_app/lib/web"
@@ -15,18 +16,6 @@ func Index(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Reque
 		page := &Page{
 			Title:  "Weather App",
 			Active: "home",
-		}
-
-		windows, err := wdb.GetWindowStates()
-		if err != nil {
-			Error(rw, err)
-			return
-		}
-
-		page.Content = struct {
-			Windows []*weatherdb.Window
-		}{
-			windows,
 		}
 		web.Render().HTML(rw, http.StatusOK, "index", page)
 	}
@@ -48,6 +37,56 @@ func Error(rw http.ResponseWriter, err error) {
 		Content: err,
 	}
 	web.Render().HTML(rw, http.StatusInternalServerError, "error", page)
+}
+
+func Dashboard(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+	return func(rw http.ResponseWriter, req *http.Request) {
+		page := &Page{
+			Title:  "Weather App - Dashboard",
+			Active: "dashboard",
+		}
+
+		windows, err := wdb.GetWindowStates()
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+
+		roomTemp, err := wdb.GetSensorData(config.Get().Room.TemperatureSensorID, 1)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+
+		roomHum, err := wdb.GetSensorData(config.Get().Room.HumiditySensorID, 1)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+
+		page.Content = struct {
+			Windows                   []*weatherdb.Window
+			RoomTemperature           string
+			RoomTemperatureValue      int64
+			RoomTemperatureUnit       string
+			RoomTemperatureLastUpdate *time.Time
+			RoomHumidity              string
+			RoomHumidityValue         int64
+			RoomHumidityUnit          string
+			RoomHumidityLastUpdate    *time.Time
+		}{
+			windows,
+			roomTemp[0].Name,
+			roomTemp[0].Value,
+			roomTemp[0].Unit,
+			roomTemp[0].Timestamp,
+			roomHum[0].Name,
+			roomHum[0].Value,
+			roomHum[0].Unit,
+			roomHum[0].Timestamp,
+		}
+		web.Render().HTML(rw, http.StatusOK, "dashboard", page)
+	}
 }
 
 func Graphs(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
@@ -78,7 +117,7 @@ func Graphs(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Requ
 				}
 				hourlyTemperature[*sensor] = values
 
-				if len(hourlyLabels) == 0 {
+				if len(hourlyLabels) == 0 && sensor.Id == config.Get().Room.TemperatureSensorID {
 					// collect labels
 					for _, value := range values {
 						hourlyLabels = append(hourlyLabels, value.Timestamp.Format("02.01. - 15:04"))
@@ -92,7 +131,7 @@ func Graphs(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Requ
 				}
 				weeklyTemperature[*sensor] = values
 
-				if len(weeklyLabels) == 0 {
+				if len(weeklyLabels) == 0 && sensor.Id == config.Get().Room.TemperatureSensorID {
 					// collect labels
 					for _, value := range values {
 						weeklyLabels = append(weeklyLabels, value.Timestamp.Format("02.01.2006"))
