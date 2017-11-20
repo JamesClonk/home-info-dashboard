@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS `schema_migrations` (
 );
 
 INSERT INTO `schema_migrations` (`version`, `dirty`)
-VALUES(2, 0);
+VALUES(3, 0);
