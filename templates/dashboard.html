@@ -1,26 +1,146 @@
+<script src="/js/chart.bundle.min.2.7.1.js"></script>
+<script src="/js/palette.min.js"></script>
+
 <section class="section">
   <div class="container">
     <div class="columns">
       <div class="column">
-        <h1 class="title">{{ .Content.RoomTemperature }}: {{ .Content.RoomTemperatureValue }}°C</h1>
-        <h2 class="subtitle">Last Update: {{ .Content.RoomTemperatureLastUpdate }}</h2>
+        <h2 class="title is-2">{{ .Content.Room.Temperature.Name }}: {{ .Content.Room.Temperature.Value }}°C</h2>
+        <h5 class="subtitle is-5">Last Update: {{ .Content.Room.Temperature.Timestamp }}</h5>
       </div>
       <div class="column">
-        <h1 class="title">{{ .Content.RoomHumidity }}: {{ .Content.RoomHumidityValue }}%</h1>
-        <h2 class="subtitle">Last Update: {{ .Content.RoomHumidityLastUpdate }}</h2>
+        <h2 class="title is-2">{{ .Content.Room.Humidity.Name }}: {{ .Content.Room.Humidity.Value }}%</h2>
+        <h5 class="subtitle is-5">Last Update: {{ .Content.Room.Humidity.Timestamp }}</h5>
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="section is-paddingless">
+  <div class="container">
+    <div class="columns">
+      {{ range .Content.Windows }}
+      <div class="column is-narrow">
+        <img src="/images/{{ .Image }}" alt="{{ .Title }}">
+        <h4 class="title is-4">{{ .Title }}</h4>
+        <h6 class="subtitle is-6">Last Update:<br/>{{ .Timestamp }}</h6>
+      </div>
+      {{ end }}
     </div>
   </div>
 </section>
 
 <section class="section">
   <div class="container">
-    <div class="columns">
-      {{ range .Content.Windows }}
-      <div class="column is-narrow">
-        <img src="/images/{{ .Image }}" alt="{{ .Title }}">
-      </div>
-      {{ end }}
-    </div>
+    <h3 class="title is-3">72 hours - temperature and humidity</h3>
+    <canvas id="hour_chart" width="100%" height="25%"></canvas>
+    <script>
+    var tempColors = palette('cb-OrRd', 4).map(function(hex) { return '#' + hex; });
+    var tempColorIndex = tempColors.length;
+    var tempColor = function() {
+        if (tempColorIndex == 0) {
+            tempColorIndex = tempColors.length;
+        }
+        var color = tempColors[tempColorIndex-1]
+        tempColorIndex--;
+        return color;
+    }
+
+    var humColors = palette('cb-PuBuGn', 4).map(function(hex) { return '#' + hex; });
+    var humColorIndex = humColors.length;
+    var humColor = function() {
+        if (humColorIndex == 0) {
+            humColorIndex = humColors.length;
+        }
+        var color = humColors[humColorIndex-1]
+        humColorIndex--;
+        return color;
+    }
+
+    var data = {
+        labels: [{{ range $index, $element := .Content.Graphs.Labels }}{{ if $index }},{{ end }}"{{ $element }}"{{ end }}],
+        datasets: [
+        {{ range $sensor, $data := .Content.Graphs.Humidity }}
+            {
+                label: "{{ $sensor.Name }}",
+                yAxisID: 'H',
+                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
+                borderColor: humColor()
+            },
+        {{ end }}
+        {{ range $sensor, $data := .Content.Graphs.Temperature }}
+            {
+                label: "{{ $sensor.Name }}",
+                yAxisID: 'T',
+                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
+                borderColor: tempColor()
+            },
+        {{ end }}
+        ]
+    };
+
+    var ctx = document.getElementById("hour_chart").getContext('2d');
+    var hour_chart = new Chart.Line(ctx, {
+        data: data,
+        options: {
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                    label: function (tooltipItem, d) {
+                        if (tooltipItem.datasetIndex >= 0 && tooltipItem.datasetIndex < {{ len .Content.Graphs.Humidity }}) {
+                            return tooltipItem.yLabel + '% - ' + data.datasets[tooltipItem.datasetIndex].label
+                        } else {
+                            return tooltipItem.yLabel + '°C - ' + data.datasets[tooltipItem.datasetIndex].label
+                        }
+                    }
+                }
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    type: "time",
+                    time: {
+                        format: 'DD.MM. - HH:mm',
+                        tooltipFormat: 'll HH:mm'
+                    },
+                    scaleLabel: {
+                        display: true
+                    }
+                }],
+                yAxes: [{
+                    id: 'H',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Humidity'
+                    },
+                    type: 'linear',
+                    position: 'right',
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return value + '%';
+                        }
+                    }
+                },{
+                    id: 'T',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Temperature'
+                    },
+                    type: 'linear',
+                    position: 'left',
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return value + '°';
+                        }
+                    }
+                }]
+            }
+        }
+    });
+    </script>
   </div>
 </section>

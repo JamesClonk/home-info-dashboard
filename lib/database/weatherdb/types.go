@@ -33,8 +33,9 @@ type SensorValue struct {
 }
 
 type Window struct {
-	Image string `json:"image" xml:"image"`
-	Title string `json:"title" xml:"title"`
+	Image     string     `json:"image" xml:"image"`
+	Title     string     `json:"title" xml:"title"`
+	Timestamp *time.Time `json:"timestamp" xml:"timestamp"`
 }
 
 type Door struct {

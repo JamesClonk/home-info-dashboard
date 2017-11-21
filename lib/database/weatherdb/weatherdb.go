@@ -90,7 +90,7 @@ func (wdb *weatherDB) GetWindowStates() ([]*Window, error) {
 				if err != nil {
 					return nil, err
 				}
-				windows = append(windows, &Window{Image: image, Title: sensor.Name})
+				windows = append(windows, &Window{Image: image, Title: sensor.Name, Timestamp: values[0].Timestamp})
 			}
 		}
 	}
