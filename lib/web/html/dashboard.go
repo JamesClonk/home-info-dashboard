@@ -115,7 +115,7 @@ func Dashboard(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.R
 			Windows     map[weatherdb.Sensor][]*weatherdb.SensorValue
 		}
 
-		timeLimit := time.Now().Add(1 * time.Hour).UTC()
+		timeLimit := time.Now().Add(2 * time.Hour).UTC()
 
 		room := Room{
 			Temperature:  roomTemp[0],
