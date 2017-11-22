@@ -20,6 +20,7 @@ type WeatherDB interface {
 	GetSensors() ([]*Sensor, error)
 	GetSensorById(int) (*Sensor, error)
 	GetSensorByName(string) (*Sensor, error)
+	GetSensorsByTypeId(int) ([]*Sensor, error)
 	GetSensorTypeById(int) (*SensorType, error)
 	GetSensorTypeByType(string) (*SensorType, error)
 	GetSensorTypes() ([]*SensorType, error)
@@ -103,6 +104,35 @@ func (wdb *weatherDB) GetSensors() ([]*Sensor, error) {
 		from sensor s
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
 		order by st.type asc, s.name asc`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	ss := []*Sensor{}
+	for rows.Next() {
+		var s Sensor
+		if err := rows.Scan(&s.Id, &s.Name, &s.Type, &s.TypeId, &s.Unit, &s.Description); err != nil {
+			return nil, err
+		}
+		ss = append(ss, &s)
+	}
+	return ss, nil
+}
+
+func (wdb *weatherDB) GetSensorsByTypeId(id int) ([]*Sensor, error) {
+	stmt, err := wdb.Prepare(`
+		select s.pk_sensor_id, s.name, st.type, st.pk_sensor_type_id, st.unit, s.description
+		from sensor s
+		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
+		where st.pk_sensor_type_id = ?
+		order by st.type asc, s.name asc`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(id)
 	if err != nil {
 		return nil, err
 	}
