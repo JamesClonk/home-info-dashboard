@@ -2,11 +2,11 @@ package html
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/anyandrea/weather_app/lib/config"
 	"github.com/anyandrea/weather_app/lib/database/weatherdb"
 	"github.com/anyandrea/weather_app/lib/web"
-	"time"
 )
 
 func Dashboard(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
@@ -32,6 +32,7 @@ func Dashboard(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.R
 		var graphLabels []string
 		graphTemperature := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
 		graphHumidity := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
+		graphWindows := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
 
 		roomTempSensor, err := wdb.GetSensorById(config.Get().Room.TemperatureSensorID)
 		if err != nil {
@@ -81,6 +82,26 @@ func Dashboard(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.R
 			return
 		}
 
+		// collect window value changes
+		windowSensorType, err := wdb.GetSensorTypeByType("window_state")
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		windowSensors, err := wdb.GetSensorsByTypeId(windowSensorType.Id)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		for _, sensor := range windowSensors {
+			values, err = wdb.GetSensorValues(sensor.Id, 14)
+			if err != nil {
+				Error(rw, err)
+				return
+			}
+			graphWindows[*sensor] = values
+		}
+
 		type Room struct {
 			Temperature  *weatherdb.SensorData
 			Humidity     *weatherdb.SensorData
@@ -91,6 +112,7 @@ func Dashboard(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.R
 			Labels      []string
 			Humidity    map[weatherdb.Sensor][]*weatherdb.SensorValue
 			Temperature map[weatherdb.Sensor][]*weatherdb.SensorValue
+			Windows     map[weatherdb.Sensor][]*weatherdb.SensorValue
 		}
 
 		timeLimit := time.Now().Add(1 * time.Hour).UTC()
@@ -105,6 +127,7 @@ func Dashboard(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.R
 			Labels:      graphLabels,
 			Humidity:    graphHumidity,
 			Temperature: graphTemperature,
+			Windows:     graphWindows,
 		}
 
 		page.Content = struct {

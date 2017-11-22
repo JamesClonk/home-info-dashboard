@@ -6,11 +6,11 @@
     <div class="columns">
       <div class="column">
         <h2 class="title is-2">{{ .Content.Room.Temperature.Name }}: {{ .Content.Room.Temperature.Value }}°C</h2>
-        <h5 class="subtitle is-5">Last Update: {{ .Content.Room.Temperature.Timestamp }}</h5>
+        <h5 class="subtitle is-5{{ if .Content.Room.OutdatedTemp }} has-text-danger{{ end }}">Last Update: {{ .Content.Room.Temperature.Timestamp }}</h5>
       </div>
       <div class="column">
         <h2 class="title is-2">{{ .Content.Room.Humidity.Name }}: {{ .Content.Room.Humidity.Value }}%</h2>
-        <h5 class="subtitle is-5">Last Update: {{ .Content.Room.Humidity.Timestamp }}</h5>
+        <h5 class="subtitle is-5{{ if .Content.Room.OutdatedHum }} has-text-danger{{ end }}">Last Update: {{ .Content.Room.Humidity.Timestamp }}</h5>
       </div>
     </div>
   </div>
@@ -144,3 +144,76 @@
     </script>
   </div>
 </section>
+
+{{ range $sensor, $data := .Content.Graphs.Windows }}
+<section class="section">
+  <div class="container">
+    <h3 class="title is-3">window states - {{ $sensor.Name }}</h3>
+    <canvas id="state_{{ $sensor.Id }}_chart" width="100%" height="25%"></canvas>
+    <script>
+    var colors = palette('cb-PiYG', 5).map(function(hex) { return '#' + hex; });
+    var colorIndex = colors.length;
+    var windowColor = function() {
+        if (colorIndex == 0) {
+            colorIndex = colors.length;
+        }
+        var color = colors[colorIndex-1]
+        colorIndex--;
+        return color;
+    }
+
+    var data = {
+        labels: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}"{{ $element.Timestamp.Format `02.01.2006 - 15:04` }}"{{ end }}],
+        datasets: [
+            {
+                label: "{{ $sensor.Name }}",
+                steppedLine: 'after',
+                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
+                borderColor: windowColor()
+            }
+        ]
+    };
+
+    var ctx = document.getElementById("state_{{ $sensor.Id }}_chart").getContext('2d');
+    var state_chart = new Chart.Line(ctx, {
+        data: data,
+        options: {
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                    label: function (tooltipItem, data) {
+                        if (data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index] == 0) {
+                            return "open"
+                        } else {
+                            return "closed"
+                        }
+                    }
+                }
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    type: "time",
+                    time: {
+                        format: 'DD.MM.YYYY - HH:mm',
+                        tooltipFormat: 'DD.MM.YYYY - HH:mm'
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    ticks: {
+                        suggestedMin: 0,
+                        suggestedMax: 1.2
+                    }
+                }]
+            }
+        }
+    });
+    </script>
+  </div>
+</section>
+{{ end }}
