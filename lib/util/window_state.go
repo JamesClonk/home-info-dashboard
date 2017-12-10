@@ -17,7 +17,9 @@ func GetWindowImage(state int64) (string, error) {
 		weather := strings.ToLower(forecast.Forecast.Tabular.Time[0].Symbol.Name)
 
 		image = "window_open_rainy.png"
-		if strings.Contains(weather, "rain") || strings.Contains(weather, "shower") {
+		if strings.Contains(weather, "rain") ||
+			strings.Contains(weather, "shower") ||
+			strings.Contains(weather, "hail") || strings.Contains(weather, "sleet") { // hail
 			image = "window_open_rainy.png"
 		} else if strings.Contains(weather, "cloud") {
 			image = "window_open_cloudy.png"
