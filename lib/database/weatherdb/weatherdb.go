@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anyandrea/weather_app/lib/database"
-	"github.com/anyandrea/weather_app/lib/util"
+	"github.com/JamesClonk/home-info-dashboard/lib/database"
+	"github.com/JamesClonk/home-info-dashboard/lib/util"
 )
 
 type WeatherDB interface {

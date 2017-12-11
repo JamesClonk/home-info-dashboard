@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/anyandrea/weather_app/lib/config"
-	"github.com/anyandrea/weather_app/lib/database/weatherdb"
-	"github.com/anyandrea/weather_app/lib/forecasts"
-	"github.com/anyandrea/weather_app/lib/web"
+	"github.com/JamesClonk/home-info-dashboard/lib/config"
+	"github.com/JamesClonk/home-info-dashboard/lib/database/weatherdb"
+	"github.com/JamesClonk/home-info-dashboard/lib/forecasts"
+	"github.com/JamesClonk/home-info-dashboard/lib/web"
 )
 
 func Index(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {

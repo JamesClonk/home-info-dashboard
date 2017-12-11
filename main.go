@@ -10,13 +10,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anyandrea/weather_app/lib/config"
-	"github.com/anyandrea/weather_app/lib/database"
-	"github.com/anyandrea/weather_app/lib/database/weatherdb"
-	"github.com/anyandrea/weather_app/lib/env"
-	"github.com/anyandrea/weather_app/lib/forecasts"
-	"github.com/anyandrea/weather_app/lib/util"
-	"github.com/anyandrea/weather_app/lib/web/router"
+	"github.com/JamesClonk/home-info-dashboard/lib/config"
+	"github.com/JamesClonk/home-info-dashboard/lib/database"
+	"github.com/JamesClonk/home-info-dashboard/lib/database/weatherdb"
+	"github.com/JamesClonk/home-info-dashboard/lib/env"
+	"github.com/JamesClonk/home-info-dashboard/lib/forecasts"
+	"github.com/JamesClonk/home-info-dashboard/lib/util"
+	"github.com/JamesClonk/home-info-dashboard/lib/web/router"
 	"github.com/urfave/negroni"
 )
 

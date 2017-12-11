@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/anyandrea/weather_app/lib/env"
+	"github.com/JamesClonk/home-info-dashboard/lib/env"
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
 )
 

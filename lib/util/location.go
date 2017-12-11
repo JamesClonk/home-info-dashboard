@@ -1,6 +1,6 @@
 package util
 
-import "github.com/anyandrea/weather_app/lib/env"
+import "github.com/JamesClonk/home-info-dashboard/lib/env"
 
 func GetDefaultLocation(canton, city string) (string, string) {
 	// try to read defaults from ENV, with reasonable defaults otherwise

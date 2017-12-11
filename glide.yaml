@@ -1,4 +1,4 @@
-package: github.com/anyandrea/weather_app
+package: github.com/JamesClonk/home-info-dashboard
 import:
 - package: github.com/gorilla/mux
   version: ^1.5.0

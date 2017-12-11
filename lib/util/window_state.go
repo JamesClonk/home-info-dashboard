@@ -3,7 +3,7 @@ package util
 import (
 	"strings"
 
-	"github.com/anyandrea/weather_app/lib/forecasts"
+	"github.com/JamesClonk/home-info-dashboard/lib/forecasts"
 )
 
 func GetWindowImage(state int64) (string, error) {

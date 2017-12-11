@@ -13,6 +13,6 @@ echo $PWD
 source .env_mysql
 
 # =============================================================================================
-echo "developing weather_app ..."
+echo "developing home-info-dashboard ..."
 rm -f gin-bin || true
 gin --all run main.go

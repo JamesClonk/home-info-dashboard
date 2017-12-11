@@ -3,10 +3,10 @@ package router
 import (
 	"net/http"
 
-	"github.com/anyandrea/weather_app/lib/database/weatherdb"
-	"github.com/anyandrea/weather_app/lib/util"
-	"github.com/anyandrea/weather_app/lib/web/api"
-	"github.com/anyandrea/weather_app/lib/web/html"
+	"github.com/JamesClonk/home-info-dashboard/lib/database/weatherdb"
+	"github.com/JamesClonk/home-info-dashboard/lib/util"
+	"github.com/JamesClonk/home-info-dashboard/lib/web/api"
+	"github.com/JamesClonk/home-info-dashboard/lib/web/html"
 	"github.com/gorilla/mux"
 )
 

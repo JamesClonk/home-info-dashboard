@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/anyandrea/weather_app/lib/database/weatherdb"
-	"github.com/anyandrea/weather_app/lib/web"
+	"github.com/JamesClonk/home-info-dashboard/lib/database/weatherdb"
+	"github.com/JamesClonk/home-info-dashboard/lib/web"
 	"github.com/gorilla/mux"
 )
 

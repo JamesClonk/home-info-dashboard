@@ -1,29 +1,30 @@
 ---
 applications:
-- name: weather_app
+- name: home-info-dashboard
   memory: 64M
   disk_quota: 128M
   instances: 2
   buildpack: go_buildpack
   hosts:
-  - weather-app
-  - weatherapp
-  - smarttemperature
+  - weather
+  - temp
+  - home-info
+  - home-info-dashboard
   # for blue-green deployment
-  - weather-app-blue-green
+  - home-info-blue-green
   domains:
   - scapp.io
   - applicationcloud.io
   services:
   - weatherdb
   env:
-    GOPACKAGENAME: github.com/anyandrea/weather_app
+    GOPACKAGENAME: github.com/JamesClonk/home-info-dashboard
     DEFAULT_CANTON: Bern
-    DEFAULT_CITY: Grächwil
+    DEFAULT_CITY: Bern
     WEATHERDB_TYPE: mysql
     WEATHERAPI_PASSWORD: '$apr1$HgKK9qnB$iisUDv3IBoi94OkIyZekV0'
     CONFIG_ROOM_TEMPERATURE_SENSOR_ID: "25"
     CONFIG_ROOM_HUMIDITY_SENSOR_ID: "22"
     CONFIG_FORECAST_TEMPERATURE_SENSOR_ID: "31"
-  command: weather_app
+  command: home-info-dashboard
   path: .

@@ -28,7 +28,7 @@ fi
 echo $PWD
 
 # =============================================================================================
-echo "deploying weather_app ..."
+echo "deploying home-info-dashboard ..."
 
 wget 'https://cli.run.pivotal.io/stable?release=linux64-binary&version=6.32.0&source=github-rel' -qO cf-cli.tgz
 tar -xvzf cf-cli.tgz 1>/dev/null
@@ -38,51 +38,55 @@ rm -f cf-cli.tgz || true
 ./cf login -a "https://api.lyra-836.appcloud.swisscom.com" -u "${APC_USERNAME}" -p "${APC_PASSWORD}" -o "${APC_ORGANIZATION}" -s "${APC_SPACE}"
 
 # make sure routes will be ready
-./cf create-route "${APC_SPACE}" scapp.io --hostname weather-app
-./cf create-route "${APC_SPACE}" applicationcloud.io --hostname weather-app
-./cf create-route "${APC_SPACE}" scapp.io --hostname weatherapp
-./cf create-route "${APC_SPACE}" applicationcloud.io --hostname weatherapp
-./cf create-route "${APC_SPACE}" scapp.io --hostname smarttemperature
-./cf create-route "${APC_SPACE}" applicationcloud.io --hostname smarttemperature
-./cf create-route "${APC_SPACE}" scapp.io --hostname weather-app-blue-green
-./cf create-route "${APC_SPACE}" applicationcloud.io --hostname weather-app-blue-green
+./cf create-route "${APC_SPACE}" scapp.io --hostname weather
+./cf create-route "${APC_SPACE}" applicationcloud.io --hostname weather
+./cf create-route "${APC_SPACE}" scapp.io --hostname temp
+./cf create-route "${APC_SPACE}" applicationcloud.io --hostname temp
+./cf create-route "${APC_SPACE}" scapp.io --hostname home-info
+./cf create-route "${APC_SPACE}" applicationcloud.io --hostname home-info
+./cf create-route "${APC_SPACE}" scapp.io --hostname home-info-dashboard
+./cf create-route "${APC_SPACE}" applicationcloud.io --hostname home-info-dashboard
+./cf create-route "${APC_SPACE}" scapp.io --hostname home-info-blue-green
+./cf create-route "${APC_SPACE}" applicationcloud.io --hostname home-info-blue-green
 sleep 2
 
 # secure working app
-./cf rename weather_app weather_app_old || true
-./cf unmap-route weather_app_old scapp.io --hostname weather-app-blue-green || true
+./cf rename home-info-dashboard home-info-dashboard-old || true
+./cf unmap-route home-info-dashboard-old scapp.io --hostname home-info-blue-green || true
 sleep 2
 
 # push new app
-./cf push weather_app_new --no-route
-./cf map-route weather_app_new scapp.io --hostname weather-app-blue-green
-./cf map-route weather_app_new applicationcloud.io --hostname weather-app-blue-green
+./cf push home-info-dashboard-new --no-route
+./cf map-route home-info-dashboard-new scapp.io --hostname home-info-blue-green
+./cf map-route home-info-dashboard-new applicationcloud.io --hostname home-info-blue-green
 sleep 5
 
 # test app
-response=$(curl -sIL -w "%{http_code}" -o /dev/null "weather-app-blue-green.scapp.io")
+response=$(curl -sIL -w "%{http_code}" -o /dev/null "home-info-blue-green.scapp.io")
 if [[ "${response}" != "200" ]]; then
-    ./cf delete -f weather_app_new || true
+    ./cf delete -f home-info-dashboard-new || true
     echo "App did not respond as expected, HTTP [${response}]"
     exit 1
 fi
 
 # finish blue-green deployment of app
-./cf delete -f weather_app || true
-./cf rename weather_app_new weather_app
-./cf map-route weather_app scapp.io --hostname weather-app
-./cf map-route weather_app applicationcloud.io --hostname weather-app
-./cf map-route weather_app scapp.io --hostname weatherapp
-./cf map-route weather_app applicationcloud.io --hostname weatherapp
-./cf map-route weather_app scapp.io --hostname smarttemperature
-./cf map-route weather_app applicationcloud.io --hostname smarttemperature
-./cf unmap-route weather_app scapp.io --hostname weather-app-blue-green || true
-./cf unmap-route weather_app applicationcloud.io --hostname weather-app-blue-green || true
-./cf delete -f weather_app_old
+./cf delete -f home-info-dashboard || true
+./cf rename home-info-dashboard-new home-info-dashboard
+./cf map-route home-info-dashboard scapp.io --hostname weather
+./cf map-route home-info-dashboard applicationcloud.io --hostname weather
+./cf map-route home-info-dashboard scapp.io --hostname temp
+./cf map-route home-info-dashboard applicationcloud.io --hostname temp
+./cf map-route home-info-dashboard scapp.io --hostname home-info
+./cf map-route home-info-dashboard applicationcloud.io --hostname home-info
+./cf map-route home-info-dashboard scapp.io --hostname home-info-dashboard
+./cf map-route home-info-dashboard applicationcloud.io --hostname home-info-dashboard
+./cf unmap-route home-info-dashboard scapp.io --hostname home-info-blue-green || true
+./cf unmap-route home-info-dashboard applicationcloud.io --hostname home-info-blue-green || true
+./cf delete -f home-info-dashboard-old
 
 # show status
 ./cf apps
-./cf app weather_app
+./cf app home-info-dashboard
 
 ./cf logout
 

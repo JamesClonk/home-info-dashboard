@@ -20,7 +20,7 @@ glide:
 	glide install --force
 
 start-mysql:
-	docker run --name weatherdb \
+	docker run --name homedb \
 		-e MYSQL_ROOT_PASSWORD=blibb \
 		-e MYSQL_DATABASE=weather_db \
 		-e MYSQL_USER=blubb \
@@ -31,8 +31,8 @@ start-mysql:
 	scripts/db_setup.sh
 
 stop-mysql:
-	docker kill weatherdb || true
-	docker rm -f weatherdb || true
+	docker kill homedb || true
+	docker rm -f homedb || true
 
 test:
 	GOARCH=amd64 GOOS=linux go test $$(go list ./... | grep -v /vendor/)

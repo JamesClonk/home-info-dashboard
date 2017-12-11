@@ -13,5 +13,5 @@ echo $PWD
 source .env_mysql
 
 # =============================================================================================
-echo "running weather_app ..."
-./weather_app
+echo "running home-info-dashboard ..."
+./home-info-dashboard

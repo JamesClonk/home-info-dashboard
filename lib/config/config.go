@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/anyandrea/weather_app/lib/env"
+	"github.com/JamesClonk/home-info-dashboard/lib/env"
 )
 
 var (

@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/anyandrea/weather_app/lib/util"
+	"github.com/JamesClonk/home-info-dashboard/lib/util"
 	"github.com/gorilla/mux"
 )
 
