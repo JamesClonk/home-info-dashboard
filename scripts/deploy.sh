@@ -40,8 +40,6 @@ rm -f cf-cli.tgz || true
 # make sure routes will be ready
 ./cf create-route "${APC_SPACE}" scapp.io --hostname weather
 ./cf create-route "${APC_SPACE}" applicationcloud.io --hostname weather
-./cf create-route "${APC_SPACE}" scapp.io --hostname temp
-./cf create-route "${APC_SPACE}" applicationcloud.io --hostname temp
 ./cf create-route "${APC_SPACE}" scapp.io --hostname home-info
 ./cf create-route "${APC_SPACE}" applicationcloud.io --hostname home-info
 ./cf create-route "${APC_SPACE}" scapp.io --hostname home-info-dashboard
@@ -74,8 +72,6 @@ fi
 ./cf rename home-info-dashboard-new home-info-dashboard
 ./cf map-route home-info-dashboard scapp.io --hostname weather
 ./cf map-route home-info-dashboard applicationcloud.io --hostname weather
-./cf map-route home-info-dashboard scapp.io --hostname temp
-./cf map-route home-info-dashboard applicationcloud.io --hostname temp
 ./cf map-route home-info-dashboard scapp.io --hostname home-info
 ./cf map-route home-info-dashboard applicationcloud.io --hostname home-info
 ./cf map-route home-info-dashboard scapp.io --hostname home-info-dashboard
