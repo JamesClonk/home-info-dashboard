@@ -21,7 +21,7 @@ type SQLiteAdapter struct {
 func newSQLiteAdapter(uri string) *SQLiteAdapter {
 	filename := strings.SplitN(uri, "sqlite3://", 2)
 	if len(filename) != 2 {
-		panic("invalid sqlite3:// uri")
+		panic(fmt.Sprintf("invalid sqlite3:// uri: %s", uri))
 	}
 
 	db, err := sql.Open("sqlite3", filename[1])

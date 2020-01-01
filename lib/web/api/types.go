@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/JamesClonk/home-info-dashboard/lib/database/weatherdb"
+	"github.com/JamesClonk/home-info-dashboard/lib/database"
 	"github.com/JamesClonk/home-info-dashboard/lib/web"
 	"github.com/gorilla/mux"
 )
 
-func GetSensorTypes(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func GetSensorTypes(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
-		sensorTypes, err := wdb.GetSensorTypes()
+		sensorTypes, err := hdb.GetSensorTypes()
 		if err != nil {
 			Error(rw, err)
 			return
@@ -21,7 +21,7 @@ func GetSensorTypes(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *h
 	}
 }
 
-func GetSensorType(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func GetSensorType(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		var err error
 
@@ -38,7 +38,7 @@ func GetSensorType(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *ht
 				}
 			}
 
-			sensorType, err := wdb.GetSensorTypeById(int(sensorTypeId))
+			sensorType, err := hdb.GetSensorTypeById(int(sensorTypeId))
 			if err != nil {
 				Error(rw, err)
 				return
@@ -52,16 +52,16 @@ func GetSensorType(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *ht
 	}
 }
 
-func AddSensorType(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func AddSensorType(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		req.ParseForm()
-		sensorType := &weatherdb.SensorType{
+		sensorType := &database.SensorType{
 			Type:        req.Form.Get("type"),
 			Unit:        req.Form.Get("unit"),
 			Description: req.Form.Get("description"),
 		}
 
-		if err := wdb.InsertSensorType(sensorType); err != nil {
+		if err := hdb.InsertSensorType(sensorType); err != nil {
 			Error(rw, err)
 			return
 		}
@@ -70,7 +70,7 @@ func AddSensorType(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *ht
 	}
 }
 
-func UpdateSensorType(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func UpdateSensorType(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		var err error
 
@@ -88,14 +88,14 @@ func UpdateSensorType(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req 
 			}
 
 			req.ParseForm()
-			sensorType := &weatherdb.SensorType{
+			sensorType := &database.SensorType{
 				Id:          int(sensorTypeId),
 				Type:        req.Form.Get("type"),
 				Unit:        req.Form.Get("unit"),
 				Description: req.Form.Get("description"),
 			}
 
-			if err := wdb.UpdateSensorType(sensorType); err != nil {
+			if err := hdb.UpdateSensorType(sensorType); err != nil {
 				Error(rw, err)
 				return
 			}
@@ -108,7 +108,7 @@ func UpdateSensorType(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req 
 	}
 }
 
-func DeleteSensorType(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func DeleteSensorType(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		var err error
 
@@ -125,7 +125,7 @@ func DeleteSensorType(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req 
 				}
 			}
 
-			if err := wdb.DeleteSensorType(int(sensorTypeId)); err != nil {
+			if err := hdb.DeleteSensorType(int(sensorTypeId)); err != nil {
 				Error(rw, err)
 				return
 			}

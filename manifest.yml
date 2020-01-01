@@ -1,30 +1,33 @@
 ---
+# See manifest.yml documentation available at:
+# https://docs.developer.swisscom.com/devguide/deploy-apps/manifest.html
+
 applications:
-- name: home-info-dashboard
+- name: home-info
   memory: 64M
   disk_quota: 128M
   instances: 2
-  buildpack: go_buildpack
-  hosts:
-  - weather
-  - home-info
-  - home-info-dashboard
-  # for blue-green deployment
-  - home-info-blue-green
-  domains:
-  - scapp.io
-  - applicationcloud.io
+
+  routes:
+  - route: home-info.scapp.io
+  - route: home-info.applicationcloud.io
+  - route: home-info.jamesclonk.io
+  - route: home.jamesclonk.io
   services:
-  - weatherdb
+  - home_info_db
+
+  buildpacks:
+  - go_buildpack
+  health-check-type: http
+  health-check-http-endpoint: /health
+  command: home-info-dashboard
+  path: .
+
   env:
-    GOPACKAGENAME: github.com/JamesClonk/home-info-dashboard
+    AUTH_USERNAME: ((auth_username))
+    AUTH_PASSWORD: ((auth_password))
     DEFAULT_CANTON: Bern
     DEFAULT_CITY: Bern
-    WEATHERDB_TYPE: mysql
-    WEATHERAPI_USERNAME: 'jamesclonk'
-    WEATHERAPI_PASSWORD: '$apr1$HgKK9qnB$iisUDv3IBoi94OkIyZekV0'
     CONFIG_ROOM_TEMPERATURE_SENSOR_ID: "1"
     CONFIG_ROOM_HUMIDITY_SENSOR_ID: "2"
     CONFIG_FORECAST_TEMPERATURE_SENSOR_ID: "3"
-  command: home-info-dashboard
-  path: .

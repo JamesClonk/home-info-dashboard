@@ -5,11 +5,11 @@ import (
 	"time"
 
 	"github.com/JamesClonk/home-info-dashboard/lib/config"
-	"github.com/JamesClonk/home-info-dashboard/lib/database/weatherdb"
+	"github.com/JamesClonk/home-info-dashboard/lib/database"
 	"github.com/JamesClonk/home-info-dashboard/lib/web"
 )
 
-func Dashboard(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		page := &Page{
 			Title:  "Home Info - Dashboard",
@@ -17,12 +17,12 @@ func Dashboard(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.R
 		}
 
 		// collect the top column
-		roomTemp, err := wdb.GetSensorData(config.Get().Room.TemperatureSensorID, 1)
+		roomTemp, err := hdb.GetSensorData(config.Get().Room.TemperatureSensorID, 1)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		roomHum, err := wdb.GetSensorData(config.Get().Room.HumiditySensorID, 1)
+		roomHum, err := hdb.GetSensorData(config.Get().Room.HumiditySensorID, 1)
 		if err != nil {
 			Error(rw, err)
 			return
@@ -30,40 +30,39 @@ func Dashboard(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.R
 
 		// collect the graph data
 		var graphLabels []string
-		graphTemperature := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
-		graphHumidity := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
-		graphWindows := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
+		graphTemperature := make(map[database.Sensor][]*database.SensorValue)
+		graphHumidity := make(map[database.Sensor][]*database.SensorValue)
 
-		roomTempSensor, err := wdb.GetSensorById(config.Get().Room.TemperatureSensorID)
+		roomTempSensor, err := hdb.GetSensorById(config.Get().Room.TemperatureSensorID)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		values, err := wdb.GetHourlyAverages(config.Get().Room.TemperatureSensorID, 72)
+		values, err := hdb.GetHourlyAverages(config.Get().Room.TemperatureSensorID, 72)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
 		graphTemperature[*roomTempSensor] = values
 
-		forecastTempSensor, err := wdb.GetSensorById(config.Get().Forecast.TemperatureSensorID)
+		forecastTempSensor, err := hdb.GetSensorById(config.Get().Forecast.TemperatureSensorID)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		values, err = wdb.GetHourlyAverages(config.Get().Forecast.TemperatureSensorID, 72)
+		values, err = hdb.GetHourlyAverages(config.Get().Forecast.TemperatureSensorID, 72)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
 		graphTemperature[*forecastTempSensor] = values
 
-		roomHumSensor, err := wdb.GetSensorById(config.Get().Room.HumiditySensorID)
+		roomHumSensor, err := hdb.GetSensorById(config.Get().Room.HumiditySensorID)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		values, err = wdb.GetHourlyAverages(config.Get().Room.HumiditySensorID, 72)
+		values, err = hdb.GetHourlyAverages(config.Get().Room.HumiditySensorID, 72)
 		if err != nil {
 			Error(rw, err)
 			return
@@ -75,44 +74,16 @@ func Dashboard(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.R
 			graphLabels = append(graphLabels, value.Timestamp.Format("02.01. - 15:04"))
 		}
 
-		// collect the window states
-		windows, err := wdb.GetWindowStates()
-		if err != nil {
-			Error(rw, err)
-			return
-		}
-
-		// collect window value changes
-		windowSensorType, err := wdb.GetSensorTypeByType("window_state")
-		if err != nil {
-			Error(rw, err)
-			return
-		}
-		windowSensors, err := wdb.GetSensorsByTypeId(windowSensorType.Id)
-		if err != nil {
-			Error(rw, err)
-			return
-		}
-		for _, sensor := range windowSensors {
-			values, err = wdb.GetSensorValues(sensor.Id, 14)
-			if err != nil {
-				Error(rw, err)
-				return
-			}
-			graphWindows[*sensor] = values
-		}
-
 		type Room struct {
-			Temperature  *weatherdb.SensorData
-			Humidity     *weatherdb.SensorData
+			Temperature  *database.SensorData
+			Humidity     *database.SensorData
 			OutdatedTemp bool
 			OutdatedHum  bool
 		}
 		type Graphs struct {
 			Labels      []string
-			Humidity    map[weatherdb.Sensor][]*weatherdb.SensorValue
-			Temperature map[weatherdb.Sensor][]*weatherdb.SensorValue
-			Windows     map[weatherdb.Sensor][]*weatherdb.SensorValue
+			Humidity    map[database.Sensor][]*database.SensorValue
+			Temperature map[database.Sensor][]*database.SensorValue
 		}
 
 		timeLimit := time.Now().Add(2 * time.Hour).UTC()
@@ -127,17 +98,14 @@ func Dashboard(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.R
 			Labels:      graphLabels,
 			Humidity:    graphHumidity,
 			Temperature: graphTemperature,
-			Windows:     graphWindows,
 		}
 
 		page.Content = struct {
-			Windows []*weatherdb.Window
-			Room    Room
-			Graphs  Graphs
+			Room   Room
+			Graphs Graphs
 		}{
-			Windows: windows,
-			Room:    room,
-			Graphs:  graphs,
+			Room:   room,
+			Graphs: graphs,
 		}
 
 		web.Render().HTML(rw, http.StatusOK, "dashboard", page)

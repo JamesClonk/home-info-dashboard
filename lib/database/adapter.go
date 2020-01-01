@@ -20,7 +20,7 @@ func NewAdapter() (db Adapter) {
 	var databaseType, databaseUri string
 
 	// get db type
-	databaseType = env.Get("WEATHERDB_TYPE", "postgres")
+	databaseType = env.Get("HOME_INFO_DB_TYPE", "postgres")
 
 	// check for VCAP_SERVICES first
 	vcap, err := cfenv.Current()
@@ -28,35 +28,23 @@ func NewAdapter() (db Adapter) {
 		log.Println("Could not parse VCAP environment variables")
 		log.Println(err)
 	} else {
-		service, err := vcap.Services.WithName("weatherdb")
+		service, err := vcap.Services.WithName("home_info_db")
 		if err != nil {
-			log.Println("Could not find weatherdb service in VCAP_SERVICES")
+			log.Println("Could not find home_info_db service in VCAP_SERVICES")
 			log.Fatal(err)
 		}
 		databaseUri = fmt.Sprintf("%v", service.Credentials["uri"])
-
-		// stupid servicebroker is giving us an improperly formatted DSN
-		if databaseType == "mysql" {
-			databaseUri = fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?multiStatements=true&parseTime=true",
-				service.Credentials["username"],
-				service.Credentials["password"],
-				service.Credentials["hostname"],
-				service.Credentials["port"],
-				service.Credentials["database"])
-		}
 	}
 
-	// if WEATHERDB_URI is not yet set then try to read it from ENV
+	// if HOME_INFO_DB_URI is not yet set then try to read it from ENV
 	if len(databaseUri) == 0 {
-		databaseUri = env.MustGet("WEATHERDB_URI")
+		databaseUri = env.MustGet("HOME_INFO_DB_URI")
 	}
 
 	// setup database adapter
 	switch databaseType {
 	case "postgres":
 		db = newPostgresAdapter(databaseUri)
-	case "mysql":
-		db = newMysqlAdapter(databaseUri)
 	case "sqlite":
 		db = newSQLiteAdapter(databaseUri)
 	default:
@@ -67,6 +55,5 @@ func NewAdapter() (db Adapter) {
 	if db == nil {
 		log.Fatal("Could not set up database adapter")
 	}
-
 	return db
 }

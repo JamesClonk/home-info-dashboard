@@ -12,7 +12,6 @@ import (
 
 	"github.com/JamesClonk/home-info-dashboard/lib/config"
 	"github.com/JamesClonk/home-info-dashboard/lib/database"
-	"github.com/JamesClonk/home-info-dashboard/lib/database/weatherdb"
 	"github.com/JamesClonk/home-info-dashboard/lib/env"
 	"github.com/JamesClonk/home-info-dashboard/lib/forecasts"
 	"github.com/JamesClonk/home-info-dashboard/lib/util"
@@ -21,15 +20,15 @@ import (
 )
 
 func main() {
-	env.MustGet("WEATHERAPI_PASSWORD")
-	wdb := setupDatabase()
+	env.MustGet("AUTH_PASSWORD")
+	hdb := setupDatabase()
 
 	// setup SIGINT catcher for graceful shutdown
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 
 	// start a http server with negroni
-	server := startHTTPServer(wdb)
+	server := startHTTPServer(hdb)
 
 	// wait for SIGINT
 	<-stop
@@ -39,7 +38,7 @@ func main() {
 	log.Println("Server gracefully stopped")
 }
 
-func setupDatabase() weatherdb.WeatherDB {
+func setupDatabase() database.HomeInfoDB {
 	// setup weather database
 	adapter := database.NewAdapter()
 	if err := adapter.RunMigrations("lib/database/migrations"); err != nil {
@@ -48,30 +47,30 @@ func setupDatabase() weatherdb.WeatherDB {
 			log.Fatal(err)
 		}
 	}
-	wdb := weatherdb.NewWeatherDB(adapter)
+	hdb := database.NewHomeInfoDB(adapter)
 
 	// background jobs
-	spawnHousekeeping(wdb)
-	spawnForecastCollection(wdb)
+	spawnHousekeeping(hdb)
+	spawnForecastCollection(hdb)
 
-	return wdb
+	return hdb
 }
 
-func spawnHousekeeping(wdb weatherdb.WeatherDB) {
-	go func(wdb weatherdb.WeatherDB) {
+func spawnHousekeeping(hdb database.HomeInfoDB) {
+	go func(hdb database.HomeInfoDB) {
 		for {
 			// retention policy of 33 days and minimum 50'000 values
-			if err := wdb.Housekeeping(33, 50000); err != nil {
+			if err := hdb.Housekeeping(33, 50000); err != nil {
 				log.Println("Database housekeeping failed")
 				log.Fatal(err)
 			}
 			time.Sleep(12 * time.Hour)
 		}
-	}(wdb)
+	}(hdb)
 }
 
-func spawnForecastCollection(wdb weatherdb.WeatherDB) {
-	go func(wdb weatherdb.WeatherDB) {
+func spawnForecastCollection(hdb database.HomeInfoDB) {
+	go func(hdb database.HomeInfoDB) {
 		sensorId := config.Get().Forecast.TemperatureSensorID
 
 		for {
@@ -89,7 +88,7 @@ func spawnForecastCollection(wdb weatherdb.WeatherDB) {
 					log.Fatal(err)
 				}
 
-				if err := wdb.InsertSensorValue(sensorId, int(value), time.Now()); err != nil {
+				if err := hdb.InsertSensorValue(sensorId, int(value), time.Now()); err != nil {
 					log.Println("Could not insert temperature value for forecast temperature")
 					log.Fatal(err)
 				}
@@ -98,21 +97,21 @@ func spawnForecastCollection(wdb weatherdb.WeatherDB) {
 
 			time.Sleep(1 * time.Hour)
 		}
-	}(wdb)
+	}(hdb)
 }
 
-func setupNegroni(wdb weatherdb.WeatherDB) *negroni.Negroni {
+func setupNegroni(hdb database.HomeInfoDB) *negroni.Negroni {
 	n := negroni.Classic()
 
-	r := router.New(wdb)
+	r := router.New(hdb)
 	n.UseHandler(r)
 
 	return n
 }
 
-func startHTTPServer(wdb weatherdb.WeatherDB) *http.Server {
+func startHTTPServer(hdb database.HomeInfoDB) *http.Server {
 	addr := ":" + env.Get("PORT", "8080")
-	server := &http.Server{Addr: addr, Handler: setupNegroni(wdb)}
+	server := &http.Server{Addr: addr, Handler: setupNegroni(hdb)}
 
 	go func() {
 		log.Printf("Listening on http://0.0.0.0%s\n", addr)

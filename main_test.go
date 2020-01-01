@@ -20,17 +20,16 @@ var (
 )
 
 func init() {
-	os.Setenv("PORT", "8080")
+	os.Setenv("PORT", "9090")
 
 	os.Setenv("DEFAULT_CANTON", "Bern")
 	os.Setenv("DEFAULT_CITY", "Bern")
 
-	os.Setenv("WEATHERAPI_USERNAME", testUser)
-	os.Setenv("WEATHERAPI_PASSWORD", testPassword)
+	os.Setenv("AUTH_USERNAME", testUser)
+	os.Setenv("AUTH_PASSWORD", testPassword)
 
-	os.Setenv("WEATHERDB_TYPE", "sqlite")
-	os.Setenv("WEATHERDB_URI", "sqlite3://_fixtures/temp.db")
-	os.Setenv("WEATHERDB_TYPE", "sqlite")
+	os.Setenv("HOME_INFO_DB_TYPE", "sqlite")
+	os.Setenv("HOME_INFO_DB_URI", "sqlite3://_fixtures/temp.db")
 
 	os.Setenv("CONFIG_ROOM_TEMPERATURE_SENSOR_ID", "3")
 	os.Setenv("CONFIG_ROOM_HUMIDITY_SENSOR_ID", "4")
@@ -46,7 +45,7 @@ func init() {
 
 func Test_Main_404(t *testing.T) {
 	response := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", "http://localhost:8080/something", nil)
+	req, err := http.NewRequest("GET", "http://localhost:9090/something", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -55,7 +54,7 @@ func Test_Main_404(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, response.Code)
 
 	body := response.Body.String()
-	assert.Contains(t, body, `<title>Weather App - Not Found</title>`)
+	assert.Contains(t, body, `<title>Home Info - Not Found</title>`)
 	assert.Contains(t, body, `<section class="hero is-medium is-warning">`)
 	assert.Contains(t, body, `<h1 class="title">404 - Not Found</h1>`)
 	assert.Contains(t, body, `<h2 class="subtitle">This is not the page you are looking for ...</h2>`)
@@ -63,7 +62,7 @@ func Test_Main_404(t *testing.T) {
 
 func Test_Main_500(t *testing.T) {
 	response := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", "http://localhost:8080/error", nil)
+	req, err := http.NewRequest("GET", "http://localhost:9090/error", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -72,7 +71,7 @@ func Test_Main_500(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, response.Code)
 
 	body := response.Body.String()
-	assert.Contains(t, body, `<title>Weather App - Error</title>`)
+	assert.Contains(t, body, `<title>Home Info - Error</title>`)
 	assert.Contains(t, body, `<section class="hero is-medium is-danger">`)
 	assert.Contains(t, body, `<h1 class="title">Error</h1>`)
 	assert.Contains(t, body, `<h2 class="subtitle">Internal Server Error</h2>`)
@@ -89,8 +88,8 @@ func Test_Main_Index(t *testing.T) {
 	assert.Equal(t, http.StatusOK, response.Code)
 
 	body := response.Body.String()
-	assert.Contains(t, body, `<title>Weather App</title>`)
-	assert.Contains(t, body, `<h1 class="title">Weather App</h1>`)
+	assert.Contains(t, body, `<title>Home Info</title>`)
+	assert.Contains(t, body, `<h1 class="title">Home Info</h1>`)
 	assert.Contains(t, body, `<img src="/images/smart_temperature.png">`)
 }
 
@@ -105,7 +104,7 @@ func Test_Main_Forecasts(t *testing.T) {
 	assert.Equal(t, http.StatusOK, response.Code)
 
 	body := response.Body.String()
-	assert.Contains(t, body, `<title>Weather App - Forecasts - Bern</title>`)
+	assert.Contains(t, body, `<title>Home Info - Forecasts - Bern</title>`)
 	assert.Contains(t, body, `<h1 class="title">Berne</h1>`)
 	assert.Contains(t, body, `<h2 class="subtitle">Switzerland</h2>`)
 	assert.Contains(t, body, `<p>549m</p>`)

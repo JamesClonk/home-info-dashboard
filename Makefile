@@ -1,44 +1,89 @@
-.PHONY: run dev binary setup glide start-mysql stop-mysql test update
+.DEFAULT_GOAL := run
 SHELL := /bin/bash
+APP ?= $(shell basename $$(pwd))
+COMMIT_SHA = $(shell git rev-parse --short HEAD)
 
-all: run
+.PHONY: help
+## help: prints this help message
+help:
+	@echo "Usage:"
+	@sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' |  sed -e 's/^/ /'
 
-run: binary
-	scripts/run.sh
+.PHONY: run
+## run: runs main.go with the race detector
+run:
+	source .env; source .env_*; go run -race main.go
 
-dev: stop-mysql start-mysql
-	scripts/dev.sh
+.PHONY: gin
+## gin: runs main.go via gin (hot reloading)
+gin:
+	gin --all --immediate run main.go
 
-binary:
-	GOARCH=amd64 GOOS=linux go build -i -o weather_app
+.PHONY: build
+## build: builds the application
+build: clean
+	@echo "Building binary ..."
+	go build -o ${APP}
 
-setup:
-	go get -v -u github.com/codegangsta/gin
-	go get -v -u github.com/Masterminds/glide
+.PHONY: clean
+## clean: cleans up binary files
+clean:
+	@echo "Cleaning up ..."
+	@go clean
 
-glide:
-	glide install --force
+.PHONY: test
+## test: runs go test with the race detector
+test:
+	@source .env_sqlite; GOARCH=amd64 GOOS=linux go test -v -race ./...; echo $$?
 
-start-mysql:
-	docker run --name homedb \
-		-e MYSQL_ROOT_PASSWORD=blibb \
-		-e MYSQL_DATABASE=weather_db \
-		-e MYSQL_USER=blubb \
-		-e MYSQL_PASSWORD=blabb \
-		-p "3306:3306" \
-		-d mariadb:10
-	sleep 10
+.PHONY: init
+## init: sets up go modules
+init:
+	@echo "Setting up modules ..."
+	@go mod init 2>/dev/null; go mod tidy && go mod vendor
+
+.PHONY: push
+## push: pushes the application onto CF
+push: test build
+	cf push
+
+.PHONY: postgres
+## postgres: runs postgres backend on docker
+postgres: postgres-network postgres-stop postgres-start
+	docker logs postgres -f
+
+.PHONY: postgres-network
+postgres-network:
+	docker network create postgres-network --driver bridge || true
+
+.PHONY: postgres-cleanup
+## postgres-cleanup: cleans up postgres backend
+postgres-cleanup: postgres-stop
+.PHONY: postgres-stop
+postgres-stop:
+	docker rm -f postgres || true
+
+.PHONY: postgres-start
+postgres-start:
+	docker run --name postgres \
+		--network postgres-network \
+		-e POSTGRES_USER='dev-user' \
+		-e POSTGRES_PASSWORD='dev-secret' \
+		-e POSTGRES_DB='home_info_db' \
+		-p 5432:5432 \
+		-d postgres:9-alpine
 	scripts/db_setup.sh
 
-stop-mysql:
-	docker kill homedb || true
-	docker rm -f homedb || true
+.PHONY: postgres-client
+## postgres-client: connects to postgres backend with CLI
+postgres-client:
+	docker exec -it \
+		-e PGPASSWORD='dev-secret' \
+		postgres psql -U 'dev-user' -d 'home_info_db'
 
-test:
-	GOARCH=amd64 GOOS=linux go test $$(go list ./... | grep -v /vendor/)
-
-update:
-	git checkout master
-	git fetch --all
-	git merge upstream/master
-	git push
+.PHONY: cleanup
+cleanup: docker-cleanup
+.PHONY: docker-cleanup
+## docker-cleanup: cleans up local docker images and volumes
+docker-cleanup:
+	docker system prune --volumes -a

@@ -3,59 +3,59 @@ package router
 import (
 	"net/http"
 
-	"github.com/JamesClonk/home-info-dashboard/lib/database/weatherdb"
+	"github.com/JamesClonk/home-info-dashboard/lib/database"
 	"github.com/JamesClonk/home-info-dashboard/lib/util"
 	"github.com/JamesClonk/home-info-dashboard/lib/web/api"
 	"github.com/JamesClonk/home-info-dashboard/lib/web/html"
 	"github.com/gorilla/mux"
 )
 
-func New(wdb weatherdb.WeatherDB) *mux.Router {
+func New(hdb database.HomeInfoDB) *mux.Router {
 	router := mux.NewRouter()
-	setupRoutes(wdb, router)
+	setupRoutes(hdb, router)
 	return router
 }
 
-func setupRoutes(wdb weatherdb.WeatherDB, router *mux.Router) *mux.Router {
+func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 	// HTML
 	router.NotFoundHandler = http.HandlerFunc(html.NotFound)
 
-	router.HandleFunc("/", html.Index(wdb))
+	router.HandleFunc("/", html.Index(hdb))
 	router.HandleFunc("/error", html.ErrorHandler)
 
-	router.HandleFunc("/dashboard", html.Dashboard(wdb))
-	router.HandleFunc("/graphs", html.Graphs(wdb))
-	router.HandleFunc("/sensor_data", html.Sensors(wdb))
+	router.HandleFunc("/dashboard", html.Dashboard(hdb))
+	router.HandleFunc("/graphs", html.Graphs(hdb))
+	router.HandleFunc("/sensor_data", html.Sensors(hdb))
 
 	router.HandleFunc("/forecasts", html.Forecasts)
 	router.HandleFunc("/forecasts/{canton}", html.Forecasts)
 	router.HandleFunc("/forecasts/{canton}/{city}", html.Forecasts)
 
 	// API
-	router.HandleFunc("/sensor_type", api.GetSensorTypes(wdb)).Methods("GET")
-	router.HandleFunc("/sensor_types", api.GetSensorTypes(wdb)).Methods("GET")
-	router.HandleFunc("/sensor_type/{id}", api.GetSensorType(wdb)).Methods("GET")
+	router.HandleFunc("/sensor_type", api.GetSensorTypes(hdb)).Methods("GET")
+	router.HandleFunc("/sensor_types", api.GetSensorTypes(hdb)).Methods("GET")
+	router.HandleFunc("/sensor_type/{id}", api.GetSensorType(hdb)).Methods("GET")
 
-	router.HandleFunc("/sensor", api.GetSensors(wdb)).Methods("GET")
-	router.HandleFunc("/sensors", api.GetSensors(wdb)).Methods("GET")
-	router.HandleFunc("/sensor/{id}", api.GetSensor(wdb)).Methods("GET")
+	router.HandleFunc("/sensor", api.GetSensors(hdb)).Methods("GET")
+	router.HandleFunc("/sensors", api.GetSensors(hdb)).Methods("GET")
+	router.HandleFunc("/sensor/{id}", api.GetSensor(hdb)).Methods("GET")
 
-	router.HandleFunc("/sensor/{id}/values", api.GetSensorValues(wdb)).Methods("GET")
-	router.HandleFunc("/sensor/{id}/values/{limit}", api.GetSensorValues(wdb)).Methods("GET")
+	router.HandleFunc("/sensor/{id}/values", api.GetSensorValues(hdb)).Methods("GET")
+	router.HandleFunc("/sensor/{id}/values/{limit}", api.GetSensorValues(hdb)).Methods("GET")
 
 	// secured API
-	router.HandleFunc("/sensor_type", basicAuth(api.AddSensorType(wdb))).Methods("POST")
-	router.HandleFunc("/sensor_type/{id}", basicAuth(api.UpdateSensorType(wdb))).Methods("PUT")
-	router.HandleFunc("/sensor_type/{id}", basicAuth(api.DeleteSensorType(wdb))).Methods("DELETE")
+	router.HandleFunc("/sensor_type", basicAuth(api.AddSensorType(hdb))).Methods("POST")
+	router.HandleFunc("/sensor_type/{id}", basicAuth(api.UpdateSensorType(hdb))).Methods("PUT")
+	router.HandleFunc("/sensor_type/{id}", basicAuth(api.DeleteSensorType(hdb))).Methods("DELETE")
 
-	router.HandleFunc("/sensor", basicAuth(api.AddSensor(wdb))).Methods("POST")
-	router.HandleFunc("/sensor/{id}", basicAuth(api.UpdateSensor(wdb))).Methods("PUT")
-	router.HandleFunc("/sensor/{id}", basicAuth(api.DeleteSensor(wdb))).Methods("DELETE")
+	router.HandleFunc("/sensor", basicAuth(api.AddSensor(hdb))).Methods("POST")
+	router.HandleFunc("/sensor/{id}", basicAuth(api.UpdateSensor(hdb))).Methods("PUT")
+	router.HandleFunc("/sensor/{id}", basicAuth(api.DeleteSensor(hdb))).Methods("DELETE")
 
-	router.HandleFunc("/sensor/{id}/value", basicAuth(api.AddSensorValue(wdb))).Methods("POST")
-	router.HandleFunc("/sensor/{id}/values", basicAuth(api.DeleteSensorValues(wdb))).Methods("DELETE")
+	router.HandleFunc("/sensor/{id}/value", basicAuth(api.AddSensorValue(hdb))).Methods("POST")
+	router.HandleFunc("/sensor/{id}/values", basicAuth(api.DeleteSensorValues(hdb))).Methods("DELETE")
 
-	router.HandleFunc("/housekeeping", basicAuth(api.Housekeeping(wdb))).Methods("POST")
+	router.HandleFunc("/housekeeping", basicAuth(api.Housekeeping(hdb))).Methods("POST")
 
 	return router
 }

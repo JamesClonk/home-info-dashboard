@@ -6,13 +6,17 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 )
 
-var memo map[string]WeatherForecast
+var (
+	memo  map[string]WeatherForecast
+	mutex = &sync.Mutex{}
+)
 
 func init() {
-	memo = make(map[string]WeatherForecast, 0)
+	memo = make(map[string]WeatherForecast)
 }
 
 func getData(url string) ([]byte, error) {
@@ -51,7 +55,7 @@ func Get(canton, city string) (data WeatherForecast, err error) {
 	}
 
 	// check memory first
-	if forecast, ok := memo[fmt.Sprintf("%s:%s", canton, city)]; ok {
+	if forecast, ok := readMemo(canton, city); ok {
 		// is it older than ~1 hour?
 		if time.Now().After(forecast.Timestamp.Add(58 * time.Minute)) {
 			if err := updateWeatherForecast(canton, city); err != nil {
@@ -63,7 +67,17 @@ func Get(canton, city string) (data WeatherForecast, err error) {
 			return WeatherForecast{}, err
 		}
 	}
-	return memo[fmt.Sprintf("%s:%s", canton, city)], nil
+
+	forecast, _ := readMemo(canton, city)
+	return forecast, nil
+}
+
+func readMemo(canton, city string) (WeatherForecast, bool) {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	value, ok := memo[fmt.Sprintf("%s:%s", canton, city)]
+	return value, ok
 }
 
 func updateWeatherForecast(canton, city string) error {
@@ -80,6 +94,8 @@ func updateWeatherForecast(canton, city string) error {
 		return err
 	}
 
+	mutex.Lock()
+	defer mutex.Unlock()
 	memo[fmt.Sprintf("%s:%s", canton, city)] = forecast
 	return nil
 }

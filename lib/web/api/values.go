@@ -5,12 +5,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/JamesClonk/home-info-dashboard/lib/database/weatherdb"
+	"github.com/JamesClonk/home-info-dashboard/lib/database"
 	"github.com/JamesClonk/home-info-dashboard/lib/web"
 	"github.com/gorilla/mux"
 )
 
-func GetSensorValues(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func GetSensorValues(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		var err error
 
@@ -38,7 +38,7 @@ func GetSensorValues(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *
 				valueLimit = 100
 			}
 
-			values, err := wdb.GetSensorValues(int(sensorId), int(valueLimit))
+			values, err := hdb.GetSensorValues(int(sensorId), int(valueLimit))
 			if err != nil {
 				Error(rw, err)
 				return
@@ -52,7 +52,7 @@ func GetSensorValues(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *
 	}
 }
 
-func AddSensorValue(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func AddSensorValue(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		var err error
 
@@ -76,7 +76,7 @@ func AddSensorValue(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *h
 				return
 			}
 
-			if err := wdb.InsertSensorValue(int(sensorId), int(value), time.Now()); err != nil {
+			if err := hdb.InsertSensorValue(int(sensorId), int(value), time.Now()); err != nil {
 				Error(rw, err)
 				return
 			}
@@ -89,7 +89,7 @@ func AddSensorValue(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *h
 	}
 }
 
-func DeleteSensorValues(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func DeleteSensorValues(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		var err error
 
@@ -106,7 +106,7 @@ func DeleteSensorValues(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, re
 				}
 			}
 
-			if err := wdb.DeleteSensorValues(int(sensorId)); err != nil {
+			if err := hdb.DeleteSensorValues(int(sensorId)); err != nil {
 				Error(rw, err)
 				return
 			}
@@ -119,7 +119,7 @@ func DeleteSensorValues(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, re
 	}
 }
 
-func Housekeeping(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func Housekeeping(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		req.ParseForm()
 		days, err := strconv.ParseInt(req.Form.Get("days"), 10, 64)
@@ -133,7 +133,7 @@ func Housekeeping(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *htt
 			return
 		}
 
-		if err := wdb.Housekeeping(int(days), int(rows)); err != nil {
+		if err := hdb.Housekeeping(int(days), int(rows)); err != nil {
 			Error(rw, err)
 			return
 		}

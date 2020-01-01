@@ -1,2 +1,0 @@
--- configuration
-DROP TABLE configuration;

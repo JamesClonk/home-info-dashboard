@@ -1,0 +1,32 @@
+# github.com/cloudfoundry-community/go-cfenv v1.17.0
+github.com/cloudfoundry-community/go-cfenv
+# github.com/davecgh/go-spew v1.1.1
+github.com/davecgh/go-spew/spew
+# github.com/gorilla/context v1.1.1
+github.com/gorilla/context
+# github.com/gorilla/mux v1.6.0
+github.com/gorilla/mux
+# github.com/lib/pq v0.0.0-20171022192043-b609790bd85e
+github.com/lib/pq
+github.com/lib/pq/oid
+# github.com/mattes/migrate v3.0.2-0.20170730220505-8b5365e62cb4+incompatible
+github.com/mattes/migrate
+github.com/mattes/migrate/database
+github.com/mattes/migrate/database/postgres
+github.com/mattes/migrate/database/sqlite3
+github.com/mattes/migrate/source
+github.com/mattes/migrate/source/file
+# github.com/mattn/go-sqlite3 v2.0.2+incompatible
+github.com/mattn/go-sqlite3
+# github.com/mitchellh/mapstructure v0.0.0-20161020161836-f3009df150da
+github.com/mitchellh/mapstructure
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
+# github.com/stretchr/testify v1.4.0
+github.com/stretchr/testify/assert
+# github.com/unrolled/render v0.0.0-20171006150303-32bf1ea2a39e
+github.com/unrolled/render
+# github.com/urfave/negroni v0.2.1-0.20171016041905-079cf0c7a6b0
+github.com/urfave/negroni
+# gopkg.in/yaml.v2 v2.2.4
+gopkg.in/yaml.v2

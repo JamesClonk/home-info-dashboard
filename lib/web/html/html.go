@@ -6,15 +6,15 @@ import (
 	"time"
 
 	"github.com/JamesClonk/home-info-dashboard/lib/config"
-	"github.com/JamesClonk/home-info-dashboard/lib/database/weatherdb"
+	"github.com/JamesClonk/home-info-dashboard/lib/database"
 	"github.com/JamesClonk/home-info-dashboard/lib/forecasts"
 	"github.com/JamesClonk/home-info-dashboard/lib/web"
 )
 
-func Index(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func Index(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		page := &Page{
-			Title:  "Weather App",
+			Title:  "Home Info",
 			Active: "home",
 		}
 		web.Render().HTML(rw, http.StatusOK, "index", page)
@@ -23,7 +23,7 @@ func Index(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Reque
 
 func NotFound(rw http.ResponseWriter, req *http.Request) {
 	page := &Page{
-		Title: "Weather App - Not Found",
+		Title: "Home Info - Not Found",
 	}
 	web.Render().HTML(rw, http.StatusNotFound, "not_found", page)
 }
@@ -33,34 +33,34 @@ func ErrorHandler(rw http.ResponseWriter, req *http.Request) {
 }
 func Error(rw http.ResponseWriter, err error) {
 	page := &Page{
-		Title:   "Weather App - Error",
+		Title:   "Home Info - Error",
 		Content: err,
 	}
 	web.Render().HTML(rw, http.StatusInternalServerError, "error", page)
 }
 
-func Graphs(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		page := &Page{
-			Title:  "Weather App - Graphs",
+			Title:  "Home Info - Graphs",
 			Active: "graphs",
 		}
 
-		sensors, err := wdb.GetSensors()
+		sensors, err := hdb.GetSensors()
 		if err != nil {
 			Error(rw, err)
 			return
 		}
 
 		var weeklyLabels, hourlyLabels []string
-		weeklyTemperature := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
-		hourlyTemperature := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
-		weeklyHumidity := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
-		hourlyHumidity := make(map[weatherdb.Sensor][]*weatherdb.SensorValue)
+		weeklyTemperature := make(map[database.Sensor][]*database.SensorValue)
+		hourlyTemperature := make(map[database.Sensor][]*database.SensorValue)
+		weeklyHumidity := make(map[database.Sensor][]*database.SensorValue)
+		hourlyHumidity := make(map[database.Sensor][]*database.SensorValue)
 		for _, sensor := range sensors {
 			switch sensor.Type {
 			case "temperature":
-				values, err := wdb.GetHourlyAverages(sensor.Id, 48)
+				values, err := hdb.GetHourlyAverages(sensor.Id, 48)
 				if err != nil {
 					Error(rw, err)
 					return
@@ -74,7 +74,7 @@ func Graphs(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Requ
 					}
 				}
 
-				values, err = wdb.GetDailyAverages(sensor.Id, 28)
+				values, err = hdb.GetDailyAverages(sensor.Id, 28)
 				if err != nil {
 					Error(rw, err)
 					return
@@ -88,14 +88,14 @@ func Graphs(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Requ
 					}
 				}
 			case "humidity":
-				values, err := wdb.GetHourlyAverages(sensor.Id, 48)
+				values, err := hdb.GetHourlyAverages(sensor.Id, 48)
 				if err != nil {
 					Error(rw, err)
 					return
 				}
 				hourlyHumidity[*sensor] = values
 
-				values, err = wdb.GetDailyAverages(sensor.Id, 48)
+				values, err = hdb.GetDailyAverages(sensor.Id, 48)
 				if err != nil {
 					Error(rw, err)
 					return
@@ -105,11 +105,11 @@ func Graphs(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Requ
 		}
 
 		page.Content = struct {
-			HourlyTemperature map[weatherdb.Sensor][]*weatherdb.SensorValue
-			HourlyHumidity    map[weatherdb.Sensor][]*weatherdb.SensorValue
+			HourlyTemperature map[database.Sensor][]*database.SensorValue
+			HourlyHumidity    map[database.Sensor][]*database.SensorValue
 			HourlyLabels      []string
-			WeeklyTemperature map[weatherdb.Sensor][]*weatherdb.SensorValue
-			WeeklyHumidity    map[weatherdb.Sensor][]*weatherdb.SensorValue
+			WeeklyTemperature map[database.Sensor][]*database.SensorValue
+			WeeklyHumidity    map[database.Sensor][]*database.SensorValue
 			WeeklyLabels      []string
 		}{
 			hourlyTemperature,
@@ -124,22 +124,22 @@ func Graphs(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Requ
 	}
 }
 
-func Sensors(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Request) {
+func Sensors(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		page := &Page{
-			Title:  "Weather App - Sensors",
+			Title:  "Home Info - Sensors",
 			Active: "sensors",
 		}
 
-		sensors, err := wdb.GetSensors()
+		sensors, err := hdb.GetSensors()
 		if err != nil {
 			Error(rw, err)
 			return
 		}
 
-		data := make(map[int][]*weatherdb.SensorData, 0)
+		data := make(map[int][]*database.SensorData, 0)
 		for _, sensor := range sensors {
-			d, err := wdb.GetSensorData(sensor.Id, 10)
+			d, err := hdb.GetSensorData(sensor.Id, 10)
 			if err != nil {
 				Error(rw, err)
 				return
@@ -148,8 +148,8 @@ func Sensors(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Req
 		}
 
 		page.Content = struct {
-			Sensors    []*weatherdb.Sensor
-			SensorData map[int][]*weatherdb.SensorData
+			Sensors    []*database.Sensor
+			SensorData map[int][]*database.SensorData
 		}{
 			sensors,
 			data,
@@ -161,7 +161,7 @@ func Sensors(wdb weatherdb.WeatherDB) func(rw http.ResponseWriter, req *http.Req
 func Forecasts(rw http.ResponseWriter, req *http.Request) {
 	canton, city := web.GetLocation(req)
 	page := &Page{
-		Title:  fmt.Sprintf("Weather App - Forecasts - %s", city),
+		Title:  fmt.Sprintf("Home Info - Forecasts - %s", city),
 		Active: "forecasts",
 	}
 

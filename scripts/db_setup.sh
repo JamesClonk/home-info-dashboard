@@ -10,15 +10,38 @@ fi
 echo $PWD
 
 # =============================================================================================
-source .env_mysql
+source .env
 
 # =============================================================================================
-echo "setting up weatherdb ..."
-sleep 5
+retry() {
+    local -r -i max_attempts="$1"; shift
+    local -r cmd="$@"
+    local -i attempt_num=1
 
-mysql --host=127.0.0.1 --user=blubb --password=blabb --database=weather_db -v < lib/database/migrations/mysql/001_weatherdb_sensor_tables.up.sql
-mysql --host=127.0.0.1 --user=blubb --password=blabb --database=weather_db -v < lib/database/migrations/mysql/002_weatherdb_setup_sensors.up.sql
-mysql --host=127.0.0.1 --user=blubb --password=blabb --database=weather_db -v < lib/database/migrations/mysql/003_weatherdb_config_table.up.sql
-mysql --host=127.0.0.1 --user=blubb --password=blabb --database=weather_db -v < _fixtures/migration.sql
-mysql --host=127.0.0.1 --user=blubb --password=blabb --database=weather_db -v < _fixtures/sensors.sql
-mysql --host=127.0.0.1 --user=blubb --password=blabb --database=weather_db -v < _fixtures/values.sql
+    until $cmd
+    do
+        if (( attempt_num == max_attempts ))
+        then
+            echo "Attempt $attempt_num failed and there are no more attempts left!"
+            return 1
+        else
+            echo "Attempt $attempt_num failed! Trying again in $attempt_num seconds..."
+            sleep $(( attempt_num++ ))
+        fi
+    done
+}
+
+# =============================================================================================
+echo "waiting on postgres ..."
+export PGPASSWORD=dev-secret
+retry 10 psql -h 127.0.0.1 -U dev-user -d home_info_db -c '\q'
+echo "postgres is up!"
+
+# =============================================================================================
+echo "setting up home-info db ..."
+sleep 1
+
+psql -h 127.0.0.1 -U dev-user -d home_info_db  < lib/database/migrations/postgres/001_sensor_tables.up.sql
+psql -h 127.0.0.1 -U dev-user -d home_info_db  < lib/database/migrations/postgres/002_setup_sensors.up.sql
+psql -h 127.0.0.1 -U dev-user -d home_info_db  < _fixtures/migration.sql
+psql -h 127.0.0.1 -U dev-user -d home_info_db  < _fixtures/values.sql
