@@ -11,8 +11,6 @@ applications:
   routes:
   - route: home-info.scapp.io
   - route: home-info.applicationcloud.io
-  - route: home-info.jamesclonk.io
-  - route: home.jamesclonk.io
   services:
   - home_info_db
 
