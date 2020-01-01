@@ -6,7 +6,7 @@ applications:
 - name: home-info
   memory: 64M
   disk_quota: 128M
-  instances: 2
+  instances: 1
 
   routes:
   - route: home-info.scapp.io
@@ -16,8 +16,7 @@ applications:
 
   buildpacks:
   - go_buildpack
-  health-check-type: http
-  health-check-http-endpoint: /health
+  health-check-type: port
   command: home-info-dashboard
   path: .
 
