@@ -10,14 +10,21 @@ help:
 	@sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' |  sed -e 's/^/ /'
 
 .PHONY: run
-## run: runs main.go with the race detector
+## run: runs main.go with local sqlite database
 run:
-	source .env; source .env_*; go run -race main.go
+	@cp _fixtures/test.db _fixtures/temp.db
+	source .env_sqlite; go run -race main.go
+
+.PHONY: dev
+## dev: runs main.go on a local postgres
+dev:
+	source .env; go run -race main.go
 
 .PHONY: gin
 ## gin: runs main.go via gin (hot reloading)
 gin:
-	gin --all --immediate run main.go
+	@cp _fixtures/test.db _fixtures/temp.db
+	source .env_sqlite; gin --all --immediate run main.go
 
 .PHONY: build
 ## build: builds the application
@@ -34,6 +41,7 @@ clean:
 .PHONY: test
 ## test: runs go test with the race detector
 test:
+	@cp _fixtures/test.db _fixtures/temp.db
 	@source .env_sqlite; GOARCH=amd64 GOOS=linux go test -v -race ./...; echo $$?
 
 .PHONY: init

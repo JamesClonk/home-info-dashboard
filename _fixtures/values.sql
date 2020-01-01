@@ -1,28 +1,4 @@
 -- insert values
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-19 11:12:11', (select pk_sensor_id from sensor where name = 'roof window #1'), 1);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-19 09:28:27', (select pk_sensor_id from sensor where name = 'roof window #1'), 0);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-17 14:57:49', (select pk_sensor_id from sensor where name = 'roof window #1'), 1);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-17 06:06:06', (select pk_sensor_id from sensor where name = 'roof window #1'), 0);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-15 12:00:21', (select pk_sensor_id from sensor where name = 'roof window #1'), 1);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-14 17:29:01', (select pk_sensor_id from sensor where name = 'roof window #1'), 0);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-13 14:39:57', (select pk_sensor_id from sensor where name = 'roof window #1'), 1);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-13 14:34:15', (select pk_sensor_id from sensor where name = 'roof window #1'), 0);
-
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-19 14:49:56', (select pk_sensor_id from sensor where name = 'roof window #2'), 0);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-19 11:12:11', (select pk_sensor_id from sensor where name = 'roof window #2'), 1);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-19 08:18:27', (select pk_sensor_id from sensor where name = 'roof window #2'), 0);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-17 13:17:49', (select pk_sensor_id from sensor where name = 'roof window #2'), 1);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-17 07:07:05', (select pk_sensor_id from sensor where name = 'roof window #2'), 0);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-10-15 13:00:21', (select pk_sensor_id from sensor where name = 'roof window #2'), 1);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-10-14 16:39:01', (select pk_sensor_id from sensor where name = 'roof window #2'), 0);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-10-13 14:39:57', (select pk_sensor_id from sensor where name = 'roof window #2'), 1);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-10-13 13:34:15', (select pk_sensor_id from sensor where name = 'roof window #2'), 0);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-11 07:07:05', (select pk_sensor_id from sensor where name = 'roof window #2'), 0);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-10-10 13:00:21', (select pk_sensor_id from sensor where name = 'roof window #2'), 1);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-10-09 16:39:01', (select pk_sensor_id from sensor where name = 'roof window #2'), 0);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-10-09 14:39:57', (select pk_sensor_id from sensor where name = 'roof window #2'), 1);
-INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-10-09 13:34:15', (select pk_sensor_id from sensor where name = 'roof window #2'), 0);
-
 INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-19 15:16:55', (select pk_sensor_id from sensor where name = 'temperature #1'), 25);
 INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-19 15:14:45', (select pk_sensor_id from sensor where name = 'temperature #1'), 23);
 INSERT INTO sensor_data (timestamp, fk_sensor_id, value) VALUES('2017-11-19 15:12:35', (select pk_sensor_id from sensor where name = 'temperature #1'), 24);

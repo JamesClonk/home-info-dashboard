@@ -44,8 +44,8 @@ func NewHomeInfoDB(adapter Adapter) HomeInfoDB {
 	return &homeInfoDB{adapter.GetDatabase(), adapter.GetType()}
 }
 
-func (wdb *homeInfoDB) GetTemperature() (int64, error) {
-	rows, err := wdb.Query(`
+func (hdb *homeInfoDB) GetTemperature() (int64, error) {
+	rows, err := hdb.Query(`
 		select sd.value
 		from sensor_data sd
 		join sensor s on s.pk_sensor_id = sd.fk_sensor_id
@@ -67,8 +67,8 @@ func (wdb *homeInfoDB) GetTemperature() (int64, error) {
 	return temperature, nil
 }
 
-func (wdb *homeInfoDB) GetSensors() ([]*Sensor, error) {
-	rows, err := wdb.Query(`
+func (hdb *homeInfoDB) GetSensors() ([]*Sensor, error) {
+	rows, err := hdb.Query(`
 		select s.pk_sensor_id, s.name, st.type, st.pk_sensor_type_id, st.unit, s.description
 		from sensor s
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
@@ -89,12 +89,12 @@ func (wdb *homeInfoDB) GetSensors() ([]*Sensor, error) {
 	return ss, nil
 }
 
-func (wdb *homeInfoDB) GetSensorsByTypeId(id int) ([]*Sensor, error) {
-	stmt, err := wdb.Prepare(`
+func (hdb *homeInfoDB) GetSensorsByTypeId(id int) ([]*Sensor, error) {
+	stmt, err := hdb.Prepare(`
 		select s.pk_sensor_id, s.name, st.type, st.pk_sensor_type_id, st.unit, s.description
 		from sensor s
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
-		where st.pk_sensor_type_id = ?
+		where st.pk_sensor_type_id = $1
 		order by st.type asc, s.name asc`)
 	if err != nil {
 		return nil, err
@@ -118,12 +118,12 @@ func (wdb *homeInfoDB) GetSensorsByTypeId(id int) ([]*Sensor, error) {
 	return ss, nil
 }
 
-func (wdb *homeInfoDB) GetSensorById(id int) (*Sensor, error) {
-	stmt, err := wdb.Prepare(`
+func (hdb *homeInfoDB) GetSensorById(id int) (*Sensor, error) {
+	stmt, err := hdb.Prepare(`
 		select s.pk_sensor_id, s.name, st.type, st.pk_sensor_type_id, st.unit, s.description
 		from sensor s
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
-		where s.pk_sensor_id = ?`)
+		where s.pk_sensor_id = $1`)
 	if err != nil {
 		return nil, err
 	}
@@ -136,12 +136,12 @@ func (wdb *homeInfoDB) GetSensorById(id int) (*Sensor, error) {
 	return s, nil
 }
 
-func (wdb *homeInfoDB) GetSensorByName(name string) (*Sensor, error) {
-	stmt, err := wdb.Prepare(`
+func (hdb *homeInfoDB) GetSensorByName(name string) (*Sensor, error) {
+	stmt, err := hdb.Prepare(`
 		select s.pk_sensor_id, s.name, st.type, st.pk_sensor_type_id, st.unit, s.description
 		from sensor s
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
-		where s.name = ?`)
+		where s.name = $1`)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (wdb *homeInfoDB) GetSensorByName(name string) (*Sensor, error) {
 	return s, nil
 }
 
-func (wdb *homeInfoDB) InsertSensor(sensor *Sensor) (err error) {
+func (hdb *homeInfoDB) InsertSensor(sensor *Sensor) (err error) {
 	var sensorTypeId int64
 	if len(sensor.TypeId) > 0 {
 		sensorTypeId, err = strconv.ParseInt(sensor.TypeId, 10, 64)
@@ -166,19 +166,19 @@ func (wdb *homeInfoDB) InsertSensor(sensor *Sensor) (err error) {
 	// figure out sensor type
 	var sensorType *SensorType
 	if sensorTypeId > 0 { // by id
-		sensorType, err = wdb.GetSensorTypeById(int(sensorTypeId))
+		sensorType, err = hdb.GetSensorTypeById(int(sensorTypeId))
 		if err != nil {
 			return err
 		}
 	} else { // by type
-		sensorType, err = wdb.GetSensorTypeByType(sensor.Type)
+		sensorType, err = hdb.GetSensorTypeByType(sensor.Type)
 		if err != nil {
 			return err
 		}
 	}
 
-	stmt, err := wdb.Prepare(`
-		insert into sensor (name, fk_sensor_type_id, description) values (?, ?, ?)`)
+	stmt, err := hdb.Prepare(`
+		insert into sensor (name, fk_sensor_type_id, description) values ($1, $2, $3)`)
 	if err != nil {
 		return err
 	}
@@ -189,7 +189,7 @@ func (wdb *homeInfoDB) InsertSensor(sensor *Sensor) (err error) {
 	}
 
 	// make sure to get new values
-	sensorNew, err := wdb.GetSensorByName(sensor.Name)
+	sensorNew, err := hdb.GetSensorByName(sensor.Name)
 	if err != nil {
 		return err
 	}
@@ -203,7 +203,7 @@ func (wdb *homeInfoDB) InsertSensor(sensor *Sensor) (err error) {
 	return nil
 }
 
-func (wdb *homeInfoDB) UpdateSensor(sensor *Sensor) (err error) {
+func (hdb *homeInfoDB) UpdateSensor(sensor *Sensor) (err error) {
 	var sensorTypeId int64
 	if len(sensor.TypeId) > 0 {
 		sensorTypeId, err = strconv.ParseInt(sensor.TypeId, 10, 64)
@@ -215,23 +215,23 @@ func (wdb *homeInfoDB) UpdateSensor(sensor *Sensor) (err error) {
 	// figure out sensor type
 	var sensorType *SensorType
 	if sensorTypeId > 0 { // by id
-		sensorType, err = wdb.GetSensorTypeById(int(sensorTypeId))
+		sensorType, err = hdb.GetSensorTypeById(int(sensorTypeId))
 		if err != nil {
 			return err
 		}
 	} else { // by type
-		sensorType, err = wdb.GetSensorTypeByType(sensor.Type)
+		sensorType, err = hdb.GetSensorTypeByType(sensor.Type)
 		if err != nil {
 			return err
 		}
 	}
 
-	stmt, err := wdb.Prepare(`
+	stmt, err := hdb.Prepare(`
 		update sensor
-		set name = ?,
-		fk_sensor_type_id = ?,
-		description = ?
-		where pk_sensor_id = ?`)
+		set name = $1,
+		fk_sensor_type_id = $2,
+		description = $3
+		where pk_sensor_id = $4`)
 	if err != nil {
 		return err
 	}
@@ -242,7 +242,7 @@ func (wdb *homeInfoDB) UpdateSensor(sensor *Sensor) (err error) {
 	}
 
 	// make sure to get updated values
-	sensorNew, err := wdb.GetSensorById(sensor.Id)
+	sensorNew, err := hdb.GetSensorById(sensor.Id)
 	if err != nil {
 		return err
 	}
@@ -255,11 +255,11 @@ func (wdb *homeInfoDB) UpdateSensor(sensor *Sensor) (err error) {
 	return nil
 }
 
-func (wdb *homeInfoDB) GetSensorTypeById(id int) (*SensorType, error) {
-	stmt, err := wdb.Prepare(`
+func (hdb *homeInfoDB) GetSensorTypeById(id int) (*SensorType, error) {
+	stmt, err := hdb.Prepare(`
 		select pk_sensor_type_id, type, unit, description
 		from sensor_type
-		where pk_sensor_type_id = ?`)
+		where pk_sensor_type_id = $1`)
 	if err != nil {
 		return nil, err
 	}
@@ -272,11 +272,11 @@ func (wdb *homeInfoDB) GetSensorTypeById(id int) (*SensorType, error) {
 	return t, nil
 }
 
-func (wdb *homeInfoDB) GetSensorTypeByType(s string) (*SensorType, error) {
-	stmt, err := wdb.Prepare(`
+func (hdb *homeInfoDB) GetSensorTypeByType(s string) (*SensorType, error) {
+	stmt, err := hdb.Prepare(`
 		select pk_sensor_type_id, type, unit, description
 		from sensor_type
-		where type = ?`)
+		where type = $1`)
 	if err != nil {
 		return nil, err
 	}
@@ -289,8 +289,8 @@ func (wdb *homeInfoDB) GetSensorTypeByType(s string) (*SensorType, error) {
 	return t, nil
 }
 
-func (wdb *homeInfoDB) GetSensorTypes() ([]*SensorType, error) {
-	rows, err := wdb.Query(`
+func (hdb *homeInfoDB) GetSensorTypes() ([]*SensorType, error) {
+	rows, err := hdb.Query(`
 		select pk_sensor_type_id, type, unit, description
 		from sensor_type
 		order by type asc, description asc`)
@@ -310,9 +310,9 @@ func (wdb *homeInfoDB) GetSensorTypes() ([]*SensorType, error) {
 	return st, nil
 }
 
-func (wdb *homeInfoDB) InsertSensorType(sensorType *SensorType) (err error) {
-	stmt, err := wdb.Prepare(`
-		insert into sensor_type (type, unit, description) values (?, ?, ?)`)
+func (hdb *homeInfoDB) InsertSensorType(sensorType *SensorType) (err error) {
+	stmt, err := hdb.Prepare(`
+		insert into sensor_type (type, unit, description) values ($1, $2, $3)`)
 	if err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ func (wdb *homeInfoDB) InsertSensorType(sensorType *SensorType) (err error) {
 	}
 
 	// make sure to get new values
-	sensorTypeNew, err := wdb.GetSensorTypeByType(sensorType.Type)
+	sensorTypeNew, err := hdb.GetSensorTypeByType(sensorType.Type)
 	if err != nil {
 		return err
 	}
@@ -335,13 +335,13 @@ func (wdb *homeInfoDB) InsertSensorType(sensorType *SensorType) (err error) {
 	return nil
 }
 
-func (wdb *homeInfoDB) UpdateSensorType(sensorType *SensorType) (err error) {
-	stmt, err := wdb.Prepare(`
+func (hdb *homeInfoDB) UpdateSensorType(sensorType *SensorType) (err error) {
+	stmt, err := hdb.Prepare(`
 		update sensor_type
-		set type = ?,
-		unit = ?,
-		description = ?
-		where pk_sensor_type_id = ?`)
+		set type = $1,
+		unit = $2,
+		description = $3
+		where pk_sensor_type_id = $4`)
 	if err != nil {
 		return err
 	}
@@ -352,7 +352,7 @@ func (wdb *homeInfoDB) UpdateSensorType(sensorType *SensorType) (err error) {
 	}
 
 	// make sure to get updated values
-	sensorTypeNew, err := wdb.GetSensorTypeById(sensorType.Id)
+	sensorTypeNew, err := hdb.GetSensorTypeById(sensorType.Id)
 	if err != nil {
 		return err
 	}
@@ -363,19 +363,19 @@ func (wdb *homeInfoDB) UpdateSensorType(sensorType *SensorType) (err error) {
 	return nil
 }
 
-func (wdb *homeInfoDB) GetSensorData(id, limit int) ([]*SensorData, error) {
+func (hdb *homeInfoDB) GetSensorData(id, limit int) ([]*SensorData, error) {
 	sql := `
 		select s.pk_sensor_id, sd.timestamp, s.name, st.type, st.unit, sd.value
 		from sensor_data sd
 		join sensor s on s.pk_sensor_id = sd.fk_sensor_id
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
-		where s.pk_sensor_id = ?
+		where s.pk_sensor_id = $1
 		order by sd.timestamp desc`
 	if limit > 0 {
 		sql += fmt.Sprintf(" limit %d", limit)
 	}
 
-	stmt, err := wdb.Prepare(sql)
+	stmt, err := hdb.Prepare(sql)
 	if err != nil {
 		return nil, err
 	}
@@ -398,17 +398,17 @@ func (wdb *homeInfoDB) GetSensorData(id, limit int) ([]*SensorData, error) {
 	return data, nil
 }
 
-func (wdb *homeInfoDB) GetSensorValues(id, limit int) ([]*SensorValue, error) {
+func (hdb *homeInfoDB) GetSensorValues(id, limit int) ([]*SensorValue, error) {
 	sql := `
 		select timestamp, value
 		from sensor_data
-		where fk_sensor_id = ?
+		where fk_sensor_id = $1
 		order by timestamp desc`
 	if limit > 0 {
 		sql += fmt.Sprintf(" limit %d", limit)
 	}
 
-	stmt, err := wdb.Prepare(sql)
+	stmt, err := hdb.Prepare(sql)
 	if err != nil {
 		return nil, err
 	}
@@ -431,21 +431,37 @@ func (wdb *homeInfoDB) GetSensorValues(id, limit int) ([]*SensorValue, error) {
 	return values, nil
 }
 
-func (wdb *homeInfoDB) GetHourlyAverages(id, limit int) ([]*SensorValue, error) {
-	stmt, err := wdb.Prepare(`
+func (hdb *homeInfoDB) GetHourlyAverages(id, limit int) ([]*SensorValue, error) {
+	stmt, err := hdb.Prepare(`
     select hour, value
-    from (select date_add(the_day, interval the_hour hour) as hour, the_value as value
+    from (select the_day + (the_hour * interval '1 hour') as hour, the_value as value
         from (select
             date(sd.timestamp) as the_day,
-            hour(sd.timestamp) as the_hour,
+            extract(hour from sd.timestamp) as the_hour,
             round(avg(sd.value)) as the_value
             from sensor_data sd
-            where sd.fk_sensor_id = ?
+            where sd.fk_sensor_id = $1
             group by 1,2
             order by 1 desc, 2 desc
         ) avg
-        limit ?) sort
+        limit $2) sort
     order by 1 asc`)
+	if hdb.DatabaseType == "sqlite" {
+		stmt, err = hdb.Prepare(`
+	    select hour, value
+	    from (select datetime(the_day, '+' || the_hour || ' hour') as hour, the_value as value
+	        from (select
+	            date(sd.timestamp) as the_day,
+	            strftime('%H', sd.timestamp) as the_hour,
+	            round(avg(sd.value)) as the_value
+	            from sensor_data sd
+	            where sd.fk_sensor_id = $1
+	            group by 1,2
+	            order by 1 desc, 2 desc
+	        ) avg
+	        limit $2) sort
+	    order by 1 asc`)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -460,25 +476,34 @@ func (wdb *homeInfoDB) GetHourlyAverages(id, limit int) ([]*SensorValue, error) 
 	values := []*SensorValue{}
 	for rows.Next() {
 		var value SensorValue
-		if err := rows.Scan(&value.Timestamp, &value.Value); err != nil {
-			return nil, err
+		if hdb.DatabaseType == "sqlite" {
+			var toConvert string
+			if err := rows.Scan(&toConvert, &value.Value); err != nil {
+				return nil, err
+			}
+			hour, _ := time.Parse("2006-01-02 15:04:05", toConvert)
+			value.Timestamp = &hour
+		} else {
+			if err := rows.Scan(&value.Timestamp, &value.Value); err != nil {
+				return nil, err
+			}
 		}
 		values = append(values, &value)
 	}
 	return values, nil
 }
 
-func (wdb *homeInfoDB) GetDailyAverages(id, limit int) ([]*SensorValue, error) {
-	stmt, err := wdb.Prepare(`
+func (hdb *homeInfoDB) GetDailyAverages(id, limit int) ([]*SensorValue, error) {
+	stmt, err := hdb.Prepare(`
     select day, value
     from (select
         date(sd.timestamp) as day,
         round(avg(sd.value)) as value
         from sensor_data sd
-        where sd.fk_sensor_id = ?
+        where sd.fk_sensor_id = $1
         group by 1
         order by 1 desc
-        limit ?) sort
+        limit $2) sort
     order by 1 asc`)
 	if err != nil {
 		return nil, err
@@ -494,17 +519,26 @@ func (wdb *homeInfoDB) GetDailyAverages(id, limit int) ([]*SensorValue, error) {
 	values := []*SensorValue{}
 	for rows.Next() {
 		var value SensorValue
-		if err := rows.Scan(&value.Timestamp, &value.Value); err != nil {
-			return nil, err
+		if hdb.DatabaseType == "sqlite" {
+			var toConvert string
+			if err := rows.Scan(&toConvert, &value.Value); err != nil {
+				return nil, err
+			}
+			hour, _ := time.Parse("2006-01-02 15:04:05", toConvert)
+			value.Timestamp = &hour
+		} else {
+			if err := rows.Scan(&value.Timestamp, &value.Value); err != nil {
+				return nil, err
+			}
 		}
 		values = append(values, &value)
 	}
 	return values, nil
 }
 
-func (wdb *homeInfoDB) InsertSensorValue(sensorId, value int, timestamp time.Time) error {
-	stmt, err := wdb.Prepare(`
-		insert into sensor_data (fk_sensor_id, value, timestamp) values (?, ?, ?)`)
+func (hdb *homeInfoDB) InsertSensorValue(sensorId, value int, timestamp time.Time) error {
+	stmt, err := hdb.Prepare(`
+		insert into sensor_data (fk_sensor_id, value, timestamp) values ($1, $2, $3)`)
 	if err != nil {
 		return err
 	}
@@ -514,10 +548,10 @@ func (wdb *homeInfoDB) InsertSensorValue(sensorId, value int, timestamp time.Tim
 	return err
 }
 
-func (wdb *homeInfoDB) DeleteSensor(sensorId int) error {
-	stmt, err := wdb.Prepare(`
+func (hdb *homeInfoDB) DeleteSensor(sensorId int) error {
+	stmt, err := hdb.Prepare(`
 		delete from sensor
-		where pk_sensor_id = ?`)
+		where pk_sensor_id = $1`)
 	if err != nil {
 		return err
 	}
@@ -527,10 +561,10 @@ func (wdb *homeInfoDB) DeleteSensor(sensorId int) error {
 	return err
 }
 
-func (wdb *homeInfoDB) DeleteSensorType(sensorTypeId int) error {
-	stmt, err := wdb.Prepare(`
+func (hdb *homeInfoDB) DeleteSensorType(sensorTypeId int) error {
+	stmt, err := hdb.Prepare(`
 		delete from sensor_type
-		where pk_sensor_type_id = ?`)
+		where pk_sensor_type_id = $1`)
 	if err != nil {
 		return err
 	}
@@ -540,10 +574,10 @@ func (wdb *homeInfoDB) DeleteSensorType(sensorTypeId int) error {
 	return err
 }
 
-func (wdb *homeInfoDB) DeleteSensorValues(sensorId int) error {
-	stmt, err := wdb.Prepare(`
+func (hdb *homeInfoDB) DeleteSensorValues(sensorId int) error {
+	stmt, err := hdb.Prepare(`
 		delete from sensor_data
-		where fk_sensor_id = ?`)
+		where fk_sensor_id = $1`)
 	if err != nil {
 		return err
 	}
@@ -553,8 +587,8 @@ func (wdb *homeInfoDB) DeleteSensorValues(sensorId int) error {
 	return err
 }
 
-func (wdb *homeInfoDB) GenerateSensorValues(id, num int) error {
-	sensor, err := wdb.GetSensorById(id)
+func (hdb *homeInfoDB) GenerateSensorValues(id, num int) error {
+	sensor, err := hdb.GetSensorById(id)
 	if err != nil {
 		return err
 	}
@@ -567,7 +601,7 @@ func (wdb *homeInfoDB) GenerateSensorValues(id, num int) error {
 		}
 		timestamp := time.Unix(rand.Int63n(time.Now().Unix()-666666)+666666, 0).UTC()
 
-		if err := wdb.InsertSensorValue(id, value, timestamp); err != nil {
+		if err := hdb.InsertSensorValue(id, value, timestamp); err != nil {
 			return err
 		}
 	}
@@ -575,31 +609,31 @@ func (wdb *homeInfoDB) GenerateSensorValues(id, num int) error {
 	return nil
 }
 
-func (wdb *homeInfoDB) Housekeeping(days, rows int) (err error) {
+func (hdb *homeInfoDB) Housekeeping(days, rows int) (err error) {
 	// housekeeping logic: select count(*) from sensor_data where timestamp < now - $days
 	// if count > $rows, then: delete from sensor_data where timestamp < now - $days
 	cutOff := time.Now().AddDate(0, -days, 0).UTC()
 
-	getStmt, err := wdb.Prepare(`
+	getStmt, err := hdb.Prepare(`
 		select count(*)
 		from sensor_data
-		where fk_sensor_id = ?
-		and timestamp > ?`)
+		where fk_sensor_id = $1
+		and timestamp > $2`)
 	if err != nil {
 		return err
 	}
 	defer getStmt.Close()
 
-	deleteStmt, err := wdb.Prepare(`
+	deleteStmt, err := hdb.Prepare(`
 		delete from sensor_data
-		where fk_sensor_id = ?
-		and timestamp < ?`)
+		where fk_sensor_id = $1
+		and timestamp < $2`)
 	if err != nil {
 		return err
 	}
 	defer deleteStmt.Close()
 
-	sensors, err := wdb.GetSensors()
+	sensors, err := hdb.GetSensors()
 	if err != nil {
 		return err
 	}
