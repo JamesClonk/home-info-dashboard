@@ -58,9 +58,9 @@ func setupDatabase() database.HomeInfoDB {
 }
 
 func spawnHousekeeping(hdb database.HomeInfoDB) {
-	time.Sleep(24 * time.Hour) // initial waiting period
-
 	go func(hdb database.HomeInfoDB) {
+		time.Sleep(24 * time.Hour) // initial waiting period
+
 		for {
 			// retention policy of 33 days and minimum 50'000 values
 			if err := hdb.Housekeeping(33, 50000); err != nil {
@@ -73,11 +73,10 @@ func spawnHousekeeping(hdb database.HomeInfoDB) {
 }
 
 func spawnForecastCollection(hdb database.HomeInfoDB) {
-	time.Sleep(2 * time.Minute) // initial waiting period
-
 	go func(hdb database.HomeInfoDB) {
-		sensorId := config.Get().Forecast.TemperatureSensorID
+		time.Sleep(2 * time.Minute) // initial waiting period
 
+		sensorId := config.Get().Forecast.TemperatureSensorID
 		for {
 			canton, city := util.GetDefaultLocation("", "")
 			forecast, err := forecasts.Get(canton, city)
