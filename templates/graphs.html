@@ -45,7 +45,7 @@
                 label: "{{ $sensor.Name }}",
                 yAxisID: 'T',
                 data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
-                borderColor: tempColor()
+                borderColor: {{ if eq $sensor.Name "weather forecast - temp" }}'#ffbb33'{{ else }}tempColor(){{ end }}
             },
         {{ end }}
         ]
@@ -160,7 +160,7 @@
                 label: "{{ $sensor.Name }}",
                 yAxisID: 'T',
                 data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
-                borderColor: tempColor()
+                borderColor: {{ if eq $sensor.Name "weather forecast - temp" }}'#ffbb33'{{ else }}tempColor(){{ end }}
             },
         {{ end }}
         ]

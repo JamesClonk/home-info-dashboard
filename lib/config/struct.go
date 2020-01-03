@@ -1,11 +1,15 @@
 package config
 
 type Configuration struct {
-	Room struct {
+	LivingRoom Room
+	BedRoom    Room
+	HomeOffice Room
+	Forecast   struct {
 		TemperatureSensorID int
-		HumiditySensorID    int
 	}
-	Forecast struct {
-		TemperatureSensorID int
-	}
+}
+
+type Room struct {
+	TemperatureSensorID int
+	HumiditySensorID    int
 }

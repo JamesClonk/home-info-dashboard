@@ -17,7 +17,7 @@ func Index(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Reque
 			Title:  "Home Info",
 			Active: "home",
 		}
-		web.Render().HTML(rw, http.StatusOK, "index", page)
+		_ = web.Render().HTML(rw, http.StatusOK, "index", page)
 	}
 }
 
@@ -25,7 +25,7 @@ func NotFound(rw http.ResponseWriter, req *http.Request) {
 	page := &Page{
 		Title: "Home Info - Not Found",
 	}
-	web.Render().HTML(rw, http.StatusNotFound, "not_found", page)
+	_ = web.Render().HTML(rw, http.StatusNotFound, "not_found", page)
 }
 
 func ErrorHandler(rw http.ResponseWriter, req *http.Request) {
@@ -36,7 +36,7 @@ func Error(rw http.ResponseWriter, err error) {
 		Title:   "Home Info - Error",
 		Content: err,
 	}
-	web.Render().HTML(rw, http.StatusInternalServerError, "error", page)
+	_ = web.Render().HTML(rw, http.StatusInternalServerError, "error", page)
 }
 
 func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
@@ -65,9 +65,12 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 					Error(rw, err)
 					return
 				}
+				if len(values) == 0 { // dont show empty sensors
+					continue
+				}
 				hourlyTemperature[*sensor] = values
 
-				if len(hourlyLabels) == 0 && sensor.Id == config.Get().Room.TemperatureSensorID {
+				if len(hourlyLabels) == 0 && sensor.Id == config.Get().LivingRoom.TemperatureSensorID {
 					// collect labels
 					for _, value := range values {
 						hourlyLabels = append(hourlyLabels, value.Timestamp.Format("02.01. - 15:04"))
@@ -81,7 +84,7 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 				}
 				weeklyTemperature[*sensor] = values
 
-				if len(weeklyLabels) == 0 && sensor.Id == config.Get().Room.TemperatureSensorID {
+				if len(weeklyLabels) == 0 && sensor.Id == config.Get().LivingRoom.TemperatureSensorID {
 					// collect labels
 					for _, value := range values {
 						weeklyLabels = append(weeklyLabels, value.Timestamp.Format("02.01.2006"))
@@ -92,6 +95,9 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 				if err != nil {
 					Error(rw, err)
 					return
+				}
+				if len(values) == 0 { // dont show empty sensors
+					continue
 				}
 				hourlyHumidity[*sensor] = values
 
@@ -120,7 +126,7 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 			weeklyLabels,
 		}
 
-		web.Render().HTML(rw, http.StatusOK, "graphs", page)
+		_ = web.Render().HTML(rw, http.StatusOK, "graphs", page)
 	}
 }
 
@@ -137,9 +143,9 @@ func Sensors(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 			return
 		}
 
-		data := make(map[int][]*database.SensorData, 0)
+		data := make(map[int][]*database.SensorData)
 		for _, sensor := range sensors {
-			d, err := hdb.GetSensorData(sensor.Id, 10)
+			d, err := hdb.GetSensorData(sensor.Id, 15)
 			if err != nil {
 				Error(rw, err)
 				return
@@ -154,7 +160,7 @@ func Sensors(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 			sensors,
 			data,
 		}
-		web.Render().HTML(rw, http.StatusOK, "sensors", page)
+		_ = web.Render().HTML(rw, http.StatusOK, "sensors", page)
 	}
 }
 
@@ -176,7 +182,7 @@ func Forecasts(rw http.ResponseWriter, req *http.Request) {
 			city,
 			err,
 		}
-		web.Render().HTML(rw, http.StatusNotFound, "forecast_error", page)
+		_ = web.Render().HTML(rw, http.StatusNotFound, "forecast_error", page)
 		return
 	}
 
@@ -195,5 +201,5 @@ func Forecasts(rw http.ResponseWriter, req *http.Request) {
 		time.Now().AddDate(0, 0, 1),
 		time.Now().AddDate(0, 0, 2),
 	}
-	web.Render().HTML(rw, http.StatusOK, "forecasts", page)
+	_ = web.Render().HTML(rw, http.StatusOK, "forecasts", page)
 }

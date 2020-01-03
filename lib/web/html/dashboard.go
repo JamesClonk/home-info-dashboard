@@ -2,7 +2,6 @@ package html
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/JamesClonk/home-info-dashboard/lib/config"
 	"github.com/JamesClonk/home-info-dashboard/lib/database"
@@ -17,12 +16,32 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 		}
 
 		// collect the top column
-		roomTemp, err := hdb.GetSensorData(config.Get().Room.TemperatureSensorID, 1)
+		livingRoomTemp, err := hdb.GetSensorData(config.Get().LivingRoom.TemperatureSensorID, 1)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		roomHum, err := hdb.GetSensorData(config.Get().Room.HumiditySensorID, 1)
+		livingRoomHum, err := hdb.GetSensorData(config.Get().LivingRoom.HumiditySensorID, 1)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		bedRoomTemp, err := hdb.GetSensorData(config.Get().BedRoom.TemperatureSensorID, 1)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		bedRoomHum, err := hdb.GetSensorData(config.Get().BedRoom.HumiditySensorID, 1)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		homeOfficeTemp, err := hdb.GetSensorData(config.Get().HomeOffice.TemperatureSensorID, 1)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		homeOfficeHum, err := hdb.GetSensorData(config.Get().HomeOffice.HumiditySensorID, 1)
 		if err != nil {
 			Error(rw, err)
 			return
@@ -33,12 +52,12 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 		graphTemperature := make(map[database.Sensor][]*database.SensorValue)
 		graphHumidity := make(map[database.Sensor][]*database.SensorValue)
 
-		roomTempSensor, err := hdb.GetSensorById(config.Get().Room.TemperatureSensorID)
+		roomTempSensor, err := hdb.GetSensorById(config.Get().LivingRoom.TemperatureSensorID)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		values, err := hdb.GetHourlyAverages(config.Get().Room.TemperatureSensorID, 72)
+		values, err := hdb.GetHourlyAverages(config.Get().LivingRoom.TemperatureSensorID, 72)
 		if err != nil {
 			Error(rw, err)
 			return
@@ -57,12 +76,12 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 		}
 		graphTemperature[*forecastTempSensor] = values
 
-		roomHumSensor, err := hdb.GetSensorById(config.Get().Room.HumiditySensorID)
+		roomHumSensor, err := hdb.GetSensorById(config.Get().LivingRoom.HumiditySensorID)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		values, err = hdb.GetHourlyAverages(config.Get().Room.HumiditySensorID, 72)
+		values, err = hdb.GetHourlyAverages(config.Get().LivingRoom.HumiditySensorID, 72)
 		if err != nil {
 			Error(rw, err)
 			return
@@ -75,10 +94,8 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 		}
 
 		type Room struct {
-			Temperature  *database.SensorData
-			Humidity     *database.SensorData
-			OutdatedTemp bool
-			OutdatedHum  bool
+			Temperature *database.SensorData
+			Humidity    *database.SensorData
 		}
 		type Graphs struct {
 			Labels      []string
@@ -86,28 +103,40 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			Temperature map[database.Sensor][]*database.SensorValue
 		}
 
-		timeLimit := time.Now().Add(2 * time.Hour).UTC()
-
-		room := Room{
-			Temperature:  roomTemp[0],
-			Humidity:     roomHum[0],
-			OutdatedTemp: roomTemp[0].Timestamp.Before(timeLimit),
-			OutdatedHum:  roomHum[0].Timestamp.Before(timeLimit),
-		}
 		graphs := Graphs{
 			Labels:      graphLabels,
 			Humidity:    graphHumidity,
 			Temperature: graphTemperature,
 		}
 
+		rooms := make([]Room, 0)
+		if len(livingRoomTemp) > 0 {
+			rooms = append(rooms, Room{
+				Temperature: livingRoomTemp[0],
+				Humidity:    livingRoomHum[0],
+			})
+		}
+		if len(bedRoomTemp) > 0 {
+			rooms = append(rooms, Room{
+				Temperature: bedRoomTemp[0],
+				Humidity:    bedRoomHum[0],
+			})
+		}
+		if len(homeOfficeTemp) > 0 {
+			rooms = append(rooms, Room{
+				Temperature: homeOfficeTemp[0],
+				Humidity:    homeOfficeHum[0],
+			})
+		}
+
 		page.Content = struct {
-			Room   Room
+			Rooms  []Room
 			Graphs Graphs
 		}{
-			Room:   room,
+			Rooms:  rooms,
 			Graphs: graphs,
 		}
 
-		web.Render().HTML(rw, http.StatusOK, "dashboard", page)
+		_ = web.Render().HTML(rw, http.StatusOK, "dashboard", page)
 	}
 }

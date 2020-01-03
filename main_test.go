@@ -31,8 +31,12 @@ func init() {
 	os.Setenv("HOME_INFO_DB_TYPE", "sqlite")
 	os.Setenv("HOME_INFO_DB_URI", "sqlite3://_fixtures/temp.db")
 
-	os.Setenv("CONFIG_ROOM_TEMPERATURE_SENSOR_ID", "3")
-	os.Setenv("CONFIG_ROOM_HUMIDITY_SENSOR_ID", "4")
+	os.Setenv("CONFIG_LIVING_ROOM_TEMPERATURE_SENSOR_ID", "3")
+	os.Setenv("CONFIG_LIVING_ROOM_HUMIDITY_SENSOR_ID", "4")
+	os.Setenv("CONFIG_BEDROOM_TEMPERATURE_SENSOR_ID", "6")
+	os.Setenv("CONFIG_BEDROOM_HUMIDITY_SENSOR_ID", "7")
+	os.Setenv("CONFIG_HOME_OFFICE_TEMPERATURE_SENSOR_ID", "8")
+	os.Setenv("CONFIG_HOME_OFFICE_HUMIDITY_SENSOR_ID", "9")
 	os.Setenv("CONFIG_FORECAST_TEMPERATURE_SENSOR_ID", "5")
 
 	if err := exec.Command("cp", "-f", "_fixtures/test.db", "_fixtures/temp.db").Run(); err != nil {

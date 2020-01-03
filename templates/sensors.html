@@ -26,6 +26,7 @@
 
     <div class="columns">
       {{ range .Content.Sensors }}
+      {{ if gt (len (index $.Content.SensorData .Id)) 0 }}
       <div class="column">
         <label class="label">{{ .Name }} (Id: {{ .Id }})</label>
         <table class="table is-bordered is-striped">
@@ -47,6 +48,7 @@
           </tbody>
         </table>
       </div>
+      {{ end }}
       {{ end }}
     </div>
   </div>

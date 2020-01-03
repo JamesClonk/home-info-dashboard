@@ -34,3 +34,6 @@ NOTICE
 
 # temporary test database
 _fixtures/temp.db
+
+# prod database
+.env_prod

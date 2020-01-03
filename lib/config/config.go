@@ -16,19 +16,47 @@ var (
 func Get() *Configuration {
 	once.Do(func() {
 		config = &Configuration{}
-		sensorId, err := strconv.ParseInt(env.MustGet("CONFIG_ROOM_TEMPERATURE_SENSOR_ID"), 10, 64)
+		sensorId, err := strconv.ParseInt(env.MustGet("CONFIG_LIVING_ROOM_TEMPERATURE_SENSOR_ID"), 10, 64)
 		if err != nil {
-			log.Printf("Could not parse room temperature sensor id: [%v]\n", sensorId)
+			log.Printf("Could not parse living room temperature sensor id: [%v]\n", sensorId)
 			log.Fatal(err)
 		}
-		config.Room.TemperatureSensorID = int(sensorId)
+		config.LivingRoom.TemperatureSensorID = int(sensorId)
 
-		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_ROOM_HUMIDITY_SENSOR_ID"), 10, 64)
+		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_LIVING_ROOM_HUMIDITY_SENSOR_ID"), 10, 64)
 		if err != nil {
-			log.Printf("Could not parse room humidity sensor id: [%v]\n", sensorId)
+			log.Printf("Could not parse living room humidity sensor id: [%v]\n", sensorId)
 			log.Fatal(err)
 		}
-		config.Room.HumiditySensorID = int(sensorId)
+		config.LivingRoom.HumiditySensorID = int(sensorId)
+
+		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_BEDROOM_TEMPERATURE_SENSOR_ID"), 10, 64)
+		if err != nil {
+			log.Printf("Could not parse bedroom temperature sensor id: [%v]\n", sensorId)
+			log.Fatal(err)
+		}
+		config.BedRoom.TemperatureSensorID = int(sensorId)
+
+		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_BEDROOM_HUMIDITY_SENSOR_ID"), 10, 64)
+		if err != nil {
+			log.Printf("Could not parse bedroom humidity sensor id: [%v]\n", sensorId)
+			log.Fatal(err)
+		}
+		config.BedRoom.HumiditySensorID = int(sensorId)
+
+		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_HOME_OFFICE_TEMPERATURE_SENSOR_ID"), 10, 64)
+		if err != nil {
+			log.Printf("Could not parse home office temperature sensor id: [%v]\n", sensorId)
+			log.Fatal(err)
+		}
+		config.HomeOffice.TemperatureSensorID = int(sensorId)
+
+		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_HOME_OFFICE_HUMIDITY_SENSOR_ID"), 10, 64)
+		if err != nil {
+			log.Printf("Could not parse home office humidity sensor id: [%v]\n", sensorId)
+			log.Fatal(err)
+		}
+		config.HomeOffice.HumiditySensorID = int(sensorId)
 
 		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_FORECAST_TEMPERATURE_SENSOR_ID"), 10, 64)
 		if err != nil {

@@ -72,7 +72,7 @@ func (hdb *homeInfoDB) GetSensors() ([]*Sensor, error) {
 		select s.pk_sensor_id, s.name, st.type, st.pk_sensor_type_id, st.unit, s.description
 		from sensor s
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
-		order by st.type asc, s.name asc`)
+		order by s.name asc, st.type asc`)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (hdb *homeInfoDB) GetSensorsByTypeId(id int) ([]*Sensor, error) {
 		from sensor s
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
 		where st.pk_sensor_type_id = $1
-		order by st.type asc, s.name asc`)
+		order by s.name asc, st.type asc`)
 	if err != nil {
 		return nil, err
 	}
