@@ -33,9 +33,10 @@ func main() {
 	// wait for SIGINT
 	<-stop
 	log.Println("Shutting down server...")
-	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-	server.Shutdown(ctx)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	_ = server.Shutdown(ctx)
 	log.Println("Server gracefully stopped")
+	cancel()
 }
 
 func setupDatabase() database.HomeInfoDB {
@@ -57,6 +58,8 @@ func setupDatabase() database.HomeInfoDB {
 }
 
 func spawnHousekeeping(hdb database.HomeInfoDB) {
+	time.Sleep(24 * time.Hour) // initial waiting period
+
 	go func(hdb database.HomeInfoDB) {
 		for {
 			// retention policy of 33 days and minimum 50'000 values
@@ -70,6 +73,8 @@ func spawnHousekeeping(hdb database.HomeInfoDB) {
 }
 
 func spawnForecastCollection(hdb database.HomeInfoDB) {
+	time.Sleep(2 * time.Minute) // initial waiting period
+
 	go func(hdb database.HomeInfoDB) {
 		sensorId := config.Get().Forecast.TemperatureSensorID
 
