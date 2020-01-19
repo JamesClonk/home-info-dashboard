@@ -137,6 +137,12 @@ func Sensors(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 			Active: "sensors",
 		}
 
+		sensorTypes, err := hdb.GetSensorTypes()
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+
 		sensors, err := hdb.GetSensors()
 		if err != nil {
 			Error(rw, err)
@@ -145,7 +151,7 @@ func Sensors(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 
 		data := make(map[int][]*database.SensorData)
 		for _, sensor := range sensors {
-			d, err := hdb.GetSensorData(sensor.Id, 15)
+			d, err := hdb.GetSensorData(sensor.Id, 10)
 			if err != nil {
 				Error(rw, err)
 				return
@@ -154,9 +160,11 @@ func Sensors(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 		}
 
 		page.Content = struct {
-			Sensors    []*database.Sensor
-			SensorData map[int][]*database.SensorData
+			SensorTypes []*database.SensorType
+			Sensors     []*database.Sensor
+			SensorData  map[int][]*database.SensorData
 		}{
+			sensorTypes,
 			sensors,
 			data,
 		}

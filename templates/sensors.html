@@ -22,13 +22,16 @@
         </tr>
         {{ end }}
       </tbody>
-    </table>
+    </table><br/>
 
+    {{ range $types := .Content.SensorTypes }}
+    <div class="columns"><div class="column"><h3 class="title is-3">{{ $types.Type }} ({{ $types.Unit }})<small> - {{ $types.Description }}</small></h3></div></div>
     <div class="columns">
-      {{ range .Content.Sensors }}
+      {{ range $.Content.Sensors }}
+      {{ if eq .Type $types.Type }}
       {{ if gt (len (index $.Content.SensorData .Id)) 0 }}
       <div class="column">
-        <label class="label">{{ .Name }} (Id: {{ .Id }})</label>
+        <label class="label">{{ .Name }} ({{ .Id }})<small> - {{ .Description }}</small></label>
         <table class="table is-bordered is-striped">
           <thead>
             <tr>
@@ -50,6 +53,8 @@
       </div>
       {{ end }}
       {{ end }}
+      {{ end }}
     </div>
+    {{ end }}
   </div>
 </section>
