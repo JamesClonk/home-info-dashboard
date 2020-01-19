@@ -44,4 +44,5 @@ sleep 1
 psql -h 127.0.0.1 -U dev-user -d home_info_db  < lib/database/migrations/postgres/001_sensor_tables.up.sql
 psql -h 127.0.0.1 -U dev-user -d home_info_db  < lib/database/migrations/postgres/002_setup_sensors.up.sql
 psql -h 127.0.0.1 -U dev-user -d home_info_db  < _fixtures/migration.sql
-psql -h 127.0.0.1 -U dev-user -d home_info_db  < _fixtures/values.sql
+#psql -h 127.0.0.1 -U dev-user -d home_info_db  < _fixtures/values.sql
+psql -h 127.0.0.1 -U dev-user -d home_info_db  < _fixtures/export.sql

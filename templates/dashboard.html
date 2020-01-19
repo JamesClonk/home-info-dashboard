@@ -7,11 +7,11 @@
     <div class="columns">
       <div class="column">
         <h2 class="title is-2">{{ $room.Temperature.Name }}: <span class="has-text-danger">{{ $room.Temperature.Value }}°C</span></h2>
-        <h5 class="subtitle is-5">Last Update: {{ $room.Temperature.Timestamp.Format "2006-01-02 15:04:05" }}</h5>
+        <h5 class="subtitle is-5"><small>{{ $room.Temperature.Type }} - </small>Last Update: {{ $room.Temperature.Timestamp.Format "2006-01-02 15:04:05" }}</h5>
       </div>
       <div class="column">
         <h2 class="title is-2">{{ $room.Humidity.Name }}: <span class="has-text-info">{{ $room.Humidity.Value }}%</span></h2>
-        <h5 class="subtitle is-5">Last Update: {{ $room.Humidity.Timestamp.Format "2006-01-02 15:04:05" }}</h5>
+        <h5 class="subtitle is-5"><small>{{ $room.Humidity.Type }} - </small>Last Update: {{ $room.Humidity.Timestamp.Format "2006-01-02 15:04:05" }}</h5>
       </div>
     </div>
     {{ end }}

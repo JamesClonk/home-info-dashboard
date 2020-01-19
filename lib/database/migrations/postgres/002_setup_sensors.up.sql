@@ -40,7 +40,7 @@ INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
 VALUES(10, 'food plants #1', (select pk_sensor_type_id from sensor_type where type = 'soil'), 'Shows soil moisture of food plants');
 
 INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
-VALUES(10, 'air quality plants', (select pk_sensor_type_id from sensor_type where type = 'soil'), 'Shows soil moisture of food plants');
+VALUES(11, 'air quality plants', (select pk_sensor_type_id from sensor_type where type = 'soil'), 'Shows soil moisture of food plants');
 
 INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
 VALUES(12, 'food plants #2', (select pk_sensor_type_id from sensor_type where type = 'soil'), 'Shows soil moisture of food plants');

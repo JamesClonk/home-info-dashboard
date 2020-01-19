@@ -16,32 +16,32 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 		}
 
 		// collect the top column
-		livingRoomTemp, err := hdb.GetSensorData(config.Get().LivingRoom.TemperatureSensorID, 1)
+		livingRoomTemp, err := hdb.GetSensorData(config.Get().LivingRoom.TemperatureSensorID, 5)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		livingRoomHum, err := hdb.GetSensorData(config.Get().LivingRoom.HumiditySensorID, 1)
+		livingRoomHum, err := hdb.GetSensorData(config.Get().LivingRoom.HumiditySensorID, 5)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		bedRoomTemp, err := hdb.GetSensorData(config.Get().BedRoom.TemperatureSensorID, 1)
+		bedRoomTemp, err := hdb.GetSensorData(config.Get().BedRoom.TemperatureSensorID, 3)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		bedRoomHum, err := hdb.GetSensorData(config.Get().BedRoom.HumiditySensorID, 1)
+		bedRoomHum, err := hdb.GetSensorData(config.Get().BedRoom.HumiditySensorID, 3)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		homeOfficeTemp, err := hdb.GetSensorData(config.Get().HomeOffice.TemperatureSensorID, 1)
+		homeOfficeTemp, err := hdb.GetSensorData(config.Get().HomeOffice.TemperatureSensorID, 3)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		homeOfficeHum, err := hdb.GetSensorData(config.Get().HomeOffice.HumiditySensorID, 1)
+		homeOfficeHum, err := hdb.GetSensorData(config.Get().HomeOffice.HumiditySensorID, 3)
 		if err != nil {
 			Error(rw, err)
 			return
@@ -107,6 +107,39 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			Labels:      graphLabels,
 			Humidity:    graphHumidity,
 			Temperature: graphTemperature,
+		}
+
+		getAverage := func(data []*database.SensorData, rows int) int64 {
+			var counter, value int64
+			for r := 0; r < rows; r++ {
+				if len(data) > r {
+					value += data[r].Value
+					counter += 1
+				}
+			}
+			if counter == 0 {
+				return 0
+			}
+			return value / counter
+		}
+		// average values because of multiple sensor for the same room
+		if len(livingRoomHum) > 0 {
+			livingRoomHum[0].Value = getAverage(livingRoomHum, 4)
+		}
+		if len(livingRoomTemp) > 0 {
+			livingRoomTemp[0].Value = getAverage(livingRoomTemp, 4)
+		}
+		if len(bedRoomTemp) > 0 {
+			bedRoomTemp[0].Value = getAverage(bedRoomTemp, 2)
+		}
+		if len(bedRoomHum) > 0 {
+			bedRoomHum[0].Value = getAverage(bedRoomHum, 2)
+		}
+		if len(homeOfficeTemp) > 0 {
+			homeOfficeTemp[0].Value = getAverage(homeOfficeTemp, 2)
+		}
+		if len(homeOfficeHum) > 0 {
+			homeOfficeHum[0].Value = getAverage(homeOfficeHum, 2)
 		}
 
 		rooms := make([]Room, 0)
