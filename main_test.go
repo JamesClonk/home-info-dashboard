@@ -128,7 +128,7 @@ func Test_Main_SensorTypes(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, response.Code)
 
 	body := response.Body.String()
-	assert.Contains(t, response.Body.String(), `Unauthorized`)
+	assert.Contains(t, body, `Unauthorized`)
 
 	// ----------------------- CREATE -----------------------
 	response = httptest.NewRecorder()
@@ -277,7 +277,7 @@ func Test_Main_Sensors(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, response.Code)
 
 	body := response.Body.String()
-	assert.Contains(t, response.Body.String(), `Unauthorized`)
+	assert.Contains(t, body, `Unauthorized`)
 
 	// ----------------------- CREATE -----------------------
 	response = httptest.NewRecorder()
@@ -436,7 +436,7 @@ func Test_Main_SensorValues(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, response.Code)
 
 	body := response.Body.String()
-	assert.Contains(t, response.Body.String(), `Unauthorized`)
+	assert.Contains(t, body, `Unauthorized`)
 
 	// ----------------------- CREATE -----------------------
 	response = httptest.NewRecorder()

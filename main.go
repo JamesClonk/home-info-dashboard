@@ -99,7 +99,7 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 				log.Printf("Weather forecast temperature:%v for %s/%s stored to database\n", value, canton, city)
 			}
 
-			time.Sleep(45 * time.Minute)
+			time.Sleep(22 * time.Minute)
 		}
 	}(hdb)
 }

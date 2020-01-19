@@ -14,7 +14,7 @@ type HomeInfoDB interface {
 	GetTemperature() (int64, error)
 	GetSensors() ([]*Sensor, error)
 	GetSensorById(int) (*Sensor, error)
-	GetSensorByName(string) (*Sensor, error)
+	GetSensorsByName(string) ([]*Sensor, error)
 	GetSensorsByTypeId(int) ([]*Sensor, error)
 	GetSensorTypeById(int) (*SensorType, error)
 	GetSensorTypeByType(string) (*SensorType, error)
@@ -136,22 +136,33 @@ func (hdb *homeInfoDB) GetSensorById(id int) (*Sensor, error) {
 	return s, nil
 }
 
-func (hdb *homeInfoDB) GetSensorByName(name string) (*Sensor, error) {
+func (hdb *homeInfoDB) GetSensorsByName(name string) ([]*Sensor, error) {
 	stmt, err := hdb.Prepare(`
 		select s.pk_sensor_id, s.name, st.type, st.pk_sensor_type_id, st.unit, s.description
 		from sensor s
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
-		where s.name = $1`)
+		where s.name = $1
+		order by s.pk_sensor_id desc, st.type asc`)
 	if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
 
-	s := &Sensor{}
-	if err := stmt.QueryRow(name).Scan(&s.Id, &s.Name, &s.Type, &s.TypeId, &s.Unit, &s.Description); err != nil {
+	rows, err := stmt.Query(name)
+	if err != nil {
 		return nil, err
 	}
-	return s, nil
+	defer rows.Close()
+
+	ss := []*Sensor{}
+	for rows.Next() {
+		var s Sensor
+		if err := rows.Scan(&s.Id, &s.Name, &s.Type, &s.TypeId, &s.Unit, &s.Description); err != nil {
+			return nil, err
+		}
+		ss = append(ss, &s)
+	}
+	return ss, nil
 }
 
 func (hdb *homeInfoDB) InsertSensor(sensor *Sensor) (err error) {
@@ -189,10 +200,14 @@ func (hdb *homeInfoDB) InsertSensor(sensor *Sensor) (err error) {
 	}
 
 	// make sure to get new values
-	sensorNew, err := hdb.GetSensorByName(sensor.Name)
+	sensors, err := hdb.GetSensorsByName(sensor.Name)
 	if err != nil {
 		return err
 	}
+	if len(sensors) == 0 {
+		return fmt.Errorf("no sensor found with name %s", sensor.Name)
+	}
+	sensorNew := sensors[0] // first one is newest
 	sensor.Id = sensorNew.Id
 	sensor.Name = sensorNew.Name
 	sensor.Type = sensorNew.Type
@@ -650,10 +665,10 @@ func (hdb *homeInfoDB) Housekeeping(days, rows int) (err error) {
 			if err := row.Scan(&count); err != nil {
 				return err
 			}
-			log.Printf("Housekeeping: Sensor [%s] has [%v] minimum rows ...\n", sensor.Name, count)
+			log.Printf("Housekeeping: Sensor [%d:%s] has [%v] minimum rows ...\n", sensor.Id, sensor.Name, count)
 
 			if count > int64(rows) {
-				log.Printf("Housekeeping: Will now delete excess rows of sensor [%s] ...\n", sensor.Name)
+				log.Printf("Housekeeping: Will now delete excess rows of sensor [%d:%s] ...\n", sensor.Id, sensor.Name)
 				_, err := deleteStmt.Exec(sensor.Id, cutOff)
 				if err != nil {
 					return err
