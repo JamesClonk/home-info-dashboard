@@ -50,7 +50,7 @@
         datasets: [
         {{ range $sensor, $data := .Content.Graphs.Humidity }}
             {
-                label: "{{ $sensor.Name }}",
+                label: "{{ $sensor.Name }} - {{ $sensor.Type }}",
                 yAxisID: 'H',
                 data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
                 borderColor: humColor()
@@ -58,10 +58,10 @@
         {{ end }}
         {{ range $sensor, $data := .Content.Graphs.Temperature }}
             {
-                label: "{{ $sensor.Name }}",
+                label: "{{ $sensor.Name }} - {{ $sensor.Type }}",
                 yAxisID: 'T',
                 data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
-                borderColor: {{ if eq $sensor.Name "weather forecast - temp" }}'#ffbb33'{{ else }}tempColor(){{ end }}
+                borderColor: {{ if eq $sensor.Name "weather forecast" }}'#ffbb33'{{ else }}tempColor(){{ end }}
             },
         {{ end }}
         ]

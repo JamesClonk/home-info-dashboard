@@ -53,10 +53,12 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 		}
 
 		var weeklyLabels, hourlyLabels []string
-		weeklyTemperature := make(map[database.Sensor][]*database.SensorValue)
-		hourlyTemperature := make(map[database.Sensor][]*database.SensorValue)
-		weeklyHumidity := make(map[database.Sensor][]*database.SensorValue)
-		hourlyHumidity := make(map[database.Sensor][]*database.SensorValue)
+		weeklyTemperature := make(map[string][]*database.SensorValue)
+		hourlyTemperature := make(map[string][]*database.SensorValue)
+		weeklyHumidity := make(map[string][]*database.SensorValue)
+		hourlyHumidity := make(map[string][]*database.SensorValue)
+		weeklyMoisture := make(map[string][]*database.SensorValue)
+		hourlyMoisture := make(map[string][]*database.SensorValue)
 		for _, sensor := range sensors {
 			switch sensor.Type {
 			case "temperature":
@@ -68,7 +70,7 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 				if len(values) == 0 { // dont show empty sensors
 					continue
 				}
-				hourlyTemperature[*sensor] = values
+				hourlyTemperature[sensor.Name] = values
 
 				if len(hourlyLabels) == 0 && sensor.Id == config.Get().LivingRoom.TemperatureSensorID {
 					// collect labels
@@ -82,7 +84,7 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 					Error(rw, err)
 					return
 				}
-				weeklyTemperature[*sensor] = values
+				weeklyTemperature[sensor.Name] = values
 
 				if len(weeklyLabels) == 0 && sensor.Id == config.Get().LivingRoom.TemperatureSensorID {
 					// collect labels
@@ -99,30 +101,51 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 				if len(values) == 0 { // dont show empty sensors
 					continue
 				}
-				hourlyHumidity[*sensor] = values
+				hourlyHumidity[sensor.Name] = values
 
-				values, err = hdb.GetDailyAverages(sensor.Id, 48)
+				values, err = hdb.GetDailyAverages(sensor.Id, 28)
 				if err != nil {
 					Error(rw, err)
 					return
 				}
-				weeklyHumidity[*sensor] = values
+				weeklyHumidity[sensor.Name] = values
+			case "soil":
+				values, err := hdb.GetHourlyAverages(sensor.Id, 48)
+				if err != nil {
+					Error(rw, err)
+					return
+				}
+				if len(values) == 0 { // dont show empty sensors
+					continue
+				}
+				hourlyMoisture[sensor.Name] = values
+
+				values, err = hdb.GetDailyAverages(sensor.Id, 28)
+				if err != nil {
+					Error(rw, err)
+					return
+				}
+				weeklyMoisture[sensor.Name] = values
 			}
 		}
 
 		page.Content = struct {
-			HourlyTemperature map[database.Sensor][]*database.SensorValue
-			HourlyHumidity    map[database.Sensor][]*database.SensorValue
+			HourlyTemperature map[string][]*database.SensorValue
+			HourlyHumidity    map[string][]*database.SensorValue
+			HourlyMoisture    map[string][]*database.SensorValue
 			HourlyLabels      []string
-			WeeklyTemperature map[database.Sensor][]*database.SensorValue
-			WeeklyHumidity    map[database.Sensor][]*database.SensorValue
+			WeeklyTemperature map[string][]*database.SensorValue
+			WeeklyHumidity    map[string][]*database.SensorValue
+			WeeklyMoisture    map[string][]*database.SensorValue
 			WeeklyLabels      []string
 		}{
 			hourlyTemperature,
 			hourlyHumidity,
+			hourlyMoisture,
 			hourlyLabels,
 			weeklyTemperature,
 			weeklyHumidity,
+			weeklyMoisture,
 			weeklyLabels,
 		}
 
