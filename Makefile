@@ -42,7 +42,7 @@ clean:
 ## test: runs go test with the race detector
 test:
 	@cp _fixtures/test.db _fixtures/temp.db
-	@source .env_sqlite; GOARCH=amd64 GOOS=linux go test -v -race ./...; echo $$?
+	@source .env_sqlite; GOARCH=amd64 GOOS=linux go test -v -race ./...
 
 .PHONY: init
 ## init: sets up go modules
