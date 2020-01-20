@@ -11,7 +11,7 @@ import (
 func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		page := &Page{
-			Title:  "Home Info - Dashboard",
+			Title:  "Home Automation - Dashboard",
 			Active: "dashboard",
 		}
 

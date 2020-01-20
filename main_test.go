@@ -58,7 +58,7 @@ func Test_Main_404(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, response.Code)
 
 	body := response.Body.String()
-	assert.Contains(t, body, `<title>Home Info - Not Found</title>`)
+	assert.Contains(t, body, `<title>Home Automation - Not Found</title>`)
 	assert.Contains(t, body, `<section class="hero is-medium is-warning">`)
 	assert.Contains(t, body, `<h1 class="title">404 - Not Found</h1>`)
 	assert.Contains(t, body, `<h2 class="subtitle">This is not the page you are looking for ...</h2>`)
@@ -75,7 +75,7 @@ func Test_Main_500(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, response.Code)
 
 	body := response.Body.String()
-	assert.Contains(t, body, `<title>Home Info - Error</title>`)
+	assert.Contains(t, body, `<title>Home Automation - Error</title>`)
 	assert.Contains(t, body, `<section class="hero is-medium is-danger">`)
 	assert.Contains(t, body, `<h1 class="title">Error</h1>`)
 	assert.Contains(t, body, `<h2 class="subtitle">Internal Server Error</h2>`)
@@ -92,8 +92,8 @@ func Test_Main_Index(t *testing.T) {
 	assert.Equal(t, http.StatusOK, response.Code)
 
 	body := response.Body.String()
-	assert.Contains(t, body, `<title>Home Info</title>`)
-	assert.Contains(t, body, `<h1 class="title">Home Info</h1>`)
+	assert.Contains(t, body, `<title>Home Automation</title>`)
+	assert.Contains(t, body, `<h1 class="title">Home Automation</h1>`)
 	assert.Contains(t, body, `<img src="/images/smart_temperature.png">`)
 }
 
@@ -108,7 +108,7 @@ func Test_Main_Forecasts(t *testing.T) {
 	assert.Equal(t, http.StatusOK, response.Code)
 
 	body := response.Body.String()
-	assert.Contains(t, body, `<title>Home Info - Forecasts - Bern</title>`)
+	assert.Contains(t, body, `<title>Home Automation - Forecasts - Bern</title>`)
 	assert.Contains(t, body, `<h1 class="title">Berne</h1>`)
 	assert.Contains(t, body, `<h2 class="subtitle">Switzerland</h2>`)
 	assert.Contains(t, body, `<p>549m</p>`)

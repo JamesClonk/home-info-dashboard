@@ -14,7 +14,7 @@ import (
 func Index(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		page := &Page{
-			Title:  "Home Info",
+			Title:  "Home Automation",
 			Active: "home",
 		}
 		_ = web.Render().HTML(rw, http.StatusOK, "index", page)
@@ -23,7 +23,7 @@ func Index(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Reque
 
 func NotFound(rw http.ResponseWriter, req *http.Request) {
 	page := &Page{
-		Title: "Home Info - Not Found",
+		Title: "Home Automation - Not Found",
 	}
 	_ = web.Render().HTML(rw, http.StatusNotFound, "not_found", page)
 }
@@ -33,7 +33,7 @@ func ErrorHandler(rw http.ResponseWriter, req *http.Request) {
 }
 func Error(rw http.ResponseWriter, err error) {
 	page := &Page{
-		Title:   "Home Info - Error",
+		Title:   "Home Automation - Error",
 		Content: err,
 	}
 	_ = web.Render().HTML(rw, http.StatusInternalServerError, "error", page)
@@ -42,7 +42,7 @@ func Error(rw http.ResponseWriter, err error) {
 func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		page := &Page{
-			Title:  "Home Info - Graphs",
+			Title:  "Home Automation - Graphs",
 			Active: "graphs",
 		}
 
@@ -156,7 +156,7 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 func Sensors(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		page := &Page{
-			Title:  "Home Info - Sensors",
+			Title:  "Home Automation - Sensors",
 			Active: "sensors",
 		}
 
@@ -198,7 +198,7 @@ func Sensors(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 func Forecasts(rw http.ResponseWriter, req *http.Request) {
 	canton, city := web.GetLocation(req)
 	page := &Page{
-		Title:  fmt.Sprintf("Home Info - Forecasts - %s", city),
+		Title:  fmt.Sprintf("Home Automation - Forecasts - %s", city),
 		Active: "forecasts",
 	}
 
