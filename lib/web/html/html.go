@@ -174,7 +174,7 @@ func Sensors(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 
 		data := make(map[int][]*database.SensorData)
 		for _, sensor := range sensors {
-			d, err := hdb.GetSensorData(sensor.Id, 10)
+			d, err := hdb.GetSensorData(sensor.Id, 15)
 			if err != nil {
 				Error(rw, err)
 				return
