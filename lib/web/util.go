@@ -29,6 +29,11 @@ func GetLocation(req *http.Request) (string, string) {
 func SoilMoistureCapacitive(data []*database.SensorData) []*database.SensorData {
 	for d := range data {
 		data[d].Value = (data[d].Value - 333) * -1
+		if data[d].Value < 0 {
+			data[d].Value = 0
+		} else if data[d].Value > 333 {
+			data[d].Value = 333
+		}
 	}
 	return data
 }
@@ -36,6 +41,11 @@ func SoilMoistureCapacitive(data []*database.SensorData) []*database.SensorData 
 func SoilMoisturePercentages(values []*database.SensorValue) []*database.SensorValue {
 	for v := range values {
 		values[v].Value = int64(float64((values[v].Value-333)*-1) / 3.33)
+		if values[v].Value < 0 {
+			values[v].Value = 0
+		} else if values[v].Value > 100 {
+			values[v].Value = 100
+		}
 	}
 	return values
 }
