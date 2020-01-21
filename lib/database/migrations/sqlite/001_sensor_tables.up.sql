@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS `sensor_type` (
     `pk_sensor_type_id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     `type`              TEXT NOT NULL UNIQUE,
     `unit`              TEXT NOT NULL,
+    `symbol`            TEXT NOT NULL,
     `description`       TEXT NOT NULL
 );
 

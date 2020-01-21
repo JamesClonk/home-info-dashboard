@@ -118,14 +118,14 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 				if len(values) == 0 { // dont show empty sensors
 					continue
 				}
-				hourlyMoisture[sensor.Name] = values
+				hourlyMoisture[sensor.Name] = web.SoilMoisturePercentages(values) //adjust values according to formula
 
 				values, err = hdb.GetDailyAverages(sensor.Id, 28)
 				if err != nil {
 					Error(rw, err)
 					return
 				}
-				weeklyMoisture[sensor.Name] = values
+				weeklyMoisture[sensor.Name] = web.SoilMoisturePercentages(values) //adjust values according to formula
 			}
 		}
 
@@ -179,6 +179,11 @@ func Sensors(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 				Error(rw, err)
 				return
 			}
+
+			if sensor.Type == "soil" {
+				d = web.SoilMoistureCapacitive(d)
+			}
+
 			data[sensor.Id] = d
 		}
 

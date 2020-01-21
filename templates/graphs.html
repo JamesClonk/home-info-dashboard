@@ -198,7 +198,7 @@
                 intersect: false,
                 callbacks: {
                     label: function (tooltipItem, d) {
-                        return tooltipItem.yLabel + ' - ' + soil_hour_data.datasets[tooltipItem.datasetIndex].label
+                        return tooltipItem.yLabel + '% - ' + soil_hour_data.datasets[tooltipItem.datasetIndex].label
                     }
                 }
             },
@@ -221,13 +221,13 @@
                     id: 'S',
                     scaleLabel: {
                         display: true,
-                        labelString: 'Soil Moisture'
+                        labelString: 'Soil Moisture (capacitive)'
                     },
                     type: 'linear',
                     position: 'left',
                     ticks: {
                         callback: function(value, index, values) {
-                            return value;
+                            return value + '%';
                         }
                     }
                 }]
@@ -435,7 +435,7 @@
                 intersect: false,
                 callbacks: {
                     label: function (tooltipItem, d) {
-                        return tooltipItem.yLabel + ' - ' + soil_weekly_data.datasets[tooltipItem.datasetIndex].label
+                        return tooltipItem.yLabel + '% - ' + soil_weekly_data.datasets[tooltipItem.datasetIndex].label
                     }
                 }
             },
@@ -458,13 +458,13 @@
                     id: 'S',
                     scaleLabel: {
                         display: true,
-                        labelString: 'Soil Moisture'
+                        labelString: 'Soil Moisture (capacitive)'
                     },
                     type: 'linear',
                     position: 'left',
                     ticks: {
                         callback: function(value, index, values) {
-                            return value;
+                            return value + '%';
                         }
                     }
                 }]

@@ -1,6 +1,8 @@
 package web
 
 import (
+	"html/template"
+
 	"github.com/unrolled/render"
 )
 
@@ -12,6 +14,12 @@ func init() {
 		Layout:     "layout",
 		Extensions: []string{".tmpl", ".html"},
 		IndentJSON: true,
+		Funcs: []template.FuncMap{
+			template.FuncMap{"divide": func(input, divisor int64) float64 {
+				return float64(input) / float64(divisor)
+			},
+			},
+		},
 	})
 }
 
