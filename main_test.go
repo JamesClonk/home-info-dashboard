@@ -141,6 +141,7 @@ func Test_Main_SensorTypes(t *testing.T) {
 	form := url.Values{}
 	form.Add("type", "pressure")
 	form.Add("unit", "psi")
+	form.Add("symbol", "psi")
 	form.Add("description", "atmospheric pressure")
 	req.PostForm = form
 
@@ -152,6 +153,7 @@ func Test_Main_SensorTypes(t *testing.T) {
   "id": 5,
   "type": "pressure",
   "unit": "psi",
+  "symbol": "psi",
   "description": "atmospheric pressure"
 }`)
 
@@ -169,12 +171,14 @@ func Test_Main_SensorTypes(t *testing.T) {
 	assert.Contains(t, body, `
     "type": "temperature",
     "unit": "celsius",
+    "symbol": "°",
     "description": "Shows temperature"`)
 	assert.Contains(t, body, `
   {
     "id": 4,
     "type": "humidity",
     "unit": "percentage",
+    "symbol": "%",
     "description": "Shows air humidity"
   }`)
 
@@ -192,6 +196,7 @@ func Test_Main_SensorTypes(t *testing.T) {
   "id": 5,
   "type": "pressure",
   "unit": "psi",
+  "symbol": "psi",
   "description": "atmospheric pressure"
 }`)
 
@@ -206,6 +211,7 @@ func Test_Main_SensorTypes(t *testing.T) {
 	form = url.Values{}
 	form.Add("type", "druck")
 	form.Add("unit", "bar")
+	form.Add("symbol", "bar")
 	form.Add("description", "atmosphärischer druck")
 	req.PostForm = form
 
@@ -217,6 +223,7 @@ func Test_Main_SensorTypes(t *testing.T) {
   "id": 5,
   "type": "druck",
   "unit": "bar",
+  "symbol": "bar",
   "description": "atmosphärischer druck"
 }`)
 
@@ -234,6 +241,7 @@ func Test_Main_SensorTypes(t *testing.T) {
   "id": 5,
   "type": "druck",
   "unit": "bar",
+  "symbol": "bar",
   "description": "atmosphärischer druck"
 }`)
 
@@ -303,6 +311,7 @@ func Test_Main_Sensors(t *testing.T) {
   "type": "temperature",
   "type_id": "3",
   "unit": "celsius",
+  "symbol": "°",
   "description": "Badezimmer Temperatur"
 }`)
 
@@ -322,6 +331,7 @@ func Test_Main_Sensors(t *testing.T) {
     "type": "temperature",
     "type_id": "3",
     "unit": "celsius",
+    "symbol": "°",
     "description": "Shows temperature"`)
 	assert.Contains(t, body, `
     "id": 6,
@@ -329,6 +339,7 @@ func Test_Main_Sensors(t *testing.T) {
     "type": "temperature",
     "type_id": "3",
     "unit": "celsius",
+    "symbol": "°",
     "description": "Badezimmer Temperatur"`)
 
 	response = httptest.NewRecorder()
@@ -347,6 +358,7 @@ func Test_Main_Sensors(t *testing.T) {
   "type": "window_state",
   "type_id": "1",
   "unit": "closed",
+  "symbol": "¬",
   "description": "Shows open/closed state of roof window"
 }`)
 
@@ -374,6 +386,7 @@ func Test_Main_Sensors(t *testing.T) {
   "type": "humidity",
   "type_id": "4",
   "unit": "percentage",
+  "symbol": "%",
   "description": "Wohnzimmer Luftfeuchtigkeit"
 }`)
 
@@ -393,6 +406,7 @@ func Test_Main_Sensors(t *testing.T) {
   "type": "humidity",
   "type_id": "4",
   "unit": "percentage",
+  "symbol": "%",
   "description": "Wohnzimmer Luftfeuchtigkeit"
 }`)
 

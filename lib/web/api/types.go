@@ -58,6 +58,7 @@ func AddSensorType(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *ht
 		sensorType := &database.SensorType{
 			Type:        req.Form.Get("type"),
 			Unit:        req.Form.Get("unit"),
+			Symbol:      req.Form.Get("symbol"),
 			Description: req.Form.Get("description"),
 		}
 
@@ -92,6 +93,7 @@ func UpdateSensorType(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req 
 				Id:          int(sensorTypeId),
 				Type:        req.Form.Get("type"),
 				Unit:        req.Form.Get("unit"),
+				Symbol:      req.Form.Get("symbol"),
 				Description: req.Form.Get("description"),
 			}
 
