@@ -21,6 +21,7 @@ applications:
   path: .
 
   env:
+    TZ: Europe/Zurich
     AUTH_USERNAME: ((auth_username))
     AUTH_PASSWORD: ((auth_password))
     DEFAULT_CANTON: Bern
