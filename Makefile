@@ -21,10 +21,9 @@ dev:
 	source .env; go run -race main.go
 
 .PHONY: gin
-## gin: runs main.go via gin (hot reloading)
+## gin: runs main.go via gin on a local postgres
 gin:
-	@cp _fixtures/test.db _fixtures/temp.db
-	source .env_sqlite; gin --all --immediate run main.go
+	source .env; gin --all --immediate --appPort 9099 --port 9090 run main.go
 
 .PHONY: build
 ## build: builds the application

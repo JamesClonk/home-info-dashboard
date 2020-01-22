@@ -6,12 +6,12 @@
     {{ range $room := .Content.Rooms }}
     <div class="columns">
       <div class="column">
-        <h2 class="title is-2">{{ $room.Temperature.Name }}: <span class="has-text-danger">{{ $room.Temperature.Value }}{{ $room.Temperature.Symbol }}</span></h2>
-        <h5 class="subtitle is-5"><small>{{ $room.Temperature.Type }} - </small>Last Update: {{ $room.Temperature.Timestamp.Format "2006-01-02 15:04:05" }}</h5>
+        <h2 class="title is-2">{{ if (emoji $room.Temperature.Name) }}{{ emoji $room.Temperature.Name }} {{ end }}{{ $room.Temperature.Name }}: <span class="has-text-danger">{{ $room.Temperature.Value }}{{ $room.Temperature.Symbol }}</span></h2>
+        <h5 class="subtitle is-5"><small class="has-text-danger">{{ $room.Temperature.Type }}</small><small> - Last Update: {{ $room.Temperature.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
       </div>
       <div class="column">
-        <h2 class="title is-2">{{ $room.Humidity.Name }}: <span class="has-text-info">{{ $room.Humidity.Value }}{{ $room.Humidity.Symbol }}</span></h2>
-        <h5 class="subtitle is-5"><small>{{ $room.Humidity.Type }} - </small>Last Update: {{ $room.Humidity.Timestamp.Format "2006-01-02 15:04:05" }}</h5>
+        <h2 class="title is-2">{{ if (emoji $room.Temperature.Name) }}{{ emoji $room.Temperature.Name }} {{ end }}{{ $room.Humidity.Name }}: <span class="has-text-info">{{ $room.Humidity.Value }}{{ $room.Humidity.Symbol }}</span></h2>
+        <h5 class="subtitle is-5"><small class="has-text-info">{{ $room.Humidity.Type }}</small><small> - Last Update: {{ $room.Humidity.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
       </div>
     </div>
     {{ end }}
@@ -20,7 +20,7 @@
 
 <section class="section">
   <div class="container">
-    <h3 class="title is-3">72 hours - living room temperature and humidity</h3>
+    <h4 class="title is-4">🕖 72 hours - living room <span class="has-text-danger">temperature</span> and <span class="has-text-info">humidity</span></h4>
     <canvas id="hour_chart" width="100%" height="25%"></canvas>
     <script>
     var tempColors = palette('cb-OrRd', 4).map(function(hex) { return '#' + hex; });

@@ -15,7 +15,7 @@
         {{ range .Content.Sensors }}
         <tr>
           <td>{{ .Id }}</td>
-          <td>{{ .Name }}</td>
+          <td>{{ if (emoji .Name) }}{{ emoji .Name }} {{ end }}{{ .Name }}</td>
           <td>{{ .Type }}</td>
           <td>{{ .Symbol }} - {{ .Unit }}</td>
           <td>{{ .Description }}</td>
@@ -31,7 +31,7 @@
       {{ if eq .Type $types.Type }}
       {{ if gt (len (index $.Content.SensorData .Id)) 0 }}
       <div class="column">
-        <label class="label">{{ .Name }} ({{ .Id }})<small> - {{ .Description }}</small></label>
+        <label class="label">{{ if (emoji .Name) }}{{ emoji .Name }} {{ end }}{{ .Name }} ({{ .Id }})<small> - {{ .Description }}</small></label>
         <table class="table is-bordered is-striped">
           <thead>
             <tr>
