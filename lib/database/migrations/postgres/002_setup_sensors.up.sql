@@ -1,6 +1,6 @@
 -- sensor_types
 INSERT INTO sensor_type (type, unit, symbol, description)
-VALUES('temperature', 'celsius', '°', 'Shows temperature');
+VALUES('temperature', 'celsius', '°C', 'Shows temperature');
 
 INSERT INTO sensor_type (type, unit, symbol, description)
 VALUES('humidity', 'percentage', '%', 'Shows air humidity');
