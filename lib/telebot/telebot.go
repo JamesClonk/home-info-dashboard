@@ -18,7 +18,7 @@ var (
 type Telebot struct {
 	*sync.Mutex
 	hdb    database.HomeInfoDB
-	api    *tgbotapi.BotAPI
+	API    *tgbotapi.BotAPI
 	ChatID int64
 }
 
@@ -38,7 +38,7 @@ func (bot *Telebot) WatchForChatID() {
 	go func() {
 		for {
 			if bot.ChatID <= 0 {
-				if bot.api == nil {
+				if bot.API == nil {
 					bot.UpdateAPI()
 				}
 				bot.UpdateChatID()
@@ -52,14 +52,14 @@ func (bot *Telebot) UpdateChatID() {
 	bot.Lock()
 	defer bot.Unlock()
 
-	if bot.api == nil {
+	if bot.API == nil {
 		log.Println("Telebot API is nil, cannot update chat ID")
 		return
 	}
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
-	updates, err := bot.api.GetUpdates(u)
+	updates, err := bot.API.GetUpdates(u)
 	if err != nil {
 		log.Fatalf("Telebot API error: %v\n", err)
 	}
@@ -95,7 +95,7 @@ func (bot *Telebot) UpdateAPI() {
 
 	api.Debug = env.Get("TELEBOT_DEBUG", "false") == "true"
 	log.Printf("Telebot authorized on account [%s]", api.Self.UserName)
-	bot.api = api
+	bot.API = api
 }
 
 func (bot *Telebot) Send(message string) error {
@@ -104,6 +104,6 @@ func (bot *Telebot) Send(message string) error {
 
 	// TODO: if chatID <= 0, then put into wait-loop/queue in background until not <= 0 anymore
 	msg := tgbotapi.NewMessage(bot.ChatID, message)
-	_, err := bot.api.Send(msg)
+	_, err := bot.API.Send(msg)
 	return err
 }
