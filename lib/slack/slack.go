@@ -1,6 +1,7 @@
 package slack
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/JamesClonk/home-info-dashboard/lib/database"
@@ -27,7 +28,12 @@ func Get() *Slack {
 func Init(hdb database.HomeInfoDB) {
 	once.Do(func() {
 		api := slack_api.New(env.MustGet("SLACK_TOKEN"), slack_api.OptionDebug(env.Get("SLACK_DEBUG", "false") == "true"))
-		slack = &Slack{&sync.Mutex{}, hdb, api, env.MustGet("SLACK_CHANNEL")}
+
+		channel := env.MustGet("SLACK_CHANNEL")
+		channel = strings.ReplaceAll(channel, "USER_", "@")
+		channel = strings.ReplaceAll(channel, "CHANNEL_", "#")
+
+		slack = &Slack{&sync.Mutex{}, hdb, api, channel}
 	})
 }
 
