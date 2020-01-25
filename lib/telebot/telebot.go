@@ -38,9 +38,6 @@ func (bot *Telebot) WatchForChatID() {
 	go func() {
 		for {
 			if bot.ChatID <= 0 {
-				if bot.API == nil {
-					bot.UpdateAPI()
-				}
 				bot.UpdateChatID()
 			}
 			time.Sleep(5 * time.Minute)
@@ -49,6 +46,10 @@ func (bot *Telebot) WatchForChatID() {
 }
 
 func (bot *Telebot) UpdateChatID() {
+	if bot.API == nil {
+		bot.UpdateAPI()
+	}
+
 	bot.Lock()
 	defer bot.Unlock()
 
@@ -99,11 +100,20 @@ func (bot *Telebot) UpdateAPI() {
 }
 
 func (bot *Telebot) Send(message string) error {
+	if bot.ChatID <= 0 {
+		bot.UpdateChatID()
+	}
+
 	bot.Lock()
 	defer bot.Unlock()
 
-	// TODO: if chatID <= 0, then put into wait-loop/queue in background until not <= 0 anymore
 	msg := tgbotapi.NewMessage(bot.ChatID, message)
 	_, err := bot.API.Send(msg)
+
+	// retry?
+	if err != nil {
+		msg := tgbotapi.NewMessage(bot.ChatID, message)
+		_, err = bot.API.Send(msg)
+	}
 	return err
 }

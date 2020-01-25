@@ -61,6 +61,9 @@ func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 	router.HandleFunc("/telebot", basicAuth(api.TelebotInit())).Methods("PUT")
 	router.HandleFunc("/telebot/message", basicAuth(api.TelebotMessage())).Methods("POST")
 
+	router.HandleFunc("/slack", basicAuth(api.SlackStatus())).Methods("GET") // needs to be secured too, exposes Slack config information
+	router.HandleFunc("/slack/message", basicAuth(api.SlackMessage())).Methods("POST")
+
 	return router
 }
 

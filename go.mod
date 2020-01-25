@@ -17,6 +17,7 @@ require (
 	github.com/mattes/migrate v3.0.2-0.20170730220505-8b5365e62cb4+incompatible
 	github.com/mattn/go-sqlite3 v2.0.2+incompatible
 	github.com/mitchellh/mapstructure v0.0.0-20161020161836-f3009df150da // indirect
+	github.com/nlopes/slack v0.6.0
 	github.com/onsi/ginkgo v1.11.0 // indirect
 	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect

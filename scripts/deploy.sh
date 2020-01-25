@@ -32,6 +32,18 @@ if [ -z "${TELEBOT_TOKEN}" ]; then
 	echo "TELEBOT_TOKEN must be set!"
 	exit 1
 fi
+if [ -z "${TELEBOT_USERNAME}" ]; then
+	echo "TELEBOT_USERNAME must be set!"
+	exit 1
+fi
+if [ -z "${SLACK_TOKEN}" ]; then
+	echo "SLACK_TOKEN must be set!"
+	exit 1
+fi
+if [ -z "${SLACK_CHANNEL}" ]; then
+	echo "SLACK_CHANNEL must be set!"
+	exit 1
+fi
 
 # =============================================================================================
 if [[ "$(basename $PWD)" == "scripts" ]]; then
@@ -53,7 +65,7 @@ rm -f NOTICE || true
 
 # push app
 ./cf push home-info -f manifest.yml \
-  --var auth_username=${AUTH_USERNAME} --var auth_password=${AUTH_PASSWORD} --var token=${TELEBOT_TOKEN}
+  --var auth_username=${AUTH_USERNAME} --var auth_password=${AUTH_PASSWORD} --var telebot_token=${TELEBOT_TOKEN} --var telebot_username=${TELEBOT_USERNAME} --var slack_token=${SLACK_TOKEN} --var slack_channel=${SLACK_CHANNEL}
 sleep 5
 
 # show status

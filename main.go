@@ -14,6 +14,7 @@ import (
 	"github.com/JamesClonk/home-info-dashboard/lib/database"
 	"github.com/JamesClonk/home-info-dashboard/lib/env"
 	"github.com/JamesClonk/home-info-dashboard/lib/forecasts"
+	"github.com/JamesClonk/home-info-dashboard/lib/slack"
 	"github.com/JamesClonk/home-info-dashboard/lib/telebot"
 	"github.com/JamesClonk/home-info-dashboard/lib/util"
 	"github.com/JamesClonk/home-info-dashboard/lib/web/router"
@@ -61,6 +62,8 @@ func setupDatabase() database.HomeInfoDB {
 
 func spawnAlertManager(hdb database.HomeInfoDB) {
 	telebot.Init(hdb)
+	slack.Init(hdb)
+
 	go func() {
 		time.Sleep(10 * time.Second)
 		//telebot.Get().Send("Home Automation Dashboard initialized ...")

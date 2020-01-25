@@ -26,9 +26,12 @@ applications:
     AUTH_PASSWORD: ((auth_password))
     DEFAULT_CANTON: Bern
     DEFAULT_CITY: Bern
-    TELEBOT_TOKEN: ((token))
-    TELEBOT_USERNAME: JamesClonk
+    TELEBOT_TOKEN: ((telebot_token))
+    TELEBOT_USERNAME: ((telebot_username))
     TELEBOT_DEBUG: false
+    SLACK_TOKEN: ((slack_token))
+    SLACK_CHANNEL: ((slack_channel))
+    SLACK_DEBUG: false
     CONFIG_LIVING_ROOM_TEMPERATURE_SENSOR_ID: "1"
     CONFIG_LIVING_ROOM_HUMIDITY_SENSOR_ID: "2"
     CONFIG_BEDROOM_TEMPERATURE_SENSOR_ID: "4"
