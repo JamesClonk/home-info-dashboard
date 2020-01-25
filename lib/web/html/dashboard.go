@@ -97,6 +97,9 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			Temperature *database.SensorData
 			Humidity    *database.SensorData
 		}
+		type Plant struct {
+			Data *database.SensorData
+		}
 		type Graphs struct {
 			Labels      []string
 			Humidity    map[database.Sensor][]*database.SensorValue
@@ -123,22 +126,22 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			return value / counter
 		}
 		// average values because of multiple sensor for the same room
-		if len(livingRoomHum) > 0 {
+		if len(livingRoomHum) > 3 {
 			livingRoomHum[0].Value = getAverage(livingRoomHum, 4)
 		}
-		if len(livingRoomTemp) > 0 {
+		if len(livingRoomTemp) > 3 {
 			livingRoomTemp[0].Value = getAverage(livingRoomTemp, 4)
 		}
-		if len(bedRoomTemp) > 0 {
+		if len(bedRoomTemp) > 1 {
 			bedRoomTemp[0].Value = getAverage(bedRoomTemp, 2)
 		}
-		if len(bedRoomHum) > 0 {
+		if len(bedRoomHum) > 1 {
 			bedRoomHum[0].Value = getAverage(bedRoomHum, 2)
 		}
-		if len(homeOfficeTemp) > 0 {
+		if len(homeOfficeTemp) > 1 {
 			homeOfficeTemp[0].Value = getAverage(homeOfficeTemp, 2)
 		}
-		if len(homeOfficeHum) > 0 {
+		if len(homeOfficeHum) > 1 {
 			homeOfficeHum[0].Value = getAverage(homeOfficeHum, 2)
 		}
 
@@ -162,11 +165,39 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			})
 		}
 
+		plants := make([]Plant, 0)
+		sensors, err := hdb.GetSensors()
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		for _, sensor := range sensors {
+			switch sensor.Type {
+			case "soil":
+				d, err := hdb.GetSensorData(sensor.Id, 2)
+				if err != nil {
+					Error(rw, err)
+					return
+				}
+				if len(d) > 1 {
+					d = web.SoilMoisture(d)
+					d[0].Value = getAverage(d, 2)
+					plants = append(plants, Plant{
+						Data: d[0],
+					})
+				}
+			default:
+				continue
+			}
+		}
+
 		page.Content = struct {
 			Rooms  []Room
+			Plants []Plant
 			Graphs Graphs
 		}{
 			Rooms:  rooms,
+			Plants: plants,
 			Graphs: graphs,
 		}
 

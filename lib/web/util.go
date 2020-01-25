@@ -26,6 +26,13 @@ func GetLocation(req *http.Request) (string, string) {
 	return util.GetDefaultLocation(canton, city)
 }
 
+func SoilMoisture(data []*database.SensorData) []*database.SensorData {
+	for d := range SoilMoistureCapacitive(data) {
+		data[d].Value = int64(float64(data[d].Value) / 3.33)
+	}
+	return data
+}
+
 func SoilMoistureCapacitive(data []*database.SensorData) []*database.SensorData {
 	for d := range data {
 		data[d].Value = (data[d].Value - 333) * -1
