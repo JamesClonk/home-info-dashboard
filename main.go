@@ -16,6 +16,7 @@ import (
 	"github.com/JamesClonk/home-info-dashboard/lib/forecasts"
 	"github.com/JamesClonk/home-info-dashboard/lib/util"
 	"github.com/JamesClonk/home-info-dashboard/lib/web/router"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/urfave/negroni"
 )
 
@@ -51,10 +52,45 @@ func setupDatabase() database.HomeInfoDB {
 	hdb := database.NewHomeInfoDB(adapter)
 
 	// background jobs
+	spawnTelebot(hdb)
 	spawnHousekeeping(hdb)
 	spawnForecastCollection(hdb)
 
 	return hdb
+}
+
+func spawnTelebot(hdb database.HomeInfoDB) {
+	token := env.MustGet("TELEBOT_TOKEN")
+	bot, err := tgbotapi.NewBotAPI(token)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	bot.Debug = true
+	log.Printf("Telebot authorized on account [%s]", bot.Self.UserName)
+
+	go func(hdb database.HomeInfoDB) {
+		u := tgbotapi.NewUpdate(0)
+		u.Timeout = 60
+
+		updates, err := bot.GetUpdatesChan(u)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for update := range updates {
+			if update.Message == nil { // ignore any non-Message Updates
+				continue
+			}
+
+			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+			msg.ReplyToMessageID = update.Message.MessageID
+
+			bot.Send(msg)
+		}
+	}(hdb)
 }
 
 func spawnHousekeeping(hdb database.HomeInfoDB) {

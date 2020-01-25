@@ -2,6 +2,8 @@
 github.com/cloudfoundry-community/go-cfenv
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
+# github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
+github.com/go-telegram-bot-api/telegram-bot-api
 # github.com/gorilla/context v1.1.1
 github.com/gorilla/context
 # github.com/gorilla/mux v1.6.0
@@ -24,6 +26,8 @@ github.com/mitchellh/mapstructure
 github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.4.0
 github.com/stretchr/testify/assert
+# github.com/technoweenie/multipartstreamer v1.0.1
+github.com/technoweenie/multipartstreamer
 # github.com/unrolled/render v0.0.0-20171006150303-32bf1ea2a39e
 github.com/unrolled/render
 # github.com/urfave/negroni v0.2.1-0.20171016041905-079cf0c7a6b0

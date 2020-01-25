@@ -10,6 +10,7 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385 // indirect
+	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.6.0
 	github.com/lib/pq v0.0.0-20171022192043-b609790bd85e
@@ -20,6 +21,7 @@ require (
 	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/stretchr/testify v1.4.0
+	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	github.com/unrolled/render v0.0.0-20171006150303-32bf1ea2a39e
 	github.com/urfave/negroni v0.2.1-0.20171016041905-079cf0c7a6b0
 )

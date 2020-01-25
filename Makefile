@@ -18,12 +18,12 @@ run:
 .PHONY: dev
 ## dev: runs main.go on a local postgres
 dev:
-	source .env; go run -race main.go
+	source .env; source .env_dev; go run -race main.go
 
 .PHONY: gin
 ## gin: runs main.go via gin on a local postgres
 gin:
-	source .env; gin --all --immediate --appPort 9099 --port 9090 run main.go
+	source .env; source .env_dev; gin --all --immediate --appPort 9099 --port 9090 run main.go
 
 .PHONY: build
 ## build: builds the application

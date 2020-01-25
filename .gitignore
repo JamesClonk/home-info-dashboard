@@ -35,5 +35,6 @@ NOTICE
 # temporary test database
 _fixtures/temp.db
 
-# prod database
+# sources
+.env_dev
 .env_prod
