@@ -39,6 +39,9 @@ func init() {
 	os.Setenv("CONFIG_HOME_OFFICE_HUMIDITY_SENSOR_ID", "9")
 	os.Setenv("CONFIG_FORECAST_TEMPERATURE_SENSOR_ID", "5")
 
+	os.Setenv("TELEBOT_TOKEN", "deadbeef-beefdead")
+	os.Setenv("TELEBOT_USERNAME", "JamesClonk")
+
 	if err := exec.Command("cp", "-f", "_fixtures/test.db", "_fixtures/temp.db").Run(); err != nil {
 		log.Fatal(err)
 	}
