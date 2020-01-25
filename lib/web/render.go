@@ -45,6 +45,18 @@ func init() {
 
 					return ""
 				},
+				"moisture": func(value int64) string {
+					if value >= 36 {
+						return "😄 🌊"
+					}
+					if value >= 24 {
+						return "😅 💦"
+					}
+					if value >= 12 {
+						return "😥 💧"
+					}
+					return "😫 🔥"
+				},
 			},
 		},
 	})

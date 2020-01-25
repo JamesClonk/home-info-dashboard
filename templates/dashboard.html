@@ -15,10 +15,15 @@
       </div>
     </div>
     {{ end }}
+  </div>
+</section>
+
+<section class="section" style="padding-top: 0px">
+  <div class="container">
     <div class="columns">
       {{ range $plant := .Content.Plants }}
       <div class="column">
-        <h2 class="title is-2">{{ if (emoji $plant.Data.Name) }}{{ emoji $plant.Data.Name }} {{ end }}{{ $plant.Data.Name }}: <span class="has-text-warning">{{ $plant.Data.Value }}%</span></h2>
+        <h1 class="title" style="font-size: 5rem">{{ emoji $plant.Data.Name }} <span style="font-size: 2.5rem">{{ moisture $plant.Data.Value }}</span></h1><h3 class="title is-3">{{ $plant.Data.Name }}: <span class="has-text-warning">{{ $plant.Data.Value }}%</span></h3>
         <h5 class="subtitle is-5"><small class="has-text-warning">{{ $plant.Data.Type }} ({{ $plant.Data.Unit }})</small><small> - Last Update: {{ $plant.Data.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
       </div>
       {{ end }}
