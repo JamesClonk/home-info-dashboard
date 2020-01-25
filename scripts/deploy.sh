@@ -65,7 +65,7 @@ rm -f NOTICE || true
 
 # push app
 ./cf push home-info -f manifest.yml \
-  --var auth_username=${AUTH_USERNAME} --var auth_password=${AUTH_PASSWORD} --var telebot_token=${TELEBOT_TOKEN} --var telebot_username=${TELEBOT_USERNAME} --var slack_token=${SLACK_TOKEN} --var slack_channel=${SLACK_CHANNEL}
+  --var auth_username=${AUTH_USERNAME} --var auth_password=${AUTH_PASSWORD} --var telebot_token=${TELEBOT_TOKEN} --var telebot_username=${TELEBOT_USERNAME} --var slack_token=${SLACK_TOKEN} --var slack_channel="${SLACK_CHANNEL}"
 sleep 5
 
 # show status
