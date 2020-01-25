@@ -75,7 +75,8 @@ func spawnTelebot(hdb database.HomeInfoDB) {
 
 		updates, err := bot.GetUpdatesChan(u)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("Telebot error: %v\n", err)
+			return
 		}
 
 		for update := range updates {

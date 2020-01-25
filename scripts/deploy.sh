@@ -28,6 +28,10 @@ if [ -z "${AUTH_PASSWORD}" ]; then
 	echo "AUTH_PASSWORD must be set!"
 	exit 1
 fi
+if [ -z "${TELEBOT_TOKEN}" ]; then
+	echo "TELEBOT_TOKEN must be set!"
+	exit 1
+fi
 
 # =============================================================================================
 if [[ "$(basename $PWD)" == "scripts" ]]; then
@@ -49,7 +53,7 @@ rm -f NOTICE || true
 
 # push app
 ./cf push home-info -f manifest.yml \
-  --var auth_username=${AUTH_USERNAME} --var auth_password=${AUTH_PASSWORD}
+  --var auth_username=${AUTH_USERNAME} --var auth_password=${AUTH_PASSWORD} --var token=${TELEBOT_TOKEN}
 sleep 5
 
 # show status
