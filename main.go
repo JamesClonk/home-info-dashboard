@@ -60,12 +60,11 @@ func setupDatabase() database.HomeInfoDB {
 }
 
 func spawnAlertManager(hdb database.HomeInfoDB) {
-	bot := telebot.Get(hdb)
-
-	go func(bot *telebot.Telebot) {
+	telebot.Init(hdb)
+	go func() {
 		time.Sleep(10 * time.Second)
-		bot.Send("Home Automation Dashboard initialized ...")
-	}(bot)
+		//telebot.Get().Send("Home Automation Dashboard initialized ...")
+	}()
 }
 
 func spawnHousekeeping(hdb database.HomeInfoDB) {

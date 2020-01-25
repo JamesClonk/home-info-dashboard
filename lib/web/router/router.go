@@ -43,6 +43,8 @@ func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 	router.HandleFunc("/sensor/{id}/values", api.GetSensorValues(hdb)).Methods("GET")
 	router.HandleFunc("/sensor/{id}/values/{limit}", api.GetSensorValues(hdb)).Methods("GET")
 
+	router.HandleFunc("/telebot", api.TelebotStatus()).Methods("GET")
+
 	// secured API
 	router.HandleFunc("/sensor_type", basicAuth(api.AddSensorType(hdb))).Methods("POST")
 	router.HandleFunc("/sensor_type/{id}", basicAuth(api.UpdateSensorType(hdb))).Methods("PUT")
@@ -56,6 +58,9 @@ func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 	router.HandleFunc("/sensor/{id}/values", basicAuth(api.DeleteSensorValues(hdb))).Methods("DELETE")
 
 	router.HandleFunc("/housekeeping", basicAuth(api.Housekeeping(hdb))).Methods("POST")
+
+	router.HandleFunc("/telebot", basicAuth(api.TelebotInit())).Methods("PUT")
+	router.HandleFunc("/telebot/message", basicAuth(api.TelebotMessage())).Methods("POST")
 
 	return router
 }
