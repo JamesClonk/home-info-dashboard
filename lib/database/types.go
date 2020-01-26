@@ -10,7 +10,6 @@ type SensorType struct {
 	Description string `json:"description" xml:"description"`
 }
 
-// TODO: these struct changes require overhauling the complete sensor and sensor_type API !!!
 type Sensor struct {
 	Id          int        `json:"id" xml:"id,attr"`
 	Name        string     `json:"name" xml:"name"`
@@ -21,10 +20,6 @@ type Sensor struct {
 type SensorData struct {
 	Sensor    Sensor     `json:"sensor" xml:"sensor"`
 	Timestamp *time.Time `json:"timestamp" xml:"timestamp"`
-	Name      string     `json:"name" xml:"name"`
-	Type      string     `json:"type" xml:"type"`
-	Unit      string     `json:"unit" xml:"unit"`
-	Symbol    string     `json:"symbol" xml:"symbol"`
 	Value     int64      `json:"value" xml:"value"`
 }
 
@@ -33,6 +28,7 @@ type SensorValue struct {
 	Value     int64      `json:"value" xml:"value"`
 }
 
+// TODO: this struct needs API testing in main_test.go
 type Alert struct {
 	Id              int        `json:"id" xml:"id,attr"`
 	Sensor          Sensor     `json:"sensor" xml:"sensor"`

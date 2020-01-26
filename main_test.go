@@ -311,10 +311,13 @@ func Test_Main_Sensors(t *testing.T) {
 	assert.Contains(t, body, `{
   "id": 6,
   "name": "Badezimmer",
-  "type": "temperature",
-  "type_id": "3",
-  "unit": "celsius",
-  "symbol": "°",
+  "sensor_type": {
+    "id": 3,
+    "type": "temperature",
+    "unit": "celsius",
+    "symbol": "°",
+    "description": "Shows temperature"
+  },
   "description": "Badezimmer Temperatur"
 }`)
 
@@ -331,18 +334,24 @@ func Test_Main_Sensors(t *testing.T) {
 	body = response.Body.String()
 	assert.Contains(t, body, `
     "name": "temperature #1",
-    "type": "temperature",
-    "type_id": "3",
-    "unit": "celsius",
-    "symbol": "°",
+    "sensor_type": {
+      "id": 3,
+      "type": "temperature",
+      "unit": "celsius",
+      "symbol": "°",
+      "description": "Shows temperature"
+    },
     "description": "Shows temperature"`)
 	assert.Contains(t, body, `
     "id": 6,
     "name": "Badezimmer",
-    "type": "temperature",
-    "type_id": "3",
-    "unit": "celsius",
-    "symbol": "°",
+    "sensor_type": {
+      "id": 3,
+      "type": "temperature",
+      "unit": "celsius",
+      "symbol": "°",
+      "description": "Shows temperature"
+    },
     "description": "Badezimmer Temperatur"`)
 
 	response = httptest.NewRecorder()
@@ -358,10 +367,13 @@ func Test_Main_Sensors(t *testing.T) {
 	assert.Contains(t, body, `{
   "id": 1,
   "name": "roof window #1",
-  "type": "window_state",
-  "type_id": "1",
-  "unit": "closed",
-  "symbol": "¬",
+  "sensor_type": {
+    "id": 1,
+    "type": "window_state",
+    "unit": "closed",
+    "symbol": "¬",
+    "description": "Shows open/closed state of windows"
+  },
   "description": "Shows open/closed state of roof window"
 }`)
 
@@ -386,10 +398,13 @@ func Test_Main_Sensors(t *testing.T) {
 	assert.Contains(t, body, `{
   "id": 5,
   "name": "Wohnzimmer",
-  "type": "humidity",
-  "type_id": "4",
-  "unit": "percentage",
-  "symbol": "%",
+  "sensor_type": {
+    "id": 4,
+    "type": "humidity",
+    "unit": "percentage",
+    "symbol": "%",
+    "description": "Shows air humidity"
+  },
   "description": "Wohnzimmer Luftfeuchtigkeit"
 }`)
 
@@ -406,10 +421,13 @@ func Test_Main_Sensors(t *testing.T) {
 	assert.Contains(t, body, `{
   "id": 5,
   "name": "Wohnzimmer",
-  "type": "humidity",
-  "type_id": "4",
-  "unit": "percentage",
-  "symbol": "%",
+  "sensor_type": {
+    "id": 4,
+    "type": "humidity",
+    "unit": "percentage",
+    "symbol": "%",
+    "description": "Shows air humidity"
+  },
   "description": "Wohnzimmer Luftfeuchtigkeit"
 }`)
 

@@ -60,7 +60,7 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 		weeklyMoisture := make(map[string][]*database.SensorValue)
 		hourlyMoisture := make(map[string][]*database.SensorValue)
 		for _, sensor := range sensors {
-			switch sensor.Type {
+			switch sensor.SensorType.Type {
 			case "temperature":
 				values, err := hdb.GetHourlyAverages(sensor.Id, 48)
 				if err != nil {
@@ -180,7 +180,7 @@ func Sensors(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 				return
 			}
 
-			if sensor.Type == "soil" {
+			if sensor.SensorType.Type == "soil" {
 				d = web.SoilMoistureCapacitive(d)
 			}
 

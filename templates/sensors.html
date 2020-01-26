@@ -16,8 +16,8 @@
         <tr>
           <td>{{ .Id }}</td>
           <td>{{ if (emoji .Name) }}{{ emoji .Name }} {{ end }}{{ .Name }}</td>
-          <td>{{ .Type }}</td>
-          <td>{{ .Symbol }} - {{ .Unit }}</td>
+          <td>{{ .SensorType.Type }}</td>
+          <td>{{ .SensorType.Symbol }} - {{ .SensorType.Unit }}</td>
           <td>{{ .Description }}</td>
         </tr>
         {{ end }}
@@ -28,7 +28,7 @@
     <div class="columns"><div class="column"><h3 class="title is-3">{{ $types.Type }} ({{ $types.Unit }})<small> - {{ $types.Description }}</small></h3></div></div>
     <div class="columns">
       {{ range $.Content.Sensors }}
-      {{ if eq .Type $types.Type }}
+      {{ if eq .SensorType.Type $types.Type }}
       {{ if gt (len (index $.Content.SensorData .Id)) 0 }}
       <div class="column">
         <label class="label">{{ if (emoji .Name) }}{{ emoji .Name }} {{ end }}{{ .Name }} ({{ .Id }})<small> - {{ .Description }}</small></label>
@@ -44,7 +44,7 @@
             {{ range . }}
             <tr>
               <td>{{ .Timestamp.Format `2006-01-02 15:04:05` }}</td>
-              <td>{{ if eq .Type "soil" }}{{ divide .Value 100 }}{{ else }}{{ .Value }}{{ end }}{{ .Symbol }}</td>
+              <td>{{ if eq .Sensor.SensorType.Type "soil" }}{{ divide .Value 100 }}{{ else }}{{ .Value }}{{ end }}{{ .Sensor.SensorType.Symbol }}</td>
             </tr>
             {{ end }}
             {{ end }}

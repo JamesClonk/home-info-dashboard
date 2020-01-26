@@ -172,7 +172,7 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			return
 		}
 		for _, sensor := range sensors {
-			switch sensor.Type {
+			switch sensor.SensorType.Type {
 			case "soil":
 				d, err := hdb.GetSensorData(sensor.Id, 2)
 				if err != nil {

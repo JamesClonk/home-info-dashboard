@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"strconv"
 	"strings"
 	"time"
 )
 
 type HomeInfoDB interface {
-	GetTemperature() (int64, error)
 	GetAlerts() ([]*Alert, error)
 	GetSensors() ([]*Sensor, error)
 	GetSensorById(int) (*Sensor, error)
@@ -45,29 +43,6 @@ func NewHomeInfoDB(adapter Adapter) HomeInfoDB {
 	return &homeInfoDB{adapter.GetDatabase(), adapter.GetType()}
 }
 
-func (hdb *homeInfoDB) GetTemperature() (int64, error) {
-	rows, err := hdb.Query(`
-		select sd.value
-		from sensor_data sd
-		join sensor s on s.pk_sensor_id = sd.fk_sensor_id
-		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
-		where st.type = 'temperature'
-		order by s.name asc, sd.timestamp desc
-		limit 1`)
-	if err != nil {
-		return 0, err
-	}
-	defer rows.Close()
-
-	var temperature int64
-	if rows.Next() {
-		if err := rows.Scan(&temperature); err != nil {
-			return 0, err
-		}
-	}
-	return temperature, nil
-}
-
 func (hdb *homeInfoDB) GetAlerts() ([]*Alert, error) {
 	rows, err := hdb.Query(`
 		select
@@ -88,28 +63,25 @@ func (hdb *homeInfoDB) GetAlerts() ([]*Alert, error) {
 		var a Alert
 		var s Sensor
 		var st SensorType
-		if err := rows.Scan(&a.Id, &a.Name, &a.Description, &a.Condition, &a.Execution, &a.LastAlert, &a.SilenceDuration,,,,); err != nil {
+		if err := rows.Scan(
+			&a.Id, &a.Name, &a.Description, &a.Condition, &a.Execution, &a.LastAlert, &a.SilenceDuration,
+			&s.Id, &s.Name, &s.Description,
+			&st.Id, &st.Type, &st.Unit, &st.Symbol, &st.Description,
+		); err != nil {
 			return nil, err
 		}
+		s.SensorType = st
+		a.Sensor = s
 		aa = append(aa, &a)
 	}
 	return aa, nil
 }
 
-/*
-   pk_alert_id         SERIAL PRIMARY KEY,
-   fk_sensor_id        INTEGER NOT NULL,
-   name                VARCHAR(64) NOT NULL,
-   description         TEXT NOT NULL,
-   condition           TEXT NOT NULL,
-   execution           TEXT NOT NULL,
-   last_alert          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-   silence_duration    INTEGER NOT NULL,
-*/
-
 func (hdb *homeInfoDB) GetSensors() ([]*Sensor, error) {
 	rows, err := hdb.Query(`
-		select s.pk_sensor_id, s.name, st.type, st.pk_sensor_type_id, st.unit, st.symbol, s.description
+		select
+			s.pk_sensor_id, s.name, s.description,
+			st.pk_sensor_type_id, st.type, st.unit, st.symbol, st.description
 		from sensor s
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
 		order by s.name asc, st.type asc`)
@@ -121,9 +93,14 @@ func (hdb *homeInfoDB) GetSensors() ([]*Sensor, error) {
 	ss := []*Sensor{}
 	for rows.Next() {
 		var s Sensor
-		if err := rows.Scan(&s.Id, &s.Name, &s.Type, &s.TypeId, &s.Unit, &s.Symbol, &s.Description); err != nil {
+		var st SensorType
+		if err := rows.Scan(
+			&s.Id, &s.Name, &s.Description,
+			&st.Id, &st.Type, &st.Unit, &st.Symbol, &st.Description,
+		); err != nil {
 			return nil, err
 		}
+		s.SensorType = st
 		ss = append(ss, &s)
 	}
 	return ss, nil
@@ -131,7 +108,9 @@ func (hdb *homeInfoDB) GetSensors() ([]*Sensor, error) {
 
 func (hdb *homeInfoDB) GetSensorsByTypeId(id int) ([]*Sensor, error) {
 	stmt, err := hdb.Prepare(`
-		select s.pk_sensor_id, s.name, st.type, st.pk_sensor_type_id, st.unit, st.symbol, s.description
+		select
+			s.pk_sensor_id, s.name, s.description,
+			st.pk_sensor_type_id, st.type, st.unit, st.symbol, st.description
 		from sensor s
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
 		where st.pk_sensor_type_id = $1
@@ -150,9 +129,14 @@ func (hdb *homeInfoDB) GetSensorsByTypeId(id int) ([]*Sensor, error) {
 	ss := []*Sensor{}
 	for rows.Next() {
 		var s Sensor
-		if err := rows.Scan(&s.Id, &s.Name, &s.Type, &s.TypeId, &s.Unit, &s.Symbol, &s.Description); err != nil {
+		var st SensorType
+		if err := rows.Scan(
+			&s.Id, &s.Name, &s.Description,
+			&st.Id, &st.Type, &st.Unit, &st.Symbol, &st.Description,
+		); err != nil {
 			return nil, err
 		}
+		s.SensorType = st
 		ss = append(ss, &s)
 	}
 	return ss, nil
@@ -160,7 +144,9 @@ func (hdb *homeInfoDB) GetSensorsByTypeId(id int) ([]*Sensor, error) {
 
 func (hdb *homeInfoDB) GetSensorById(id int) (*Sensor, error) {
 	stmt, err := hdb.Prepare(`
-		select s.pk_sensor_id, s.name, st.type, st.pk_sensor_type_id, st.unit, st.symbol, s.description
+		select
+			s.pk_sensor_id, s.name, s.description,
+			st.pk_sensor_type_id, st.type, st.unit, st.symbol, st.description
 		from sensor s
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
 		where s.pk_sensor_id = $1`)
@@ -169,16 +155,23 @@ func (hdb *homeInfoDB) GetSensorById(id int) (*Sensor, error) {
 	}
 	defer stmt.Close()
 
-	s := &Sensor{}
-	if err := stmt.QueryRow(id).Scan(&s.Id, &s.Name, &s.Type, &s.TypeId, &s.Unit, &s.Symbol, &s.Description); err != nil {
+	var s Sensor
+	var st SensorType
+	if err := stmt.QueryRow(id).Scan(
+		&s.Id, &s.Name, &s.Description,
+		&st.Id, &st.Type, &st.Unit, &st.Symbol, &st.Description,
+	); err != nil {
 		return nil, err
 	}
-	return s, nil
+	s.SensorType = st
+	return &s, nil
 }
 
 func (hdb *homeInfoDB) GetSensorsByName(name string) ([]*Sensor, error) {
 	stmt, err := hdb.Prepare(`
-		select s.pk_sensor_id, s.name, st.type, st.pk_sensor_type_id, st.unit, st.symbol, s.description
+		select
+			s.pk_sensor_id, s.name, s.description,
+			st.pk_sensor_type_id, st.type, st.unit, st.symbol, st.description
 		from sensor s
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
 		where s.name = $1
@@ -197,35 +190,32 @@ func (hdb *homeInfoDB) GetSensorsByName(name string) ([]*Sensor, error) {
 	ss := []*Sensor{}
 	for rows.Next() {
 		var s Sensor
-		if err := rows.Scan(&s.Id, &s.Name, &s.Type, &s.TypeId, &s.Unit, &s.Symbol, &s.Description); err != nil {
+		var st SensorType
+		if err := rows.Scan(
+			&s.Id, &s.Name, &s.Description,
+			&st.Id, &st.Type, &st.Unit, &st.Symbol, &st.Description,
+		); err != nil {
 			return nil, err
 		}
+		s.SensorType = st
 		ss = append(ss, &s)
 	}
 	return ss, nil
 }
 
 func (hdb *homeInfoDB) InsertSensor(sensor *Sensor) (err error) {
-	var sensorTypeId int64
-	if len(sensor.TypeId) > 0 {
-		sensorTypeId, err = strconv.ParseInt(sensor.TypeId, 10, 64)
-		if err != nil {
-			return err
-		}
-	}
-
 	// figure out sensor type
-	var sensorType *SensorType
-	if sensorTypeId > 0 { // by id
-		sensorType, err = hdb.GetSensorTypeById(int(sensorTypeId))
+	var sensorType SensorType
+	if sensor.SensorType.Id > 0 {
+		sensorType = sensor.SensorType
+	} else if len(sensor.SensorType.Type) > 0 { // by type name
+		st, err := hdb.GetSensorTypeByType(sensor.SensorType.Type)
 		if err != nil {
 			return err
 		}
-	} else { // by type
-		sensorType, err = hdb.GetSensorTypeByType(sensor.Type)
-		if err != nil {
-			return err
-		}
+		sensorType = *st
+	} else {
+		return fmt.Errorf("sensor_type missing!")
 	}
 
 	stmt, err := hdb.Prepare(`
@@ -250,36 +240,25 @@ func (hdb *homeInfoDB) InsertSensor(sensor *Sensor) (err error) {
 	sensorNew := sensors[0] // first one is newest
 	sensor.Id = sensorNew.Id
 	sensor.Name = sensorNew.Name
-	sensor.Type = sensorNew.Type
-	sensor.TypeId = sensorNew.TypeId
-	sensor.Unit = sensorNew.Unit
-	sensor.Symbol = sensorNew.Symbol
+	sensor.SensorType = sensorNew.SensorType
 	sensor.Description = sensorNew.Description
 
 	return nil
 }
 
 func (hdb *homeInfoDB) UpdateSensor(sensor *Sensor) (err error) {
-	var sensorTypeId int64
-	if len(sensor.TypeId) > 0 {
-		sensorTypeId, err = strconv.ParseInt(sensor.TypeId, 10, 64)
-		if err != nil {
-			return err
-		}
-	}
-
 	// figure out sensor type
-	var sensorType *SensorType
-	if sensorTypeId > 0 { // by id
-		sensorType, err = hdb.GetSensorTypeById(int(sensorTypeId))
+	var sensorType SensorType
+	if sensor.SensorType.Id > 0 {
+		sensorType = sensor.SensorType
+	} else if len(sensor.SensorType.Type) > 0 { // by type name
+		st, err := hdb.GetSensorTypeByType(sensor.SensorType.Type)
 		if err != nil {
 			return err
 		}
-	} else { // by type
-		sensorType, err = hdb.GetSensorTypeByType(sensor.Type)
-		if err != nil {
-			return err
-		}
+		sensorType = *st
+	} else {
+		return fmt.Errorf("sensor_type missing!")
 	}
 
 	stmt, err := hdb.Prepare(`
@@ -303,10 +282,7 @@ func (hdb *homeInfoDB) UpdateSensor(sensor *Sensor) (err error) {
 		return err
 	}
 	sensor.Name = sensorNew.Name
-	sensor.Type = sensorNew.Type
-	sensor.TypeId = sensorNew.TypeId
-	sensor.Unit = sensorNew.Unit
-	sensor.Symbol = sensorNew.Symbol
+	sensor.SensorType = sensorNew.SensorType
 	sensor.Description = sensorNew.Description
 
 	return nil
@@ -425,7 +401,10 @@ func (hdb *homeInfoDB) UpdateSensorType(sensorType *SensorType) (err error) {
 
 func (hdb *homeInfoDB) GetSensorData(id, limit int) ([]*SensorData, error) {
 	sql := `
-		select s.pk_sensor_id, sd.timestamp, s.name, st.type, st.unit, st.symbol, sd.value
+		select
+			sd.timestamp, sd.value,
+			s.pk_sensor_id, s.name, s.description,
+			st.pk_sensor_type_id, st.type, st.unit, st.symbol, st.description
 		from sensor_data sd
 		join sensor s on s.pk_sensor_id = sd.fk_sensor_id
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
@@ -450,9 +429,17 @@ func (hdb *homeInfoDB) GetSensorData(id, limit int) ([]*SensorData, error) {
 	data := []*SensorData{}
 	for rows.Next() {
 		var d SensorData
-		if err := rows.Scan(&d.SensorId, &d.Timestamp, &d.Name, &d.Type, &d.Unit, &d.Symbol, &d.Value); err != nil {
+		var s Sensor
+		var st SensorType
+		if err := rows.Scan(
+			&d.Timestamp, &d.Value,
+			&s.Id, &s.Name, &s.Description,
+			&st.Id, &st.Type, &st.Unit, &st.Symbol, &st.Description,
+		); err != nil {
 			return nil, err
 		}
+		s.SensorType = st
+		d.Sensor = s
 		data = append(data, &d)
 	}
 	return data, nil
@@ -656,7 +643,7 @@ func (hdb *homeInfoDB) GenerateSensorValues(id, num int) error {
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < num; i++ {
 		value := rand.Intn(100)
-		if strings.Contains(sensor.Type, "state") {
+		if strings.Contains(sensor.SensorType.Type, "state") {
 			value = value % 2
 		}
 		timestamp := time.Unix(rand.Int63n(time.Now().Unix()-666666)+666666, 0).UTC()

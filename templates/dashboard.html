@@ -6,12 +6,12 @@
     {{ range $room := .Content.Rooms }}
     <div class="columns">
       <div class="column">
-        <h2 class="title is-2">{{ if (emoji $room.Temperature.Name) }}{{ emoji $room.Temperature.Name }} {{ end }}{{ $room.Temperature.Name }}: <span class="has-text-danger">{{ $room.Temperature.Value }}{{ $room.Temperature.Symbol }}</span></h2>
-        <h5 class="subtitle is-5"><small class="has-text-danger">{{ $room.Temperature.Type }}</small><small> - Last Update: {{ $room.Temperature.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
+        <h2 class="title is-2">{{ if (emoji $room.Temperature.Sensor.Name) }}{{ emoji $room.Temperature.Sensor.Name }} {{ end }}{{ $room.Temperature.Sensor.Name }}: <span class="has-text-danger">{{ $room.Temperature.Value }}{{ $room.Temperature.Sensor.SensorType.Symbol }}</span></h2>
+        <h5 class="subtitle is-5"><small class="has-text-danger">{{ $room.Temperature.Sensor.SensorType.Type }}</small><small> - Last Update: {{ $room.Temperature.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
       </div>
       <div class="column">
-        <h2 class="title is-2">{{ if (emoji $room.Temperature.Name) }}{{ emoji $room.Temperature.Name }} {{ end }}{{ $room.Humidity.Name }}: <span class="has-text-info">{{ $room.Humidity.Value }}{{ $room.Humidity.Symbol }}</span></h2>
-        <h5 class="subtitle is-5"><small class="has-text-info">{{ $room.Humidity.Type }}</small><small> - Last Update: {{ $room.Humidity.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
+        <h2 class="title is-2">{{ if (emoji $room.Humidity.Sensor.Name) }}{{ emoji $room.Humidity.Sensor.Name }} {{ end }}{{ $room.Humidity.Sensor.Name }}: <span class="has-text-info">{{ $room.Humidity.Value }}{{ $room.Humidity.Sensor.SensorType.Symbol }}</span></h2>
+        <h5 class="subtitle is-5"><small class="has-text-info">{{ $room.Humidity.Sensor.SensorType.Type }}</small><small> - Last Update: {{ $room.Humidity.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
       </div>
     </div>
     {{ end }}
@@ -23,8 +23,8 @@
     <div class="columns">
       {{ range $plant := .Content.Plants }}
       <div class="column">
-        <h1 class="title" style="font-size: 5rem">{{ emoji $plant.Data.Name }} <span style="font-size: 2.5rem">{{ moisture $plant.Data.Value }}</span></h1><h3 class="title is-3">{{ $plant.Data.Name }}: <span class="has-text-warning">{{ $plant.Data.Value }}%</span></h3>
-        <h5 class="subtitle is-5"><small class="has-text-warning">{{ $plant.Data.Type }} ({{ $plant.Data.Unit }})</small><small> - Last Update: {{ $plant.Data.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
+        <h1 class="title" style="font-size: 5rem">{{ emoji $plant.Data.Sensor.Name }} <span style="font-size: 2.5rem">{{ moisture $plant.Data.Value }}</span></h1><h3 class="title is-3">{{ $plant.Data.Sensor.Name }}: <span class="has-text-warning">{{ $plant.Data.Value }}%</span></h3>
+        <h5 class="subtitle is-5"><small class="has-text-warning">{{ $plant.Data.Sensor.SensorType.Type }} ({{ $plant.Data.Sensor.SensorType.Unit }})</small><small> - Last Update: {{ $plant.Data.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
       </div>
       {{ end }}
     </div>
@@ -63,7 +63,7 @@
         datasets: [
         {{ range $sensor, $data := .Content.Graphs.Humidity }}
             {
-                label: "{{ $sensor.Name }} - {{ $sensor.Type }}",
+                label: "{{ $sensor.Name }} - {{ $sensor.SensorType.Type }}",
                 yAxisID: 'H',
                 data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
                 borderColor: humColor()
@@ -71,7 +71,7 @@
         {{ end }}
         {{ range $sensor, $data := .Content.Graphs.Temperature }}
             {
-                label: "{{ $sensor.Name }} - {{ $sensor.Type }}",
+                label: "{{ $sensor.Name }} - {{ $sensor.SensorType.Type }}",
                 yAxisID: 'T',
                 data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
                 borderColor: {{ if eq $sensor.Name "weather forecast" }}'#aa33cc'{{ else }}tempColor(){{ end }}

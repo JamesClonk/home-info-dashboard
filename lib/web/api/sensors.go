@@ -55,11 +55,17 @@ func GetSensor(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 func AddSensor(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		req.ParseForm()
+		sensorTypeId, err := strconv.Atoi(req.Form.Get("type_id"))
+		if err != nil {
+			sensorTypeId = 0
+		}
 		sensor := &database.Sensor{
 			Name:        req.Form.Get("name"),
-			Type:        req.Form.Get("type"),
-			TypeId:      req.Form.Get("type_id"),
 			Description: req.Form.Get("description"),
+			SensorType: database.SensorType{
+				Id:   sensorTypeId,
+				Type: req.Form.Get("type"),
+			},
 		}
 
 		if err := hdb.InsertSensor(sensor); err != nil {
@@ -89,12 +95,18 @@ func UpdateSensor(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *htt
 			}
 
 			req.ParseForm()
+			sensorTypeId, err := strconv.Atoi(req.Form.Get("type_id"))
+			if err != nil {
+				sensorTypeId = 0
+			}
 			sensor := &database.Sensor{
 				Id:          int(sensorId),
 				Name:        req.Form.Get("name"),
-				Type:        req.Form.Get("type"),
-				TypeId:      req.Form.Get("type_id"),
 				Description: req.Form.Get("description"),
+				SensorType: database.SensorType{
+					Id:   sensorTypeId,
+					Type: req.Form.Get("type"),
+				},
 			}
 
 			if err := hdb.UpdateSensor(sensor); err != nil {
