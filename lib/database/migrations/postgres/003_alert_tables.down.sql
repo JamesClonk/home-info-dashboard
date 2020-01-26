@@ -1,0 +1,2 @@
+-- alert
+DROP TABLE alert;
