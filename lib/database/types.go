@@ -10,18 +10,16 @@ type SensorType struct {
 	Description string `json:"description" xml:"description"`
 }
 
+// TODO: these struct changes require overhauling the complete sensor and sensor_type API !!!
 type Sensor struct {
-	Id          int    `json:"id" xml:"id,attr"`
-	Name        string `json:"name" xml:"name"`
-	Type        string `json:"type" xml:"type"`
-	TypeId      string `json:"type_id" xml:"type_id,attr"`
-	Unit        string `json:"unit" xml:"unit"`
-	Symbol      string `json:"symbol" xml:"symbol"`
-	Description string `json:"description" xml:"description"`
+	Id          int        `json:"id" xml:"id,attr"`
+	Name        string     `json:"name" xml:"name"`
+	SensorType  SensorType `json:"sensor_type" xml:"sensor_type"`
+	Description string     `json:"description" xml:"description"`
 }
 
 type SensorData struct {
-	SensorId  int        `json:"sensor_id" xml:"sensor_id,attr"`
+	Sensor    Sensor     `json:"sensor" xml:"sensor"`
 	Timestamp *time.Time `json:"timestamp" xml:"timestamp"`
 	Name      string     `json:"name" xml:"name"`
 	Type      string     `json:"type" xml:"type"`
@@ -33,4 +31,15 @@ type SensorData struct {
 type SensorValue struct {
 	Timestamp *time.Time `json:"timestamp" xml:"timestamp"`
 	Value     int64      `json:"value" xml:"value"`
+}
+
+type Alert struct {
+	Id              int        `json:"id" xml:"id,attr"`
+	Sensor          Sensor     `json:"sensor" xml:"sensor"`
+	Name            string     `json:"name" xml:"name"`
+	Description     string     `json:"description" xml:"description"`
+	Condition       string     `json:"alert_condition" xml:"alert_condition"`
+	Execution       string     `json:"execution_schedule" xml:"execution_schedule"`
+	LastAlert       *time.Time `json:"last_alert_timestamp" xml:"last_alert_timestamp"`
+	SilenceDuration int64      `json:"silence_duration_in_minutes" xml:"silence_duration_in_minutes"`
 }

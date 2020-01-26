@@ -12,6 +12,7 @@ import (
 
 type HomeInfoDB interface {
 	GetTemperature() (int64, error)
+	GetAlerts() ([]*Alert, error)
 	GetSensors() ([]*Sensor, error)
 	GetSensorById(int) (*Sensor, error)
 	GetSensorsByName(string) ([]*Sensor, error)
@@ -66,6 +67,45 @@ func (hdb *homeInfoDB) GetTemperature() (int64, error) {
 	}
 	return temperature, nil
 }
+
+func (hdb *homeInfoDB) GetAlerts() ([]*Alert, error) {
+	rows, err := hdb.Query(`
+		select
+			a.pk_alert_id, a.name, a.description, a.condition, a.execution, a.last_alert, a.silence_duration,
+			s.pk_sensor_id, s.name, s.description,
+			st.pk_sensor_type_id, st.type, st.unit, st.symbol, st.description
+		from alert a
+		join sensor s on a.fk_sensor_id = s.pk_sensor_id
+		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
+		order by a.name asc, s.name asc, st.type asc`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	aa := []*Alert{}
+	for rows.Next() {
+		var a Alert
+		var s Sensor
+		var st SensorType
+		if err := rows.Scan(&a.Id, &a.Name, &a.Description, &a.Condition, &a.Execution, &a.LastAlert, &a.SilenceDuration,,,,); err != nil {
+			return nil, err
+		}
+		aa = append(aa, &a)
+	}
+	return aa, nil
+}
+
+/*
+   pk_alert_id         SERIAL PRIMARY KEY,
+   fk_sensor_id        INTEGER NOT NULL,
+   name                VARCHAR(64) NOT NULL,
+   description         TEXT NOT NULL,
+   condition           TEXT NOT NULL,
+   execution           TEXT NOT NULL,
+   last_alert          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   silence_duration    INTEGER NOT NULL,
+*/
 
 func (hdb *homeInfoDB) GetSensors() ([]*Sensor, error) {
 	rows, err := hdb.Query(`
