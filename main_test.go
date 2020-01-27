@@ -578,16 +578,23 @@ func Test_Main_Alerts(t *testing.T) {
 	body = response.Body.String()
 	assert.Contains(t, body, `{
   "id": 2,
-  "name": "Alerteroni",
-  "sensor_type": {
+  "sensor": {
     "id": 3,
-    "type": "temperature",
-    "unit": "celsius",
-    "symbol": "°",
+    "name": "temperature #1",
+    "sensor_type": {
+      "id": 3,
+      "type": "temperature",
+      "unit": "celsius",
+      "symbol": "°",
+      "description": "Shows temperature"
+    },
     "description": "Shows temperature"
   },
-  "description": "Alert for fun!"
-}`)
+  "name": "Alerteroni",
+  "description": "Alert for fun!",
+  "alert_condition": "\u003e 20",
+  "execution_schedule": "15 * * * *",`)
+	assert.Contains(t, body, `"silence_duration_in_minutes": 300`)
 
 	// ----------------------- READ -----------------------
 	response = httptest.NewRecorder()
@@ -601,26 +608,43 @@ func Test_Main_Alerts(t *testing.T) {
 
 	body = response.Body.String()
 	assert.Contains(t, body, `
-    "name": "temperature #1",
-    "sensor_type": {
-      "id": 3,
-      "type": "temperature",
-      "unit": "celsius",
-      "symbol": "°",
-      "description": "Shows temperature"
+    "id": 1,
+    "sensor": {
+      "id": 2,
+      "name": "roof window #2",
+      "sensor_type": {
+        "id": 1,
+        "type": "window_state",
+        "unit": "closed",
+        "symbol": "¬",
+        "description": "Shows open/closed state of windows"
+      },
+      "description": "Shows open/closed state of roof window"
     },
-    "description": "Shows temperature"`)
+    "name": "Alert #1",
+    "description": "First alert!",
+    "alert_condition": "\u003e 10",
+    "execution_schedule": "*/5 * * * *",`)
+	assert.Contains(t, body, `"silence_duration_in_minutes": 60`)
 	assert.Contains(t, body, `
-    "id": 6,
-    "name": "Badezimmer",
-    "sensor_type": {
+    "id": 2,
+    "sensor": {
       "id": 3,
-      "type": "temperature",
-      "unit": "celsius",
-      "symbol": "°",
+      "name": "temperature #1",
+      "sensor_type": {
+        "id": 3,
+        "type": "temperature",
+        "unit": "celsius",
+        "symbol": "°",
+        "description": "Shows temperature"
+      },
       "description": "Shows temperature"
     },
-    "description": "Badezimmer Temperatur"`)
+    "name": "Alerteroni",
+    "description": "Alert for fun!",
+    "alert_condition": "\u003e 20",
+    "execution_schedule": "15 * * * *",`)
+	assert.Contains(t, body, `"silence_duration_in_minutes": 300`)
 
 	response = httptest.NewRecorder()
 	req, err = http.NewRequest("GET", "/alert/2", nil)
@@ -633,17 +657,24 @@ func Test_Main_Alerts(t *testing.T) {
 
 	body = response.Body.String()
 	assert.Contains(t, body, `{
-  "id": 1,
-  "name": "roof window #1",
-  "sensor_type": {
-    "id": 1,
-    "type": "window_state",
-    "unit": "closed",
-    "symbol": "¬",
-    "description": "Shows open/closed state of windows"
+  "id": 2,
+  "sensor": {
+    "id": 3,
+    "name": "temperature #1",
+    "sensor_type": {
+      "id": 3,
+      "type": "temperature",
+      "unit": "celsius",
+      "symbol": "°",
+      "description": "Shows temperature"
+    },
+    "description": "Shows temperature"
   },
-  "description": "Shows open/closed state of roof window"
-}`)
+  "name": "Alerteroni",
+  "description": "Alert for fun!",
+  "alert_condition": "\u003e 20",
+  "execution_schedule": "15 * * * *",`)
+	assert.Contains(t, body, `"silence_duration_in_minutes": 300`)
 
 	// ----------------------- UPDATE -----------------------
 	response = httptest.NewRecorder()
@@ -654,9 +685,12 @@ func Test_Main_Alerts(t *testing.T) {
 	req.SetBasicAuth(testUser, testPassword)
 
 	form = url.Values{}
-	form.Add("name", "Wohnzimmer")
-	form.Add("type", "humidity")
-	form.Add("description", "Wohnzimmer Luftfeuchtigkeit")
+	form.Add("sensor_id", "1")
+	form.Add("name", "Alerterei")
+	form.Add("description", "Bad alert")
+	form.Add("condition", "< 20")
+	form.Add("execution", "30 * * * *")
+	form.Add("silence_duration", "600")
 	req.PostForm = form
 
 	n.ServeHTTP(response, req)
@@ -664,17 +698,24 @@ func Test_Main_Alerts(t *testing.T) {
 
 	body = response.Body.String()
 	assert.Contains(t, body, `{
-  "id": 5,
-  "name": "Wohnzimmer",
-  "sensor_type": {
-    "id": 4,
-    "type": "humidity",
-    "unit": "percentage",
-    "symbol": "%",
-    "description": "Shows air humidity"
+  "id": 2,
+  "sensor": {
+    "id": 1,
+    "name": "roof window #1",
+    "sensor_type": {
+      "id": 1,
+      "type": "window_state",
+      "unit": "closed",
+      "symbol": "¬",
+      "description": "Shows open/closed state of windows"
+    },
+    "description": "Shows open/closed state of roof window"
   },
-  "description": "Wohnzimmer Luftfeuchtigkeit"
-}`)
+  "name": "Alerterei",
+  "description": "Bad alert",
+  "alert_condition": "\u003c 20",
+  "execution_schedule": "30 * * * *",`)
+	assert.Contains(t, body, `"silence_duration_in_minutes": 600`)
 
 	response = httptest.NewRecorder()
 	req, err = http.NewRequest("GET", "/alert/2", nil)
@@ -687,17 +728,24 @@ func Test_Main_Alerts(t *testing.T) {
 
 	body = response.Body.String()
 	assert.Contains(t, body, `{
-  "id": 5,
-  "name": "Wohnzimmer",
-  "sensor_type": {
-    "id": 4,
-    "type": "humidity",
-    "unit": "percentage",
-    "symbol": "%",
-    "description": "Shows air humidity"
+  "id": 2,
+  "sensor": {
+    "id": 1,
+    "name": "roof window #1",
+    "sensor_type": {
+      "id": 1,
+      "type": "window_state",
+      "unit": "closed",
+      "symbol": "¬",
+      "description": "Shows open/closed state of windows"
+    },
+    "description": "Shows open/closed state of roof window"
   },
-  "description": "Wohnzimmer Luftfeuchtigkeit"
-}`)
+  "name": "Alerterei",
+  "description": "Bad alert",
+  "alert_condition": "\u003c 20",
+  "execution_schedule": "30 * * * *",`)
+	assert.Contains(t, body, `"silence_duration_in_minutes": 600`)
 
 	// ----------------------- DELETE -----------------------
 	response = httptest.NewRecorder()

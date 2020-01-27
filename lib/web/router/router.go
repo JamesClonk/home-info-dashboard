@@ -44,6 +44,8 @@ func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 	router.HandleFunc("/sensor/{id}/values/{limit}", api.GetSensorValues(hdb)).Methods("GET")
 
 	router.HandleFunc("/alert", api.GetAlerts(hdb)).Methods("GET")
+	router.HandleFunc("/alerts", api.GetAlerts(hdb)).Methods("GET")
+	router.HandleFunc("/alert/{id}", api.GetAlert(hdb)).Methods("GET")
 
 	// secured API
 	router.HandleFunc("/sensor_type", basicAuth(api.AddSensorType(hdb))).Methods("POST")

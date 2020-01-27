@@ -1,6 +1,6 @@
 -- alert
 CREATE TABLE IF NOT EXISTS `alert` (
-    `pk_alert_id `        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    `pk_alert_id`        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     `fk_sensor_id`        INTEGER NOT NULL,
     `name`                TEXT NOT NULL,
     `description`         TEXT NOT NULL,
