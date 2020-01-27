@@ -200,6 +200,28 @@ func Sensors(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 	}
 }
 
+func Alerts(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
+	return func(rw http.ResponseWriter, req *http.Request) {
+		page := &Page{
+			Title:  "Home Automation - Alerts",
+			Active: "alerts",
+		}
+
+		alerts, err := hdb.GetAlerts()
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+
+		page.Content = struct {
+			Alerts []*database.Alert
+		}{
+			alerts,
+		}
+		_ = web.Render().HTML(rw, http.StatusOK, "alerts", page)
+	}
+}
+
 func Forecasts(rw http.ResponseWriter, req *http.Request) {
 	canton, city := web.GetLocation(req)
 	page := &Page{

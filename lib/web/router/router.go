@@ -26,6 +26,7 @@ func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 	router.HandleFunc("/dashboard", html.Dashboard(hdb))
 	router.HandleFunc("/graphs", html.Graphs(hdb))
 	router.HandleFunc("/sensor_data", html.Sensors(hdb))
+	router.HandleFunc("/alert_data", html.Alerts(hdb))
 
 	router.HandleFunc("/forecasts", html.Forecasts)
 	router.HandleFunc("/forecasts/{canton}", html.Forecasts)

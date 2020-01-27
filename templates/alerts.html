@@ -1,0 +1,35 @@
+<section class="section">
+  <div class="container">
+    <label class="label">Alerts</label>
+    <table class="table is-bordered is-striped">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Name</th>
+          <th>Sensor</th>
+          <th>Sensor Type</th>
+          <th>Description</th>
+          <th>Condition</th>
+          <th>Execution</th>
+          <th>Last Alert</th>
+          <th>Silence Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .Content.Alerts }}
+        <tr>
+          <td>{{ .Id }}</td>
+          <td>{{ .Name }}</td>
+          <td>{{ .Sensor.Name }}</td>
+          <td>{{ .Sensor.SensorType.Type }} ({{ .Sensor.SensorType.Symbol }} - {{ .Sensor.SensorType.Unit }})</td>
+          <td>{{ .Description }}</td>
+          <td>{{ .Condition }}</td>
+          <td>{{ .Execution }}</td>
+          <td>{{ .LastAlert }}</td>
+          <td>{{ .SilenceDuration }}</td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table><br/>
+  </div>
+</section>

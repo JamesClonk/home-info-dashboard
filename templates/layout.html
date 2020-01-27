@@ -37,6 +37,10 @@
                   <span class="icon"><i class="fa fa-microchip"></i></span>
                   <span>Sensors</span>
                 </a>
+                <a class="navbar-item {{ if eq .Active `alerts`}}is-active{{ end }}" href="/alert_data">
+                  <span class="icon"><i class="fa fa-bell"></i></span>
+                  <span>Alerts</span>
+                </a>
                 <a class="navbar-item {{ if eq .Active `forecasts`}}is-active{{ end }}" href="/forecasts">
                   <span class="icon"><i class="fa fa-thermometer-three-quarters"></i></span>
                   <span>Forecasts</span>
