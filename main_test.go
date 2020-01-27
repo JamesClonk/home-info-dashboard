@@ -540,3 +540,189 @@ func Test_Main_SensorValues(t *testing.T) {
 	body = response.Body.String()
 	assert.Contains(t, body, `[]`)
 }
+
+func Test_Main_Alerts(t *testing.T) {
+	// ----------------------- Unauthorized -----------------------
+	response := httptest.NewRecorder()
+	req, err := http.NewRequest("POST", "/alert", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusUnauthorized, response.Code)
+
+	body := response.Body.String()
+	assert.Contains(t, body, `Unauthorized`)
+
+	// ----------------------- CREATE -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("POST", "/alert", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.SetBasicAuth(testUser, testPassword)
+
+	form := url.Values{}
+	form.Add("sensor_id", "3")
+	form.Add("name", "Alerteroni")
+	form.Add("description", "Alert for fun!")
+	form.Add("condition", "> 20")
+	form.Add("execution", "15 * * * *")
+	form.Add("silence_duration", "4h")
+	req.PostForm = form
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusCreated, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `{
+  "id": 2,
+  "name": "Alerteroni",
+  "sensor_type": {
+    "id": 3,
+    "type": "temperature",
+    "unit": "celsius",
+    "symbol": "°",
+    "description": "Shows temperature"
+  },
+  "description": "Alert for fun!"
+}`)
+
+	// ----------------------- READ -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/alert", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `
+    "name": "temperature #1",
+    "sensor_type": {
+      "id": 3,
+      "type": "temperature",
+      "unit": "celsius",
+      "symbol": "°",
+      "description": "Shows temperature"
+    },
+    "description": "Shows temperature"`)
+	assert.Contains(t, body, `
+    "id": 6,
+    "name": "Badezimmer",
+    "sensor_type": {
+      "id": 3,
+      "type": "temperature",
+      "unit": "celsius",
+      "symbol": "°",
+      "description": "Shows temperature"
+    },
+    "description": "Badezimmer Temperatur"`)
+
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/alert/2", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `{
+  "id": 1,
+  "name": "roof window #1",
+  "sensor_type": {
+    "id": 1,
+    "type": "window_state",
+    "unit": "closed",
+    "symbol": "¬",
+    "description": "Shows open/closed state of windows"
+  },
+  "description": "Shows open/closed state of roof window"
+}`)
+
+	// ----------------------- UPDATE -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("PUT", "/alert/2", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.SetBasicAuth(testUser, testPassword)
+
+	form = url.Values{}
+	form.Add("name", "Wohnzimmer")
+	form.Add("type", "humidity")
+	form.Add("description", "Wohnzimmer Luftfeuchtigkeit")
+	req.PostForm = form
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `{
+  "id": 5,
+  "name": "Wohnzimmer",
+  "sensor_type": {
+    "id": 4,
+    "type": "humidity",
+    "unit": "percentage",
+    "symbol": "%",
+    "description": "Shows air humidity"
+  },
+  "description": "Wohnzimmer Luftfeuchtigkeit"
+}`)
+
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/alert/2", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `{
+  "id": 5,
+  "name": "Wohnzimmer",
+  "sensor_type": {
+    "id": 4,
+    "type": "humidity",
+    "unit": "percentage",
+    "symbol": "%",
+    "description": "Shows air humidity"
+  },
+  "description": "Wohnzimmer Luftfeuchtigkeit"
+}`)
+
+	// ----------------------- DELETE -----------------------
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("DELETE", "/alert/2", nil)
+	if err != nil {
+		t.Error(err)
+	}
+	req.SetBasicAuth(testUser, testPassword)
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusNoContent, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `null`)
+
+	// is sensor gone?
+	response = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/alert/2", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusInternalServerError, response.Code)
+
+	body = response.Body.String()
+	assert.Contains(t, body, `"sql: no rows in result set"`)
+}

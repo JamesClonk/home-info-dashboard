@@ -43,6 +43,8 @@ func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 	router.HandleFunc("/sensor/{id}/values", api.GetSensorValues(hdb)).Methods("GET")
 	router.HandleFunc("/sensor/{id}/values/{limit}", api.GetSensorValues(hdb)).Methods("GET")
 
+	router.HandleFunc("/alert", api.GetAlerts(hdb)).Methods("GET")
+
 	// secured API
 	router.HandleFunc("/sensor_type", basicAuth(api.AddSensorType(hdb))).Methods("POST")
 	router.HandleFunc("/sensor_type/{id}", basicAuth(api.UpdateSensorType(hdb))).Methods("PUT")
@@ -54,6 +56,10 @@ func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 
 	router.HandleFunc("/sensor/{id}/value", basicAuth(api.AddSensorValue(hdb))).Methods("POST")
 	router.HandleFunc("/sensor/{id}/values", basicAuth(api.DeleteSensorValues(hdb))).Methods("DELETE")
+
+	router.HandleFunc("/alert", basicAuth(api.AddAlert(hdb))).Methods("POST")
+	router.HandleFunc("/alert/{id}", basicAuth(api.UpdateAlert(hdb))).Methods("PUT")
+	router.HandleFunc("/alert/{id}", basicAuth(api.DeleteAlert(hdb))).Methods("DELETE")
 
 	router.HandleFunc("/housekeeping", basicAuth(api.Housekeeping(hdb))).Methods("POST")
 

@@ -11,6 +11,7 @@ import (
 
 type HomeInfoDB interface {
 	GetAlerts() ([]*Alert, error)
+	GetAlertById(int) (*Alert, error)
 	GetSensors() ([]*Sensor, error)
 	GetSensorById(int) (*Sensor, error)
 	GetSensorsByName(string) ([]*Sensor, error)
@@ -75,6 +76,36 @@ func (hdb *homeInfoDB) GetAlerts() ([]*Alert, error) {
 		aa = append(aa, &a)
 	}
 	return aa, nil
+}
+
+func (hdb *homeInfoDB) GetAlertById(id int) (*Alert, error) {
+	stmt, err := hdb.Prepare(`
+		select
+			a.pk_alert_id, a.name, a.description, a.condition, a.execution, a.last_alert, a.silence_duration,
+			s.pk_sensor_id, s.name, s.description,
+			st.pk_sensor_type_id, st.type, st.unit, st.symbol, st.description
+		from alert a
+		join sensor s on a.fk_sensor_id = s.pk_sensor_id
+		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
+		where a.pk_alert_id = $1`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	var a Alert
+	var s Sensor
+	var st SensorType
+	if err := stmt.QueryRow(id).Scan(
+		&a.Id, &a.Name, &a.Description, &a.Condition, &a.Execution, &a.LastAlert, &a.SilenceDuration,
+		&s.Id, &s.Name, &s.Description,
+		&st.Id, &st.Type, &st.Unit, &st.Symbol, &st.Description,
+	); err != nil {
+		return nil, err
+	}
+	s.SensorType = st
+	a.Sensor = s
+	return &a, nil
 }
 
 func (hdb *homeInfoDB) GetSensors() ([]*Sensor, error) {
