@@ -569,7 +569,7 @@ func Test_Main_Alerts(t *testing.T) {
 	form.Add("description", "Alert for fun!")
 	form.Add("condition", "> 20")
 	form.Add("execution", "15 * * * *")
-	form.Add("silence_duration", "4h")
+	form.Add("silence_duration", "300")
 	req.PostForm = form
 
 	n.ServeHTTP(response, req)

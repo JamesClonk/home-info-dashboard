@@ -28,6 +28,7 @@ type HomeInfoDB interface {
 	InsertSensor(*Sensor) error
 	InsertSensorType(*SensorType) error
 	InsertSensorValue(int, int, time.Time) error
+	UpdateAlert(*Alert) error
 	UpdateSensor(*Sensor) error
 	UpdateSensorType(*SensorType) error
 	DeleteAlert(int) error
@@ -351,6 +352,47 @@ func (hdb *homeInfoDB) InsertSensor(sensor *Sensor) (err error) {
 	sensor.Name = sensorNew.Name
 	sensor.SensorType = sensorNew.SensorType
 	sensor.Description = sensorNew.Description
+
+	return nil
+}
+
+func (hdb *homeInfoDB) UpdateAlert(alert *Alert) (err error) {
+	// require sensor id
+	if alert.Sensor.Id <= 0 {
+		return fmt.Errorf("sensor_id missing!")
+	}
+
+	stmt, err := hdb.Prepare(`
+		update alert
+		set name = $1,
+		fk_sensor_id = $2,
+		description = $3,
+		condition = $4,
+		execution = $5,
+		silence_duration = $6
+		where pk_alert_id = $7`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	if _, err = stmt.Exec(alert.Name, alert.Sensor.Id, alert.Description, alert.Condition, alert.Execution, alert.SilenceDuration, alert.Id); err != nil {
+		return err
+	}
+
+	// make sure to get updated values
+	alertNew, err := hdb.GetAlertById(alert.Id)
+	if err != nil {
+		return err
+	}
+	alert.Name = alertNew.Name
+	alert.Id = alertNew.Id
+	alert.Sensor = alertNew.Sensor
+	alert.Description = alertNew.Description
+	alert.Condition = alertNew.Condition
+	alert.Execution = alertNew.Execution
+	alert.LastAlert = alertNew.LastAlert
+	alert.SilenceDuration = alertNew.SilenceDuration
 
 	return nil
 }

@@ -63,7 +63,7 @@ func AddAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Re
 			Error(rw, fmt.Errorf("sensor_id missing!"))
 			return
 		}
-		silenceDuration, err := strconv.ParseInt(req.Form.Get("silence_duration_in_minutes"), 10, 64)
+		silenceDuration, err := strconv.ParseInt(req.Form.Get("silence_duration"), 10, 64)
 		if err != nil {
 			Error(rw, err)
 			return
@@ -71,8 +71,8 @@ func AddAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Re
 		alert := &database.Alert{
 			Name:            req.Form.Get("name"),
 			Description:     req.Form.Get("description"),
-			Condition:       req.Form.Get("alert_condition"),
-			Execution:       req.Form.Get("execution_schedule"),
+			Condition:       req.Form.Get("condition"),
+			Execution:       req.Form.Get("execution"),
 			SilenceDuration: silenceDuration,
 			Sensor: database.Sensor{
 				Id: sensorId,
@@ -114,7 +114,7 @@ func UpdateAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http
 				Error(rw, fmt.Errorf("sensor_id missing!"))
 				return
 			}
-			silenceDuration, err := strconv.ParseInt(req.Form.Get("silence_duration_in_minutes"), 10, 64)
+			silenceDuration, err := strconv.ParseInt(req.Form.Get("silence_duration"), 10, 64)
 			if err != nil {
 				Error(rw, err)
 				return
@@ -123,8 +123,8 @@ func UpdateAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http
 				Id:              int(alertId),
 				Name:            req.Form.Get("name"),
 				Description:     req.Form.Get("description"),
-				Condition:       req.Form.Get("alert_condition"),
-				Execution:       req.Form.Get("execution_schedule"),
+				Condition:       req.Form.Get("condition"),
+				Execution:       req.Form.Get("execution"),
 				SilenceDuration: silenceDuration,
 				Sensor: database.Sensor{
 					Id: sensorId,
