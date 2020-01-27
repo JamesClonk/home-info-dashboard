@@ -12,6 +12,7 @@ import (
 type HomeInfoDB interface {
 	GetAlerts() ([]*Alert, error)
 	GetAlertById(int) (*Alert, error)
+	GetAlertsByName(string) ([]*Alert, error)
 	GetSensors() ([]*Sensor, error)
 	GetSensorById(int) (*Sensor, error)
 	GetSensorsByName(string) ([]*Sensor, error)
@@ -23,11 +24,13 @@ type HomeInfoDB interface {
 	GetSensorValues(int, int) ([]*SensorValue, error)
 	GetHourlyAverages(int, int) ([]*SensorValue, error)
 	GetDailyAverages(int, int) ([]*SensorValue, error)
+	InsertAlert(*Alert) error
 	InsertSensor(*Sensor) error
 	InsertSensorType(*SensorType) error
 	InsertSensorValue(int, int, time.Time) error
 	UpdateSensor(*Sensor) error
 	UpdateSensorType(*SensorType) error
+	DeleteAlert(int) error
 	DeleteSensor(int) error
 	DeleteSensorType(int) error
 	DeleteSensorValues(int) error
@@ -106,6 +109,47 @@ func (hdb *homeInfoDB) GetAlertById(id int) (*Alert, error) {
 	s.SensorType = st
 	a.Sensor = s
 	return &a, nil
+}
+
+func (hdb *homeInfoDB) GetAlertsByName(name string) ([]*Alert, error) {
+	stmt, err := hdb.Prepare(`
+		select
+			a.pk_alert_id, a.name, a.description, a.condition, a.execution, a.last_alert, a.silence_duration,
+			s.pk_sensor_id, s.name, s.description,
+			st.pk_sensor_type_id, st.type, st.unit, st.symbol, st.description
+		from alert a
+		join sensor s on a.fk_sensor_id = s.pk_sensor_id
+		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
+		where a.name = $1
+		order by a.pk_alert_id desc, s.name asc, st.type asc`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	aa := []*Alert{}
+	for rows.Next() {
+		var a Alert
+		var s Sensor
+		var st SensorType
+		if err := rows.Scan(
+			&a.Id, &a.Name, &a.Description, &a.Condition, &a.Execution, &a.LastAlert, &a.SilenceDuration,
+			&s.Id, &s.Name, &s.Description,
+			&st.Id, &st.Type, &st.Unit, &st.Symbol, &st.Description,
+		); err != nil {
+			return nil, err
+		}
+		s.SensorType = st
+		a.Sensor = s
+		aa = append(aa, &a)
+	}
+	return aa, nil
 }
 
 func (hdb *homeInfoDB) GetSensors() ([]*Sensor, error) {
@@ -232,6 +276,40 @@ func (hdb *homeInfoDB) GetSensorsByName(name string) ([]*Sensor, error) {
 		ss = append(ss, &s)
 	}
 	return ss, nil
+}
+
+func (hdb *homeInfoDB) InsertAlert(alert *Alert) (err error) {
+	// require sensor id
+	if alert.Sensor.Id <= 0 {
+		return fmt.Errorf("sensor_id missing!")
+	}
+
+	stmt, err := hdb.Prepare(`
+		insert into alert (name, fk_sensor_id, description, condition, execution, silence_duration) values ($1, $2, $3, $4, $5, $6)`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	if _, err = stmt.Exec(alert.Name, alert.Sensor.Id, alert.Description, alert.Condition, alert.Execution, alert.SilenceDuration); err != nil {
+		return err
+	}
+
+	// make sure to get new values
+	alerts, err := hdb.GetAlertsByName(alert.Name)
+	if err != nil {
+		return err
+	}
+	if len(alerts) == 0 {
+		return fmt.Errorf("no alert found with name %s", alert.Name)
+	}
+	alertNew := alerts[0] // first one is newest
+	alert.Id = alertNew.Id
+	alert.Name = alertNew.Name
+	alert.Sensor = alertNew.Sensor
+	alert.LastAlert = alertNew.LastAlert
+
+	return nil
 }
 
 func (hdb *homeInfoDB) InsertSensor(sensor *Sensor) (err error) {
@@ -623,6 +701,19 @@ func (hdb *homeInfoDB) InsertSensorValue(sensorId, value int, timestamp time.Tim
 	defer stmt.Close()
 
 	_, err = stmt.Exec(sensorId, value, timestamp)
+	return err
+}
+
+func (hdb *homeInfoDB) DeleteAlert(alertId int) error {
+	stmt, err := hdb.Prepare(`
+		delete from alert
+		where pk_alert_id = $1`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(alertId)
 	return err
 }
 
