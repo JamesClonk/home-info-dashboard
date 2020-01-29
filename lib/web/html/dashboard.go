@@ -174,13 +174,13 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 		for _, sensor := range sensors {
 			switch sensor.SensorType.Type {
 			case "soil":
-				d, err := hdb.GetSensorData(sensor.Id, 2)
+				d, err := hdb.GetSensorData(sensor.Id, 6)
 				if err != nil {
 					Error(rw, err)
 					return
 				}
 				if len(d) > 1 {
-					d[0].Value = getAverage(d, 2)
+					d[0].Value = getAverage(d, 5)
 					plants = append(plants, Plant{
 						Data: d[0],
 					})
