@@ -6,7 +6,7 @@ INSERT INTO sensor_type (type, unit, symbol, description)
 VALUES('humidity', 'percentage', '%', 'Shows air humidity');
 
 INSERT INTO sensor_type (type, unit, symbol, description)
-VALUES('soil', 'moisture', 'V', 'Shows soil moisture (capacitive)');
+VALUES('soil', 'moisture', '%', 'Shows soil moisture (capacitive)');
 
 -- sensors
 INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
