@@ -180,7 +180,6 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 					return
 				}
 				if len(d) > 1 {
-					d = web.SoilMoisture(d)
 					d[0].Value = getAverage(d, 2)
 					plants = append(plants, Plant{
 						Data: d[0],

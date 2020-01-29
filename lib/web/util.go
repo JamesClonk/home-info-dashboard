@@ -3,7 +3,6 @@ package web
 import (
 	"net/http"
 
-	"github.com/JamesClonk/home-info-dashboard/lib/database"
 	"github.com/JamesClonk/home-info-dashboard/lib/util"
 	"github.com/gorilla/mux"
 )
@@ -24,35 +23,4 @@ func GetLocation(req *http.Request) (string, string) {
 	}
 
 	return util.GetDefaultLocation(canton, city)
-}
-
-func SoilMoisture(data []*database.SensorData) []*database.SensorData {
-	for d := range SoilMoistureCapacitive(data) {
-		data[d].Value = int64(float64(data[d].Value) / 3.33)
-	}
-	return data
-}
-
-func SoilMoistureCapacitive(data []*database.SensorData) []*database.SensorData {
-	for d := range data {
-		data[d].Value = (data[d].Value - 333) * -1
-		if data[d].Value < 0 {
-			data[d].Value = 0
-		} else if data[d].Value > 333 {
-			data[d].Value = 333
-		}
-	}
-	return data
-}
-
-func SoilMoisturePercentages(values []*database.SensorValue) []*database.SensorValue {
-	for v := range values {
-		values[v].Value = int64(float64((values[v].Value-333)*-1) / 3.33)
-		if values[v].Value < 0 {
-			values[v].Value = 0
-		} else if values[v].Value > 100 {
-			values[v].Value = 100
-		}
-	}
-	return values
 }
