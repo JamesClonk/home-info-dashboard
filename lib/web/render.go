@@ -40,7 +40,7 @@ func init() {
 						strings.Contains(strings.ToLower(name), "pepper") ||
 						strings.Contains(strings.ToLower(name), "jalapeno") ||
 						strings.Contains(strings.ToLower(name), "capsicum") {
-						return "🌶"
+						return "🌶️"
 					}
 					if strings.Contains(strings.ToLower(name), "food plant") ||
 						strings.Contains(strings.ToLower(name), "tomato") {
