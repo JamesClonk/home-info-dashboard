@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/JamesClonk/home-info-dashboard/lib/slack"
+	"github.com/JamesClonk/home-info-dashboard/lib/alerting/slack"
 	"github.com/JamesClonk/home-info-dashboard/lib/web"
 )
 

@@ -10,12 +10,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/JamesClonk/home-info-dashboard/lib/alerting"
 	"github.com/JamesClonk/home-info-dashboard/lib/config"
 	"github.com/JamesClonk/home-info-dashboard/lib/database"
 	"github.com/JamesClonk/home-info-dashboard/lib/env"
 	"github.com/JamesClonk/home-info-dashboard/lib/forecasts"
-	"github.com/JamesClonk/home-info-dashboard/lib/slack"
-	"github.com/JamesClonk/home-info-dashboard/lib/telebot"
 	"github.com/JamesClonk/home-info-dashboard/lib/util"
 	"github.com/JamesClonk/home-info-dashboard/lib/web/router"
 	"github.com/urfave/negroni"
@@ -61,8 +60,7 @@ func setupDatabase() database.HomeInfoDB {
 }
 
 func spawnAlertManager(hdb database.HomeInfoDB) {
-	telebot.Init(hdb)
-	slack.Init(hdb)
+	alerting.Init(hdb)
 
 	go func() {
 		time.Sleep(10 * time.Second)

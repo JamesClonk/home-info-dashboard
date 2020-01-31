@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/JamesClonk/home-info-dashboard/lib/telebot"
+	"github.com/JamesClonk/home-info-dashboard/lib/alerting/telebot"
 	"github.com/JamesClonk/home-info-dashboard/lib/web"
 )
 

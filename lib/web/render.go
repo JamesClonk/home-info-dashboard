@@ -49,13 +49,13 @@ func init() {
 					if value >= 80 {
 						return "🤢 🌊"
 					}
-					if value >= 50 {
+					if value >= 60 {
 						return "😄 🌊"
 					}
-					if value >= 35 {
+					if value >= 40 {
 						return "😅 💦"
 					}
-					if value >= 15 {
+					if value >= 20 {
 						return "😥 💧"
 					}
 					return "😫 🔥"
