@@ -48,7 +48,7 @@ func init() {
 						return "🍅"
 					}
 					if strings.Contains(strings.ToLower(name), "salad") ||
-						strings.Contains(strings.ToLower(name), "lactuta") {
+						strings.Contains(strings.ToLower(name), "lactuca") {
 						return "🥬"
 					}
 
