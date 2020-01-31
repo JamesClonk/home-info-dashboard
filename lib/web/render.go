@@ -60,7 +60,7 @@ func init() {
 						return "🌿"
 					}
 
-					return ""
+					return "❓"
 				},
 				"moisture": func(value int64) string {
 					if value >= 80 {
