@@ -52,19 +52,19 @@ func setupDatabase() database.HomeInfoDB {
 	hdb := database.NewHomeInfoDB(adapter)
 
 	// background jobs
-	spawnAlertManager(hdb)
+	spawnAlertMonitor(hdb)
 	spawnHousekeeping(hdb)
 	spawnForecastCollection(hdb)
 
 	return hdb
 }
 
-func spawnAlertManager(hdb database.HomeInfoDB) {
+func spawnAlertMonitor(hdb database.HomeInfoDB) {
 	alerting.Init(hdb)
 
 	go func() {
-		time.Sleep(10 * time.Second)
-		//telebot.Get().Send("Home Automation Dashboard initialized ...")
+		time.Sleep(5 * time.Second)
+		alerting.RegisterAlerts()
 	}()
 }
 

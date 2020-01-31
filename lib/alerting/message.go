@@ -8,13 +8,15 @@ import (
 
 var (
 	messengers = make([]Messenger, 0)
+	hdb        database.HomeInfoDB
 )
 
 type Messenger interface {
 	Send(string) error
 }
 
-func Init(hdb database.HomeInfoDB) {
+func Init(db database.HomeInfoDB) {
+	hdb = db
 	slack.Init(hdb)
 	telebot.Init(hdb)
 

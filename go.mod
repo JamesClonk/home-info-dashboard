@@ -21,6 +21,7 @@ require (
 	github.com/onsi/ginkgo v1.11.0 // indirect
 	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
+	github.com/robfig/cron v1.2.0
 	github.com/stretchr/testify v1.4.0
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	github.com/unrolled/render v0.0.0-20171006150303-32bf1ea2a39e

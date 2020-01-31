@@ -36,10 +36,25 @@ func init() {
 						return "🌧️"
 					}
 
-					if strings.Contains(strings.ToLower(name), "food plant") {
+					if strings.Contains(strings.ToLower(name), "chili") ||
+						strings.Contains(strings.ToLower(name), "pepper") ||
+						strings.Contains(strings.ToLower(name), "jalapeno") ||
+						strings.Contains(strings.ToLower(name), "capsicum") {
+						return "🌶"
+					}
+					if strings.Contains(strings.ToLower(name), "food plant") ||
+						strings.Contains(strings.ToLower(name), "tomato") {
 						return "🍅"
 					}
-					if strings.Contains(strings.ToLower(name), "air quality") {
+					if strings.Contains(strings.ToLower(name), "salad") {
+						return "🥬"
+					}
+
+					if strings.Contains(strings.ToLower(name), "air quality") ||
+						strings.Contains(strings.ToLower(name), "epipremnum") ||
+						strings.Contains(strings.ToLower(name), "aureum") ||
+						strings.Contains(strings.ToLower(name), "sansevieria") ||
+						strings.Contains(strings.ToLower(name), "chlorophytum") {
 						return "🌿"
 					}
 
