@@ -54,6 +54,11 @@ init:
 push: test build
 	cf push
 
+.PHONY: db-admin
+## db-admin: opens up database administration gui
+db-admin:
+	dbeaver &
+
 .PHONY: postgres
 ## postgres: runs postgres backend on docker
 postgres: postgres-network postgres-stop postgres-start
