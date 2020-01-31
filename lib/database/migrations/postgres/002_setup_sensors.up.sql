@@ -37,13 +37,13 @@ INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
 VALUES(9, 'food plants lamp', (select pk_sensor_type_id from sensor_type where type = 'temperature'), 'Shows temperature at food plants lamp');
 
 INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
-VALUES(10, 'chili', (select pk_sensor_type_id from sensor_type where type = 'soil'), 'Shows soil moisture of chili plants');
+VALUES(10, 'capsicum', (select pk_sensor_type_id from sensor_type where type = 'soil'), 'Shows soil moisture of chili plants');
 
 INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
 VALUES(11, 'epipremnum aureum', (select pk_sensor_type_id from sensor_type where type = 'soil'), 'Shows soil moisture of air quality plants');
 
 INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
-VALUES(12, 'salad', (select pk_sensor_type_id from sensor_type where type = 'soil'), 'Shows soil moisture of salad plants');
+VALUES(12, 'lactuca sativa', (select pk_sensor_type_id from sensor_type where type = 'soil'), 'Shows soil moisture of salad plants');
 
 INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
 VALUES(13, 'sansevieria #2', (select pk_sensor_type_id from sensor_type where type = 'soil'), 'Shows soil moisture of air quality plants');
