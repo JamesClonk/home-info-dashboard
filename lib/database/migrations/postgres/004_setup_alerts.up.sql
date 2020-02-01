@@ -9,7 +9,7 @@ INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, exec
 VALUES(3, 2, 'living room low humidity', 'Alerts if living room humidity gets too low', '5;<;35', '*/10 * * * *', 300);
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
-VALUES(4, 2, 'living room too humid', 'Alerts if living room humidity gets too much', '5;>;70', '*/10 * * * *', 300);
+VALUES(4, 2, 'living room too humid', 'Alerts if living room humidity gets too much', '5;>;60', '*/10 * * * *', 300);
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
 VALUES(5, 4, 'bedroom too cold', 'Alerts if bedroom temperature gets too cold', '3;<;13', '*/12 * * * *', 720);
@@ -21,7 +21,7 @@ INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, exec
 VALUES(7, 5, 'bedroom low humidity', 'Alerts if bedroom humidity gets too low', '5;<;30', '*/15 * * * *', 720);
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
-VALUES(8, 5, 'bedroom too humid', 'Alerts if bedroom humidity gets too much', '5;>;70', '*/15 * * * *', 720);
+VALUES(8, 5, 'bedroom too humid', 'Alerts if bedroom humidity gets too much', '5;>;60', '*/15 * * * *', 720);
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
 VALUES(9, 8, 'air quality lamp too hot', 'Alerts if air quality lamp temperature gets too hot', '3;>;40', '*/5 * * * *', 120);
