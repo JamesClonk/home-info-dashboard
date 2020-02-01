@@ -56,7 +56,7 @@ func Check(alertID int) {
 
 	if alert.LastAlert != nil &&
 		time.Since(*alert.LastAlert).Minutes() < float64(alert.SilenceDuration) { // too soon, not enough time has passed since last alert
-		log.Printf("not running alert check [%s] because of silence duration [%dm], %#v\n", alert.Name, alert.SilenceDuration, time.Since(*alert.LastAlert).Minutes())
+		log.Printf("not running alert check [%s] because of silence duration [%dm]\n", alert.Name, alert.SilenceDuration)
 		return
 	}
 
