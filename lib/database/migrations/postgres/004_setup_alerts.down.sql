@@ -1,0 +1,2 @@
+-- alerts
+DELETE FROM alert;

@@ -577,7 +577,7 @@ func Test_Main_Alerts(t *testing.T) {
 
 	body = response.Body.String()
 	assert.Contains(t, body, `{
-  "id": 2,
+  "id": 17,
   "sensor": {
     "id": 3,
     "name": "temperature #1",
@@ -608,7 +608,26 @@ func Test_Main_Alerts(t *testing.T) {
 
 	body = response.Body.String()
 	assert.Contains(t, body, `
-    "id": 1,
+    "id": 5,
+    "sensor": {
+      "id": 4,
+      "name": "humidity #1",
+      "sensor_type": {
+        "id": 4,
+        "type": "humidity",
+        "unit": "percentage",
+        "symbol": "%",
+        "description": "Shows air humidity"
+      },
+      "description": "Shows air humidity"
+    },
+    "name": "bedroom too cold",
+    "description": "Alerts if bedroom temperature gets too cold",
+    "alert_condition": "3;\u003c;13",
+    "execution_schedule": "*/12 * * * *",`)
+	assert.Contains(t, body, `"silence_duration_in_minutes": 720`)
+	assert.Contains(t, body, `
+    "id": 3,
     "sensor": {
       "id": 2,
       "name": "roof window #2",
@@ -621,29 +640,10 @@ func Test_Main_Alerts(t *testing.T) {
       },
       "description": "Shows open/closed state of roof window"
     },
-    "name": "Alert #1",
-    "description": "First alert!",
-    "alert_condition": "\u003e 10",
-    "execution_schedule": "*/5 * * * *",`)
-	assert.Contains(t, body, `"silence_duration_in_minutes": 60`)
-	assert.Contains(t, body, `
-    "id": 2,
-    "sensor": {
-      "id": 3,
-      "name": "temperature #1",
-      "sensor_type": {
-        "id": 3,
-        "type": "temperature",
-        "unit": "celsius",
-        "symbol": "°",
-        "description": "Shows temperature"
-      },
-      "description": "Shows temperature"
-    },
-    "name": "Alerteroni",
-    "description": "Alert for fun!",
-    "alert_condition": "\u003e 20",
-    "execution_schedule": "15 * * * *",`)
+    "name": "living room low humidity",
+    "description": "Alerts if living room humidity gets too low",
+    "alert_condition": "5;\u003c;35",
+    "execution_schedule": "*/10 * * * *",`)
 	assert.Contains(t, body, `"silence_duration_in_minutes": 300`)
 
 	response = httptest.NewRecorder()
@@ -659,21 +659,21 @@ func Test_Main_Alerts(t *testing.T) {
 	assert.Contains(t, body, `{
   "id": 2,
   "sensor": {
-    "id": 3,
-    "name": "temperature #1",
+    "id": 1,
+    "name": "roof window #1",
     "sensor_type": {
-      "id": 3,
-      "type": "temperature",
-      "unit": "celsius",
-      "symbol": "°",
-      "description": "Shows temperature"
+      "id": 1,
+      "type": "window_state",
+      "unit": "closed",
+      "symbol": "¬",
+      "description": "Shows open/closed state of windows"
     },
-    "description": "Shows temperature"
+    "description": "Shows open/closed state of roof window"
   },
-  "name": "Alerteroni",
-  "description": "Alert for fun!",
-  "alert_condition": "\u003e 20",
-  "execution_schedule": "15 * * * *",`)
+  "name": "living room too hot",
+  "description": "Alerts if living room temperature gets too hot",
+  "alert_condition": "3;\u003e;30",
+  "execution_schedule": "*/6 * * * *",`)
 	assert.Contains(t, body, `"silence_duration_in_minutes": 300`)
 
 	// ----------------------- UPDATE -----------------------
@@ -691,6 +691,7 @@ func Test_Main_Alerts(t *testing.T) {
 	form.Add("condition", "< 20")
 	form.Add("execution", "30 * * * *")
 	form.Add("silence_duration", "600")
+	form.Add("last_alert", "2020-02-01T19:16:18Z")
 	req.PostForm = form
 
 	n.ServeHTTP(response, req)

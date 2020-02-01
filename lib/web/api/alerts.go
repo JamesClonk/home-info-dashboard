@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/JamesClonk/home-info-dashboard/lib/database"
 	"github.com/JamesClonk/home-info-dashboard/lib/web"
@@ -53,7 +54,10 @@ func GetAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Re
 
 func AddAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
-		req.ParseForm()
+		if err := req.ParseForm(); err != nil {
+			Error(rw, err)
+			return
+		}
 		sensorId, err := strconv.Atoi(req.Form.Get("sensor_id"))
 		if err != nil {
 			Error(rw, err)
@@ -119,12 +123,18 @@ func UpdateAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http
 				Error(rw, err)
 				return
 			}
+			lastAlert, err := time.Parse(time.RFC3339, req.Form.Get("last_alert"))
+			if err != nil {
+				Error(rw, err)
+				return
+			}
 			alert := &database.Alert{
 				Id:              int(alertId),
 				Name:            req.Form.Get("name"),
 				Description:     req.Form.Get("description"),
 				Condition:       req.Form.Get("condition"),
 				Execution:       req.Form.Get("execution"),
+				LastAlert:       &lastAlert,
 				SilenceDuration: silenceDuration,
 				Sensor: database.Sensor{
 					Id: sensorId,

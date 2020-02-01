@@ -369,14 +369,15 @@ func (hdb *homeInfoDB) UpdateAlert(alert *Alert) (err error) {
 		description = $3,
 		condition = $4,
 		execution = $5,
-		silence_duration = $6
-		where pk_alert_id = $7`)
+		silence_duration = $6,
+		last_alert = $7
+		where pk_alert_id = $8`)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	if _, err = stmt.Exec(alert.Name, alert.Sensor.Id, alert.Description, alert.Condition, alert.Execution, alert.SilenceDuration, alert.Id); err != nil {
+	if _, err = stmt.Exec(alert.Name, alert.Sensor.Id, alert.Description, alert.Condition, alert.Execution, alert.SilenceDuration, alert.LastAlert, alert.Id); err != nil {
 		return err
 	}
 
