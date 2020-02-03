@@ -80,6 +80,26 @@ func Check(alertID int) {
 		return
 	}
 
+	// deadman check - if no metrics from the last 6h are found it's alerting time baby!
+	hours := 6
+	count, err := hdb.NumOfSensorDataWithinLastHours(alert.Sensor.Id, hours)
+	if err != nil {
+		message := fmt.Sprintf("deadman check for alert [%s] failed: could not select data: %v", alert.Name, err)
+		log.Println(message)
+		if err := Send(message); err != nil {
+			log.Fatalf("could not send alert message: %v\n", err)
+		}
+		return
+	}
+	if count <= 0 {
+		message := fmt.Sprintf("deadman check for alert [%s] found no data within the last [%d] hours", alert.Name, hours)
+		log.Println(message)
+		if err := Send(message); err != nil {
+			log.Fatalf("could not send alert message: %v\n", err)
+		}
+		return
+	}
+
 	// get values
 	data, err := hdb.GetSensorData(alert.Sensor.Id, limit)
 	if err != nil {

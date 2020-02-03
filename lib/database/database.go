@@ -20,6 +20,7 @@ type HomeInfoDB interface {
 	GetSensorTypeById(int) (*SensorType, error)
 	GetSensorTypeByType(string) (*SensorType, error)
 	GetSensorTypes() ([]*SensorType, error)
+	NumOfSensorDataWithinLastHours(int, int) (int, error)
 	GetSensorData(int, int) ([]*SensorData, error)
 	GetSensorValues(int, int) ([]*SensorValue, error)
 	GetHourlyAverages(int, int) ([]*SensorValue, error)
@@ -549,6 +550,33 @@ func (hdb *homeInfoDB) UpdateSensorType(sensorType *SensorType) (err error) {
 	sensorType.Description = sensorTypeNew.Description
 
 	return nil
+}
+
+func (hdb *homeInfoDB) NumOfSensorDataWithinLastHours(id, hours int) (int, error) {
+	sql := `
+		select count(*)
+		from sensor_data
+		where fk_sensor_id = $1
+		and timestamp > now() - $2 * interval '1 hour'`
+	if hdb.DatabaseType == "sqlite" {
+		sql = `
+		select count(*)
+		from sensor_data
+		where fk_sensor_id = $1
+		and timestamp > datetime('now', '-' || $2 || ' hour'`
+	}
+	stmt, err := hdb.Prepare(sql)
+	if err != nil {
+		return 0, err
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRow(id, hours)
+	var count int
+	if err := row.Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func (hdb *homeInfoDB) GetSensorData(id, limit int) ([]*SensorData, error) {
