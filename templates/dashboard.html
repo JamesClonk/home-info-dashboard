@@ -23,7 +23,7 @@
     <div class="columns">
       {{ range $plant := .Content.Plants }}
       <div class="column">
-        <h1 class="title" style="font-size: 5rem">{{ emoji $plant.Data.Sensor.Name }} <span style="font-size: 2.5rem">{{ moisture $plant.Data.Value }}</span></h1><h3 class="title is-3">{{ $plant.Data.Sensor.Name }}: <span class="has-text-warning">{{ $plant.Data.Value }}{{ $plant.Data.Sensor.SensorType.Symbol }}</span></h3>
+        <h1 class="title" style="font-size: 5rem">{{ emoji $plant.Data.Sensor.Name }}<span style="font-size: 2.5rem; padding-left: 5px; letter-spacing: 2px;">{{ moisture $plant.Data.Value }}</span></h1><h3 class="title is-3">{{ $plant.Data.Sensor.Name }}: <span class="has-text-warning">{{ $plant.Data.Value }}{{ $plant.Data.Sensor.SensorType.Symbol }}</span></h3>
         <h5 class="subtitle is-5"><small class="has-text-warning">{{ $plant.Data.Sensor.SensorType.Type }} ({{ $plant.Data.Sensor.SensorType.Unit }})</small><small> - Last Update: {{ $plant.Data.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
       </div>
       {{ end }}
