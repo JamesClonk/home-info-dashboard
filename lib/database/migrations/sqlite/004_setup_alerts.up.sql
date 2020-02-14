@@ -30,31 +30,31 @@ INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, exec
 VALUES(10, 9, 'food plants lamp too hot', 'Alerts if food plants lamp temperature gets too hot', '3;>;40', '*/5 * * * *', 120);
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
-VALUES(11, 11, 'epipremnum aureum soil moisture', 'Alerts if epipremnum aureum soil moisture level gets too low', '5;<;55', '11 * * * *', 720);
+VALUES(11, 11, 'epipremnum aureum soil moisture', 'Alerts if epipremnum aureum soil moisture level gets too low', '5;<;60', '11 * * * *', 720);
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
 VALUES(12, 11, 'epipremnum aureum soil moisture', 'Alerts if epipremnum aureum soil moisture level gets too high', '5;>;85', '17 * * * *', 720);
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
-VALUES(13, 14, 'sansevieria #1 soil moisture', 'Alerts if sansevieria #1 soil moisture level gets too low', '5;<;50', '19 * * * *', 720);
+VALUES(13, 14, 'sansevieria #1 soil moisture', 'Alerts if sansevieria #1 soil moisture level gets too low', '5;<;60', '19 * * * *', 720);
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
 VALUES(14, 14, 'sansevieria #1 soil moisture', 'Alerts if sansevieria #1 soil moisture level gets too high', '5;>;80', '23 * * * *', 720);
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
-VALUES(15, 13, 'sansevieria #2 soil moisture', 'Alerts if sansevieria #2 soil moisture level gets too low', '5;<;50', '29 * * * *', 720);
+VALUES(15, 13, 'sansevieria #2 soil moisture', 'Alerts if sansevieria #2 soil moisture level gets too low', '5;<;60', '29 * * * *', 720);
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
 VALUES(16, 13, 'sansevieria #2 soil moisture', 'Alerts if sansevieria #2 soil moisture level gets too high', '5;>;80', '31 * * * *', 720);
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
-VALUES(17, 10, 'capsicum soil moisture', 'Alerts if capsicum soil moisture level gets too low', '5;<;55', '43 * * * *', 720);
+VALUES(17, 10, 'capsicum soil moisture', 'Alerts if capsicum soil moisture level gets too low', '5;<;60', '43 * * * *', 720);
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
 VALUES(18, 10, 'capsicum soil moisture', 'Alerts if capsicum soil moisture level gets too high', '5;>;80', '47 * * * *', 720);
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
-VALUES(19, 12, 'lactuca sativa soil moisture', 'Alerts if lactuca sativa soil moisture level gets too low', '5;<;55', '51 * * * *', 720);
+VALUES(19, 12, 'lactuca sativa soil moisture', 'Alerts if lactuca sativa soil moisture level gets too low', '5;<;60', '51 * * * *', 720);
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
 VALUES(20, 12, 'lactuca sativa soil moisture', 'Alerts if lactuca sativa soil moisture level gets too high', '5;>;85', '57 * * * *', 720);
