@@ -14,7 +14,7 @@ func GetLocation(req *http.Request) (string, string) {
 	city := vars["city"]
 
 	// then, parse the form and try to read the values from POST data
-	req.ParseForm()
+	_ = req.ParseForm()
 	if len(canton) == 0 {
 		canton = req.Form.Get("canton")
 	}

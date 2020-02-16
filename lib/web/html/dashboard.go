@@ -1,6 +1,7 @@
 package html
 
 import (
+	"math"
 	"net/http"
 
 	"github.com/JamesClonk/home-info-dashboard/lib/config"
@@ -123,7 +124,7 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			if counter == 0 {
 				return 0
 			}
-			return value / counter
+			return int64(math.RoundToEven(float64(value) / float64(counter)))
 		}
 		// average values because of multiple sensor for the same room
 		if len(livingRoomHum) > 3 {
