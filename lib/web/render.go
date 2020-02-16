@@ -52,6 +52,13 @@ func init() {
 						return "🥬"
 					}
 
+					if strings.Contains(strings.ToLower(name), "raised bed") ||
+						strings.Contains(strings.ToLower(name), "balcony") ||
+						strings.Contains(strings.ToLower(name), "garden") ||
+						strings.Contains(strings.ToLower(name), "outdoor") {
+						return "🏝"
+					}
+
 					if strings.Contains(strings.ToLower(name), "air quality") ||
 						strings.Contains(strings.ToLower(name), "epipremnum") ||
 						strings.Contains(strings.ToLower(name), "aureum") ||
@@ -63,16 +70,16 @@ func init() {
 					return "❓"
 				},
 				"moisture": func(value int64) string {
-					if value >= 80 {
+					if value >= 77 {
 						return "🤢🌊"
 					}
 					if value >= 70 {
 						return "😄🌊"
 					}
-					if value >= 60 {
+					if value >= 62 {
 						return "😅💦"
 					}
-					if value >= 45 {
+					if value >= 50 {
 						return "😥💧"
 					}
 					return "😫🔥"
