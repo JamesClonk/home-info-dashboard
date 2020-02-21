@@ -9,6 +9,7 @@ applications:
   instances: 1
 
   routes:
+  - route: home-info.jamesclonk.io
   - route: home-info.scapp.io
   - route: home-info.applicationcloud.io
   services:
