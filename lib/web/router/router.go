@@ -32,6 +32,9 @@ func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 	router.HandleFunc("/forecasts/{canton}", html.Forecasts)
 	router.HandleFunc("/forecasts/{canton}/{city}", html.Forecasts)
 
+	// secure HTML
+	router.HandleFunc("/message_queue", basicAuth(html.Messages(hdb)))
+
 	// API
 	router.HandleFunc("/sensor_type", api.GetSensorTypes(hdb)).Methods("GET")
 	router.HandleFunc("/sensor_types", api.GetSensorTypes(hdb)).Methods("GET")
@@ -48,6 +51,12 @@ func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 	router.HandleFunc("/alerts", api.GetAlerts(hdb)).Methods("GET")
 	router.HandleFunc("/alert/{id}", api.GetAlert(hdb)).Methods("GET")
 
+	router.HandleFunc("/queues", api.GetQueues(hdb)).Methods("GET")
+	router.HandleFunc("/queue/{queue}", api.GetMessagesByQueue(hdb)).Methods("GET")
+	router.HandleFunc("/messages", api.GetAllMessages(hdb)).Methods("GET")
+	router.HandleFunc("/messages/{queue}", api.GetMessagesByQueue(hdb)).Methods("GET")
+	router.HandleFunc("/message/{id}", api.GetMessage(hdb)).Methods("GET")
+
 	// secured API
 	router.HandleFunc("/sensor_type", basicAuth(api.AddSensorType(hdb))).Methods("POST")
 	router.HandleFunc("/sensor_type/{id}", basicAuth(api.UpdateSensorType(hdb))).Methods("PUT")
@@ -59,6 +68,10 @@ func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 
 	router.HandleFunc("/sensor/{id}/value", basicAuth(api.AddSensorValue(hdb))).Methods("POST")
 	router.HandleFunc("/sensor/{id}/values", basicAuth(api.DeleteSensorValues(hdb))).Methods("DELETE")
+
+	router.HandleFunc("/queue/{queue}", basicAuth(api.DeleteQueue(hdb))).Methods("DELETE")
+	router.HandleFunc("/message", basicAuth(api.AddMessage(hdb))).Methods("POST")
+	router.HandleFunc("/message/{id}", basicAuth(api.DeleteMessage(hdb))).Methods("DELETE")
 
 	router.HandleFunc("/alert", basicAuth(api.AddAlert(hdb))).Methods("POST")
 	router.HandleFunc("/alert/{id}", basicAuth(api.UpdateAlert(hdb))).Methods("PUT")
@@ -78,6 +91,8 @@ func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 
 func basicAuth(fn http.HandlerFunc) http.HandlerFunc {
 	return func(rw http.ResponseWriter, req *http.Request) {
+		rw.Header().Set("WWW-Authenticate", `Basic realm="Home-Info"`)
+
 		user, pass, _ := req.BasicAuth()
 		username, password := util.GetUserAndPassword()
 		if user != username && pass != password {

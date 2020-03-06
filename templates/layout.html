@@ -41,6 +41,10 @@
                   <span class="icon"><i class="fa fa-bell"></i></span>
                   <span>Alerts</span>
                 </a>
+                <a class="navbar-item {{ if eq .Active `message_queue`}}is-active{{ end }}" href="/message_queue">
+                  <span class="icon"><i class="fa fa-envelope"></i></span>
+                  <span>Message Queue</span>
+                </a>
                 <a class="navbar-item {{ if eq .Active `forecasts`}}is-active{{ end }}" href="/forecasts">
                   <span class="icon"><i class="fa fa-thermometer-three-quarters"></i></span>
                   <span>Forecasts</span>

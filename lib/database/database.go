@@ -38,6 +38,14 @@ type HomeInfoDB interface {
 	DeleteSensorValues(int) error
 	GenerateSensorValues(int, int) error
 	Housekeeping(int, int) error
+	GetQueues() ([]*Queue, error)
+	GetQueueByName(string) (*Queue, error)
+	GetMessages() ([]*Message, error)
+	GetMessagesFromQueue(string) ([]*Message, error)
+	GetMessageById(int) (*Message, error)
+	InsertMessage(*Message) error
+	DeleteQueue(string) error
+	DeleteMessage(int) error
 }
 
 type homeInfoDB struct {
@@ -902,4 +910,178 @@ func (hdb *homeInfoDB) Housekeeping(days, rows int) (err error) {
 		}
 	}
 	return nil
+}
+
+func (hdb *homeInfoDB) GetQueues() ([]*Queue, error) {
+	rows, err := hdb.Query(`
+		select
+			distinct mq.queue,
+			count(pk_message_id),
+			max(created_at)
+		from message_queue mq
+		group by mq.queue
+		order by 1 asc, 2 desc`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	qs := []*Queue{}
+	for rows.Next() {
+		var q Queue
+		if err := rows.Scan(
+			&q.Name, &q.MessageCount, &q.LastMessage,
+		); err != nil {
+			return nil, err
+		}
+		qs = append(qs, &q)
+	}
+	return qs, nil
+}
+
+func (hdb *homeInfoDB) GetQueueByName(name string) (*Queue, error) {
+	stmt, err := hdb.Prepare(`
+		select
+			distinct mq.queue,
+			count(pk_message_id),
+			max(created_at)
+		from message_queue mq
+		where mq.queue = $1
+		group by mq.queue`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	var q Queue
+	if err := stmt.QueryRow(name).Scan(
+		&q.Name, &q.MessageCount, &q.LastMessage,
+	); err != nil {
+		return nil, err
+	}
+	return &q, nil
+}
+
+func (hdb *homeInfoDB) GetMessages() ([]*Message, error) {
+	rows, err := hdb.Query(`
+		select
+			mq.pk_message_id,
+			mq.queue,
+			mq.message,
+			mq.created_at
+		from message_queue mq
+		order by 4 desc, 2 asc, 1 desc`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	ms := []*Message{}
+	for rows.Next() {
+		var m Message
+		if err := rows.Scan(
+			&m.Id, &m.Queue, &m.Message, &m.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		ms = append(ms, &m)
+	}
+	return ms, nil
+}
+
+func (hdb *homeInfoDB) GetMessagesFromQueue(name string) ([]*Message, error) {
+	stmt, err := hdb.Prepare(`
+		select
+			mq.pk_message_id,
+			mq.queue,
+			mq.message,
+			mq.created_at
+		from message_queue mq
+		where mq.queue = $1
+		order by 4 desc, 2 asc, 1 desc`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	ms := []*Message{}
+	for rows.Next() {
+		var m Message
+		if err := rows.Scan(
+			&m.Id, &m.Queue, &m.Message, &m.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		ms = append(ms, &m)
+	}
+	return ms, nil
+}
+
+func (hdb *homeInfoDB) GetMessageById(id int) (*Message, error) {
+	stmt, err := hdb.Prepare(`
+		select
+			mq.pk_message_id,
+			mq.queue,
+			mq.message,
+			mq.created_at
+		from message_queue mq
+		where mq.pk_message_id = $1`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	var m Message
+	if err := stmt.QueryRow(id).Scan(
+		&m.Id, &m.Queue, &m.Message, &m.CreatedAt,
+	); err != nil {
+		return nil, err
+	}
+	return &m, nil
+}
+
+func (hdb *homeInfoDB) InsertMessage(message *Message) (err error) {
+	stmt, err := hdb.Prepare(`
+		insert into message_queue (queue, message) values ($1, $2)`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	if _, err = stmt.Exec(message.Queue, message.Message); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (hdb *homeInfoDB) DeleteQueue(name string) error {
+	stmt, err := hdb.Prepare(`
+		delete from message_queue
+		where queue = $1`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(name)
+	return err
+}
+
+func (hdb *homeInfoDB) DeleteMessage(id int) error {
+	stmt, err := hdb.Prepare(`
+		delete from message_queue
+		where pk_message_id = $1`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(id)
+	return err
 }

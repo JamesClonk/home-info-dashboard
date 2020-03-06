@@ -28,7 +28,6 @@ type SensorValue struct {
 	Value     int64      `json:"value" xml:"value"`
 }
 
-// TODO: this struct needs API testing in main_test.go
 type Alert struct {
 	Id              int        `json:"id" xml:"id,attr"`
 	Sensor          Sensor     `json:"sensor" xml:"sensor"`
@@ -38,4 +37,17 @@ type Alert struct {
 	Execution       string     `json:"execution_schedule" xml:"execution_schedule"`
 	LastAlert       *time.Time `json:"last_alert_timestamp" xml:"last_alert_timestamp"`
 	SilenceDuration int64      `json:"silence_duration_in_minutes" xml:"silence_duration_in_minutes"`
+}
+
+type Queue struct {
+	Name         string     `json:"name" xml:"name"`
+	MessageCount int64      `json:"message_count" xml:"message_count"`
+	LastMessage  *time.Time `json:"last_message_timestamp" xml:"last_message_timestamp"`
+}
+
+type Message struct {
+	Id        int        `json:"id" xml:"id,attr"`
+	Queue     string     `json:"queue" xml:"queue"`
+	Message   string     `json:"message" xml:"message"`
+	CreatedAt *time.Time `json:"created_at" xml:"created_at"`
 }

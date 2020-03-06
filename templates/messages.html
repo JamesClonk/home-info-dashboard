@@ -1,0 +1,84 @@
+<section class="section">
+  <div class="container">
+    <form action="/message_queue" method="post">
+      <label class="label">New Event:</label>
+      <div class="field has-addons">
+        <div class="control has-icons-left">
+          <span class="select is-primary is-rounded">
+            <select name="queue">
+              <option>food_plants_water_pump</option>
+              <option>food_plants_fan</option>
+              <option>food_plants_light</option>
+              <option>herb_plants_light</option>
+              <option>air_quality_light</option>
+            </select>
+          </span>
+          <span class="icon is-small is-left">
+            <i class="fa fa-envelope-o"></i>
+          </span>
+        </div>
+        <div class="control has-icons-left">
+          <span class="select is-info is-rounded">
+            <select name="message">
+              <option>toggle</option>
+              <option>on</option>
+              <option>off</option>
+            </select>
+          </span>
+          <span class="icon is-small is-left">
+            <i class="fa fa-file-text-o"></i>
+          </span>
+        </div>
+        <div class="control">
+          <input type="submit" class="button is-info" value="Create">
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <label class="label">Queues</label>
+    <table class="table is-bordered is-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Messages</th>
+          <th>Last Entry</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .Content.Queues }}
+        <tr>
+          <td>{{ .Name }}</td>
+          <td>{{ .MessageCount }}</td>
+          <td>{{ .LastMessage }}</td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table><br/>
+
+    <label class="label">Messages</label>
+    <table class="table is-bordered is-striped">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Queue</th>
+          <th>Message</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .Content.Messages }}
+        <tr>
+          <td>{{ .Id }}</td>
+          <td>{{ .Queue }}</td>
+          <td>{{ .Message }}</td>
+          <td>{{ .CreatedAt }}</td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table><br/>
+  </div>
+</section>
