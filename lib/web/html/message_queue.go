@@ -14,17 +14,23 @@ func Messages(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Re
 			Active: "message_queue",
 		}
 
-		// parse the form and try to read the values from POST data
-		_ = req.ParseForm()
-		queue := req.Form.Get("queue")
-		message := req.Form.Get("message")
-		if len(queue) > 0 && len(message) > 0 {
-			if err := hdb.InsertMessage(&database.Message{
-				Queue:   queue,
-				Message: message,
-			}); err != nil {
-				Error(rw, err)
-				return
+		if req.Method == "POST" {
+			// parse the form and try to read the values from POST data
+			_ = req.ParseForm()
+			queue := req.Form.Get("queue")
+			message := req.Form.Get("message")
+			if len(queue) > 0 && len(message) > 0 {
+				if err := hdb.InsertMessage(&database.Message{
+					Queue:   queue,
+					Message: message,
+				}); err != nil {
+					Error(rw, err)
+					return
+				} else {
+					req.Method = http.MethodGet
+					http.Redirect(rw, req, req.URL.RequestURI(), 303) // redirect to GET
+					return
+				}
 			}
 		}
 
