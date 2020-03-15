@@ -642,7 +642,7 @@ func Test_Main_Alerts(t *testing.T) {
     },
     "name": "living room low humidity",
     "description": "Alerts if living room humidity gets too low",
-    "alert_condition": "5;\u003c;35",
+    "alert_condition": "5;\u003c;30",
     "execution_schedule": "*/10 * * * *",`)
 	assert.Contains(t, body, `"silence_duration_in_minutes": 300`)
 
