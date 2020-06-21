@@ -1,7 +1,7 @@
-.DEFAULT_GOAL := run
+.DEFAULT_GOAL := help
 SHELL := /bin/bash
 APP ?= $(shell basename $$(pwd))
-COMMIT_SHA = $(shell git rev-parse --short HEAD)
+COMMIT_SHA = $(shell git rev-parse HEAD)
 
 .PHONY: help
 ## help: prints this help message
@@ -99,3 +99,39 @@ cleanup: docker-cleanup
 ## docker-cleanup: cleans up local docker images and volumes
 docker-cleanup:
 	docker system prune --volumes -a
+
+########################################################################################################################
+####### docker/kubernetes related stuff ################################################################################
+########################################################################################################################
+.PHONY: image-login
+## image-login: login to docker hub
+image-login:
+	@export PATH="$$HOME/bin:$$PATH"
+	@echo $$DOCKER_PASS | docker login -u $$DOCKER_USER --password-stdin
+
+.PHONY: image-build
+## image-build: build docker image
+image-build:
+	@export PATH="$$HOME/bin:$$PATH"
+	pack build jamesclonk/${APP}:${COMMIT_SHA} --builder gcr.io/paketo-buildpacks/builder:tiny
+
+.PHONY: image-publish
+## image-publish: build and publish docker image
+image-publish:
+	@export PATH="$$HOME/bin:$$PATH"
+	pack build jamesclonk/${APP}:${COMMIT_SHA} --builder gcr.io/paketo-buildpacks/builder:tiny --publish
+	docker pull jamesclonk/${APP}:${COMMIT_SHA}
+	docker tag jamesclonk/${APP}:${COMMIT_SHA} jamesclonk/${APP}:latest
+	docker push jamesclonk/${APP}:latest
+
+.PHONY: image-run
+## image-run: run docker image
+image-run:
+	@export PATH="$$HOME/bin:$$PATH"
+	docker run --rm --env PORT=8080 -p 8080:8080 jamesclonk/${APP}:${COMMIT_SHA}
+
+.PHONY: image-setup
+## image-setup: setup environment
+image-setup:
+	@export PATH="$$HOME/bin:$$PATH"
+	scripts/setup.sh

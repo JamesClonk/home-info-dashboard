@@ -1,7 +1,4 @@
-# Golang CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-go/ for more details
-version: 2
+version: 2.1
 jobs:
   build:
     docker:
@@ -14,14 +11,23 @@ jobs:
     working_directory: /go/src/github.com/JamesClonk/home-info-dashboard
 
     steps:
+    - setup_remote_docker:
+        docker_layer_caching: true
     - checkout
+
     # test
     - run: make test
+
+    # build and publish image
+    - run: make image-setup
+    - run: make image-login
+    - run: make image-publish
+
     # deploy to Swisscom Application Cloud
     - deploy:
         name: appcloud push
         command: |
           if [ "${CIRCLE_BRANCH}" == "master" ]; then
-            chmod +x scripts/deploy.sh
-            scripts/deploy.sh
+            chmod +x scripts/cf_deploy.sh
+            scripts/cf_deploy.sh
           fi
