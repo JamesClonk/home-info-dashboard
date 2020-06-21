@@ -1,12 +1,18 @@
 version: 2.1
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+    - build:
+        filters:
+          branches:
+            only: master
+
 jobs:
   build:
     docker:
     - image: circleci/golang:1.13
-
-    branches:
-      ignore:
-      - develop
 
     working_directory: /go/src/github.com/JamesClonk/home-info-dashboard
 
