@@ -109,7 +109,7 @@ image-login:
 	@export PATH="$$HOME/bin:$$PATH"
 	@echo $$DOCKER_PASS | docker login -u $$DOCKER_USER --password-stdin
 
-.PHONY: image-build
+.PHONY: build image-build
 ## image-build: build docker image
 image-build:
 	@export PATH="$$HOME/bin:$$PATH"
