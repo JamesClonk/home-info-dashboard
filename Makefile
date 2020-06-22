@@ -109,9 +109,9 @@ image-login:
 	@export PATH="$$HOME/bin:$$PATH"
 	@echo $$DOCKER_PASS | docker login -u $$DOCKER_USER --password-stdin
 
-.PHONY: build image-build
+.PHONY: image-build
 ## image-build: build docker image
-image-build:
+image-build: build
 	@export PATH="$$HOME/bin:$$PATH"
 	docker build -t jamesclonk/${APP}:${COMMIT_SHA} .
 
