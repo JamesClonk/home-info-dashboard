@@ -113,14 +113,13 @@ image-login:
 ## image-build: build docker image
 image-build:
 	@export PATH="$$HOME/bin:$$PATH"
-	pack build jamesclonk/${APP}:${COMMIT_SHA} --builder gcr.io/paketo-buildpacks/builder:tiny
+	docker build -t jamesclonk/${APP}:${COMMIT_SHA} .
 
 .PHONY: image-publish
 ## image-publish: build and publish docker image
 image-publish:
 	@export PATH="$$HOME/bin:$$PATH"
-	pack build jamesclonk/${APP}:${COMMIT_SHA} --builder gcr.io/paketo-buildpacks/builder:tiny --publish
-	docker pull jamesclonk/${APP}:${COMMIT_SHA}
+	docker push jamesclonk/${APP}:${COMMIT_SHA}
 	docker tag jamesclonk/${APP}:${COMMIT_SHA} jamesclonk/${APP}:latest
 	docker push jamesclonk/${APP}:latest
 
@@ -128,10 +127,4 @@ image-publish:
 ## image-run: run docker image
 image-run:
 	@export PATH="$$HOME/bin:$$PATH"
-	docker run --rm --env PORT=8080 -p 8080:8080 jamesclonk/${APP}:${COMMIT_SHA}
-
-.PHONY: image-setup
-## image-setup: setup environment
-image-setup:
-	@export PATH="$$HOME/bin:$$PATH"
-	scripts/setup.sh
+	docker run --rm --env-file .dockerenv -p 9090:9090 jamesclonk/${APP}:${COMMIT_SHA}

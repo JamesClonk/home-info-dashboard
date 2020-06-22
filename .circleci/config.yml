@@ -25,15 +25,6 @@ jobs:
     - run: make test
 
     # build and publish image
-    - run: make image-setup
     - run: make image-login
+    - run: make image-build
     - run: make image-publish
-
-    # deploy to Swisscom Application Cloud
-    - deploy:
-        name: appcloud push
-        command: |
-          if [ "${CIRCLE_BRANCH}" == "master" ]; then
-            chmod +x scripts/cf_deploy.sh
-            scripts/cf_deploy.sh
-          fi

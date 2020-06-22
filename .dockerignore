@@ -1,7 +1,4 @@
 .env_*
-.env_prod
-.env_dev
-.env_sqlite
 .git
 .gitmodules
 .gitignore
@@ -15,3 +12,4 @@ Dockerfile
 LICENSE
 NOTICE
 _fixtures
+vendor
