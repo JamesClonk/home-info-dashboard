@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
@@ -19,6 +20,10 @@ import (
 	"github.com/JamesClonk/home-info-dashboard/lib/web/router"
 	"github.com/urfave/negroni"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func main() {
 	env.MustGet("AUTH_PASSWORD")
@@ -70,6 +75,7 @@ func spawnAlertMonitor(hdb database.HomeInfoDB) {
 
 func spawnHousekeeping(hdb database.HomeInfoDB) {
 	go func(hdb database.HomeInfoDB) {
+		time.Sleep(time.Duration(rand.Intn(60)) * time.Minute)
 		time.Sleep(24 * time.Hour) // initial waiting period
 
 		for {
@@ -78,6 +84,7 @@ func spawnHousekeeping(hdb database.HomeInfoDB) {
 				log.Println("Database housekeeping failed")
 				log.Fatal(err)
 			}
+			time.Sleep(time.Duration(rand.Intn(30)) * time.Minute)
 			time.Sleep(12 * time.Hour)
 		}
 	}(hdb)
@@ -85,6 +92,7 @@ func spawnHousekeeping(hdb database.HomeInfoDB) {
 
 func spawnForecastCollection(hdb database.HomeInfoDB) {
 	go func(hdb database.HomeInfoDB) {
+		time.Sleep(time.Duration(rand.Intn(10)) * time.Minute)
 		time.Sleep(2 * time.Minute) // initial waiting period
 
 		sensorId := config.Get().Forecast.TemperatureSensorID
@@ -110,7 +118,8 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 				log.Printf("Weather forecast temperature:%v for %s/%s stored to database\n", value, canton, city)
 			}
 
-			time.Sleep(22 * time.Minute)
+			time.Sleep(time.Duration(rand.Intn(5)) * time.Minute)
+			time.Sleep(20 * time.Minute)
 		}
 	}(hdb)
 }

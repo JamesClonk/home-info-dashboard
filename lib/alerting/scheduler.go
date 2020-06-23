@@ -3,6 +3,7 @@ package alerting
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -13,6 +14,10 @@ import (
 var (
 	c = cron.New()
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func StartScheduler() {
 	c.Start()
@@ -43,6 +48,8 @@ func RegisterAlerts() {
 }
 
 func Check(alertID int) {
+	time.Sleep(time.Duration(rand.Intn(66)) * time.Second)
+
 	// read alert
 	alert, err := hdb.GetAlertById(alertID)
 	if err != nil {
