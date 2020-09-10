@@ -8,6 +8,15 @@ import (
 	"github.com/JamesClonk/home-info-dashboard/lib/database"
 	"github.com/JamesClonk/home-info-dashboard/lib/web"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+)
+
+var (
+	sensorError = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "homeinfo_dashboard_sensor_errors_total",
+		Help: "Total number of Home-Info Dashboard sensor errors.",
+	})
 )
 
 func GetSensorValues(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
@@ -25,6 +34,7 @@ func GetSensorValues(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *
 				sensorId, err = strconv.ParseInt(id, 10, 64)
 				if err != nil {
 					Error(rw, err)
+					sensorError.Inc()
 					return
 				}
 			}
@@ -32,6 +42,7 @@ func GetSensorValues(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *
 				valueLimit, err = strconv.ParseInt(limit, 10, 64)
 				if err != nil {
 					Error(rw, err)
+					sensorError.Inc()
 					return
 				}
 			} else {
@@ -41,6 +52,7 @@ func GetSensorValues(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *
 			values, err := hdb.GetSensorValues(int(sensorId), int(valueLimit))
 			if err != nil {
 				Error(rw, err)
+				sensorError.Inc()
 				return
 			}
 
@@ -65,6 +77,7 @@ func AddSensorValue(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *h
 				sensorId, err = strconv.ParseInt(id, 10, 64)
 				if err != nil {
 					Error(rw, err)
+					sensorError.Inc()
 					return
 				}
 			}
@@ -73,11 +86,13 @@ func AddSensorValue(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *h
 			value, err = strconv.ParseInt(req.Form.Get("value"), 10, 64)
 			if err != nil {
 				Error(rw, err)
+				sensorError.Inc()
 				return
 			}
 
 			if err := hdb.InsertSensorValue(int(sensorId), int(value), time.Now()); err != nil {
 				Error(rw, err)
+				sensorError.Inc()
 				return
 			}
 
@@ -102,12 +117,14 @@ func DeleteSensorValues(hdb database.HomeInfoDB) func(rw http.ResponseWriter, re
 				sensorId, err = strconv.ParseInt(id, 10, 64)
 				if err != nil {
 					Error(rw, err)
+					sensorError.Inc()
 					return
 				}
 			}
 
 			if err := hdb.DeleteSensorValues(int(sensorId)); err != nil {
 				Error(rw, err)
+				sensorError.Inc()
 				return
 			}
 
@@ -125,16 +142,19 @@ func Housekeeping(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *htt
 		days, err := strconv.ParseInt(req.Form.Get("days"), 10, 64)
 		if err != nil {
 			Error(rw, err)
+			sensorError.Inc()
 			return
 		}
 		rows, err := strconv.ParseInt(req.Form.Get("rows"), 10, 64)
 		if err != nil {
 			Error(rw, err)
+			sensorError.Inc()
 			return
 		}
 
 		if err := hdb.Housekeeping(int(days), int(rows)); err != nil {
 			Error(rw, err)
+			sensorError.Inc()
 			return
 		}
 		web.Render().JSON(rw, http.StatusNoContent, nil)

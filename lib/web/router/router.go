@@ -8,6 +8,7 @@ import (
 	"github.com/JamesClonk/home-info-dashboard/lib/web/api"
 	"github.com/JamesClonk/home-info-dashboard/lib/web/html"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func New(hdb database.HomeInfoDB) *mux.Router {
@@ -22,6 +23,8 @@ func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 
 	router.HandleFunc("/", html.Index(hdb))
 	router.HandleFunc("/error", html.ErrorHandler)
+
+	router.Handle("/metrics", promhttp.Handler())
 
 	router.HandleFunc("/dashboard", html.Dashboard(hdb))
 	router.HandleFunc("/graphs", html.Graphs(hdb))

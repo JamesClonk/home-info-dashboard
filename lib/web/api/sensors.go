@@ -14,6 +14,7 @@ func GetSensors(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.
 		sensors, err := hdb.GetSensors()
 		if err != nil {
 			Error(rw, err)
+			sensorError.Inc()
 			return
 		}
 
@@ -34,6 +35,7 @@ func GetSensor(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 				sensorId, err = strconv.ParseInt(id, 10, 64)
 				if err != nil {
 					Error(rw, err)
+					sensorError.Inc()
 					return
 				}
 			}
@@ -41,6 +43,7 @@ func GetSensor(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			sensor, err := hdb.GetSensorById(int(sensorId))
 			if err != nil {
 				Error(rw, err)
+				sensorError.Inc()
 				return
 			}
 
@@ -70,6 +73,7 @@ func AddSensor(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 
 		if err := hdb.InsertSensor(sensor); err != nil {
 			Error(rw, err)
+			sensorError.Inc()
 			return
 		}
 
@@ -90,6 +94,7 @@ func UpdateSensor(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *htt
 				sensorId, err = strconv.ParseInt(id, 10, 64)
 				if err != nil {
 					Error(rw, err)
+					sensorError.Inc()
 					return
 				}
 			}
@@ -111,6 +116,7 @@ func UpdateSensor(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *htt
 
 			if err := hdb.UpdateSensor(sensor); err != nil {
 				Error(rw, err)
+				sensorError.Inc()
 				return
 			}
 
@@ -135,12 +141,14 @@ func DeleteSensor(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *htt
 				sensorId, err = strconv.ParseInt(id, 10, 64)
 				if err != nil {
 					Error(rw, err)
+					sensorError.Inc()
 					return
 				}
 			}
 
 			if err := hdb.DeleteSensor(int(sensorId)); err != nil {
 				Error(rw, err)
+				sensorError.Inc()
 				return
 			}
 

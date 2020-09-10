@@ -8,11 +8,25 @@ import (
 	"strings"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/robfig/cron"
 )
 
 var (
-	c = cron.New()
+	c             = cron.New()
+	alertingError = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "homeinfo_dashboard_alerting_errors_total",
+		Help: "Total number of Home-Info Dashboard alerting errors.",
+	})
+	alertsTotal = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "homeinfo_dashboard_alerts_total",
+		Help: "Total number of Home-Info Dashboard alerts triggered.",
+	})
+	alertRulesRegistered = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "homeinfo_dashboard_registered_alert_rules_total",
+		Help: "Total number of Home-Info Dashboard alert rules.",
+	})
 )
 
 func init() {
@@ -43,6 +57,7 @@ func RegisterAlerts() {
 			log.Fatalf("could not register alert check [%s] in scheduler: %v\n", alertCopy.Name, err)
 		}
 		log.Printf("alert check [%s] with schedule [%s] and condition [%s] registered\n", alertCopy.Name, alertCopy.Execution, alertCopy.Condition)
+		alertRulesRegistered.Inc()
 	}
 	StartScheduler()
 }
@@ -56,7 +71,8 @@ func Check(alertID int) {
 		message := fmt.Sprintf("alert check [ID:%d] failed: could not select from database: %v", alertID, err)
 		log.Println(message)
 		if err := Send(message); err != nil {
-			log.Fatalf("could not send alert message: %v\n", err)
+			log.Printf("could not send alert message: %v\n", err)
+			alertingError.Inc()
 		}
 		return
 	}
@@ -73,17 +89,20 @@ func Check(alertID int) {
 	params := strings.SplitN(alert.Condition, ";", 3)
 	if len(params) != 3 {
 		log.Printf("invalid alert condition: [%s]\n", alert.Condition)
+		alertingError.Inc()
 		return
 	}
 	limit, err := strconv.Atoi(params[0])
 	if err != nil {
 		log.Printf("invalid value for alert average: [%s]\n", params[0])
+		alertingError.Inc()
 		return
 	}
 	operator := params[1]
 	target, err := strconv.Atoi(params[2])
 	if err != nil {
 		log.Printf("invalid value for alert target: [%s]\n", params[2])
+		alertingError.Inc()
 		return
 	}
 
@@ -94,7 +113,8 @@ func Check(alertID int) {
 		message := fmt.Sprintf("deadman check for alert [%s] failed: could not select data: %v", alert.Name, err)
 		log.Println(message)
 		if err := Send(message); err != nil {
-			log.Fatalf("could not send alert message: %v\n", err)
+			log.Printf("could not send alert message: %v\n", err)
+			alertingError.Inc()
 		}
 		return
 	}
@@ -102,7 +122,8 @@ func Check(alertID int) {
 		message := fmt.Sprintf("deadman check for alert [%s] found no data within the last [%d] hours", alert.Name, hours)
 		log.Println(message)
 		if err := Send(message); err != nil {
-			log.Fatalf("could not send alert message: %v\n", err)
+			log.Printf("could not send alert message: %v\n", err)
+			alertingError.Inc()
 		}
 		return
 	}
@@ -113,7 +134,8 @@ func Check(alertID int) {
 		message := fmt.Sprintf("alert check [%s] failed: could not select data: %v", alert.Name, err)
 		log.Println(message)
 		if err := Send(message); err != nil {
-			log.Fatalf("could not send alert message: %v\n", err)
+			log.Printf("could not send alert message: %v\n", err)
+			alertingError.Inc()
 		}
 		return
 	}
@@ -140,14 +162,17 @@ func Check(alertID int) {
 	if match {
 		log.Printf("matched alert condition [%s] for sensor [%s], value: [%d]\n", alert.Condition, alert.Sensor.Name, value)
 		if err := Send(fmt.Sprintf("Alert [*%s*] with Condition `%s` for Sensor [*%s*] triggered with a value of `%d`", alert.Name, alert.Condition, alert.Sensor.Name, value)); err != nil {
-			log.Fatalf("could not send alert message: %v\n", err)
+			log.Printf("could not send alert message: %v\n", err)
+			alertingError.Inc()
 		}
+		alertsTotal.Inc()
 
 		// update last alert timestamp
 		now := time.Now()
 		alert.LastAlert = &now
 		if err := hdb.UpdateAlert(alert); err != nil {
 			log.Printf("could not update alert status to database: %v\n", err)
+			alertingError.Inc()
 		}
 	}
 }
