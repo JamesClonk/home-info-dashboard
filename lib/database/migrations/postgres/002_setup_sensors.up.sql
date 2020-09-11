@@ -50,3 +50,6 @@ VALUES(13, 'sansevieria #2', (select pk_sensor_type_id from sensor_type where ty
 
 INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
 VALUES(14, 'sansevieria #1', (select pk_sensor_type_id from sensor_type where type = 'soil'), 'Shows soil moisture of air quality plants');
+
+INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
+VALUES(15, 'plant room lamp', (select pk_sensor_type_id from sensor_type where type = 'temperature'), 'Shows temperature at plant room lamp');

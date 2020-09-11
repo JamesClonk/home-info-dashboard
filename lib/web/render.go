@@ -22,12 +22,16 @@ func init() {
 				},
 				"emoji": func(name string) string {
 					switch strings.ToLower(name) {
+					case "plant room":
+						return "🌻"
 					case "living room":
 						return "📺"
 					case "home office":
 						return "🖥️"
 					case "bedroom":
 						return "🛏️"
+					case "plant room lamp":
+						return "🌻"
 					case "air quality lamp":
 						return "💡"
 					case "food plants lamp":
@@ -70,7 +74,7 @@ func init() {
 					return "❓"
 				},
 				"moisture": func(value int64) string {
-					if value >= 80 {
+					if value >= 86 {
 						return "🤢🌊"
 					}
 					if value >= 70 {

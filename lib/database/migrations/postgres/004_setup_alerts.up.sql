@@ -58,3 +58,9 @@ VALUES(19, 12, 'lactuca sativa soil moisture', 'Alerts if lactuca sativa soil mo
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
 VALUES(20, 12, 'lactuca sativa soil moisture', 'Alerts if lactuca sativa soil moisture level gets too high', '5;>;85', '57 * * * *', 720);
+
+INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
+VALUES(21, 15, 'plant room lamp too cold', 'Alerts if plant room lamp temperature gets too cold', '3;<;20', '*/15 * * * *', 720);
+
+INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
+VALUES(22, 15, 'plant room lamp too hot', 'Alerts if plant room lamp temperature gets too hot', '3;>;35', '*/15 * * * *', 720);
