@@ -31,7 +31,7 @@ func init() {
 					case "bedroom":
 						return "🛏️"
 					case "plant room lamp":
-						return "🌻"
+						return "💡"
 					case "air quality lamp":
 						return "💡"
 					case "food plants lamp":

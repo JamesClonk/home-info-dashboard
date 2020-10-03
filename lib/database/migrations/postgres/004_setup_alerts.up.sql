@@ -64,3 +64,15 @@ VALUES(21, 15, 'plant room lamp too cold', 'Alerts if plant room lamp temperatur
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
 VALUES(22, 15, 'plant room lamp too hot', 'Alerts if plant room lamp temperature gets too hot', '3;>;35', '*/15 * * * *', 720);
+
+INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
+VALUES(23, 16, 'plant room too cold', 'Alerts if plant room temperature gets too cold', '3;<;20', '*/6 * * * *', 300);
+
+INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
+VALUES(24, 16, 'plant room too hot', 'Alerts if plant room temperature gets too hot', '3;>;35', '*/6 * * * *', 300);
+
+INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
+VALUES(25, 17, 'plant room low humidity', 'Alerts if plant room humidity gets too low', '5;<;30', '*/10 * * * *', 300);
+
+INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
+VALUES(26, 17, 'plant room too humid', 'Alerts if plant room humidity gets too much', '5;>;65', '*/10 * * * *', 300);

@@ -17,6 +17,16 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 		}
 
 		// collect the top column
+		plantRoomTemp, err := hdb.GetSensorData(config.Get().PlantRoom.TemperatureSensorID, 5)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		plantRoomHum, err := hdb.GetSensorData(config.Get().PlantRoom.HumiditySensorID, 5)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
 		livingRoomTemp, err := hdb.GetSensorData(config.Get().LivingRoom.TemperatureSensorID, 5)
 		if err != nil {
 			Error(rw, err)
@@ -127,6 +137,12 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			return int64(math.RoundToEven(float64(value) / float64(counter)))
 		}
 		// average values because of multiple sensor for the same room
+		if len(plantRoomHum) > 3 {
+			plantRoomHum[0].Value = getAverage(plantRoomHum, 4)
+		}
+		if len(plantRoomTemp) > 3 {
+			plantRoomTemp[0].Value = getAverage(plantRoomTemp, 4)
+		}
 		if len(livingRoomHum) > 3 {
 			livingRoomHum[0].Value = getAverage(livingRoomHum, 4)
 		}
@@ -147,6 +163,12 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 		}
 
 		rooms := make([]Room, 0)
+		if len(plantRoomTemp) > 0 {
+			rooms = append(rooms, Room{
+				Temperature: plantRoomTemp[0],
+				Humidity:    plantRoomHum[0],
+			})
+		}
 		if len(livingRoomTemp) > 0 {
 			rooms = append(rooms, Room{
 				Temperature: livingRoomTemp[0],

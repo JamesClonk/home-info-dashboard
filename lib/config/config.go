@@ -30,6 +30,20 @@ func Get() *Configuration {
 		}
 		config.LivingRoom.HumiditySensorID = int(sensorId)
 
+		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_PLANT_ROOM_TEMPERATURE_SENSOR_ID"), 10, 64)
+		if err != nil {
+			log.Printf("Could not parse living room temperature sensor id: [%v]\n", sensorId)
+			log.Fatal(err)
+		}
+		config.PlantRoom.TemperatureSensorID = int(sensorId)
+
+		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_PLANT_ROOM_HUMIDITY_SENSOR_ID"), 10, 64)
+		if err != nil {
+			log.Printf("Could not parse living room humidity sensor id: [%v]\n", sensorId)
+			log.Fatal(err)
+		}
+		config.PlantRoom.HumiditySensorID = int(sensorId)
+
 		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_BEDROOM_TEMPERATURE_SENSOR_ID"), 10, 64)
 		if err != nil {
 			log.Printf("Could not parse bedroom temperature sensor id: [%v]\n", sensorId)

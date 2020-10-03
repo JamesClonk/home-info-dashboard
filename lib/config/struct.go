@@ -1,6 +1,7 @@
 package config
 
 type Configuration struct {
+	PlantRoom  Room
 	LivingRoom Room
 	BedRoom    Room
 	HomeOffice Room
