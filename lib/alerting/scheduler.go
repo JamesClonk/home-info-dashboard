@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/JamesClonk/home-info-dashboard/lib/database"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/robfig/cron"
@@ -115,6 +116,8 @@ func Check(alertID int) {
 		if err := Send(message); err != nil {
 			log.Printf("could not send alert message: %v\n", err)
 			alertingError.Inc()
+		} else {
+			updateAlertTimestamp(alert)
 		}
 		return
 	}
@@ -124,6 +127,8 @@ func Check(alertID int) {
 		if err := Send(message); err != nil {
 			log.Printf("could not send alert message: %v\n", err)
 			alertingError.Inc()
+		} else {
+			updateAlertTimestamp(alert)
 		}
 		return
 	}
@@ -136,6 +141,8 @@ func Check(alertID int) {
 		if err := Send(message); err != nil {
 			log.Printf("could not send alert message: %v\n", err)
 			alertingError.Inc()
+		} else {
+			updateAlertTimestamp(alert)
 		}
 		return
 	}
@@ -166,13 +173,16 @@ func Check(alertID int) {
 			alertingError.Inc()
 		}
 		alertsTotal.Inc()
+		updateAlertTimestamp(alert)
+	}
+}
 
-		// update last alert timestamp
-		now := time.Now()
-		alert.LastAlert = &now
-		if err := hdb.UpdateAlert(alert); err != nil {
-			log.Printf("could not update alert status to database: %v\n", err)
-			alertingError.Inc()
-		}
+func updateAlertTimestamp(alert *database.Alert) {
+	// update last alert timestamp
+	now := time.Now()
+	alert.LastAlert = &now
+	if err := hdb.UpdateAlert(alert); err != nil {
+		log.Printf("could not update alert status to database: %v\n", err)
+		alertingError.Inc()
 	}
 }
