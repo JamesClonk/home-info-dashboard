@@ -89,6 +89,9 @@ func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 	router.HandleFunc("/slack", basicAuth(api.SlackStatus())).Methods("GET") // needs to be secured too, exposes Slack config information
 	router.HandleFunc("/slack/message", basicAuth(api.SlackMessage())).Methods("POST")
 
+	router.HandleFunc("/teams", basicAuth(api.TeamsStatus())).Methods("GET") // needs to be secured too, exposes Teams config information
+	router.HandleFunc("/teams/message", basicAuth(api.TeamsMessage())).Methods("POST")
+
 	return router
 }
 

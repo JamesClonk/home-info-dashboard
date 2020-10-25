@@ -2,6 +2,7 @@ package alerting
 
 import (
 	"github.com/JamesClonk/home-info-dashboard/lib/alerting/slack"
+	"github.com/JamesClonk/home-info-dashboard/lib/alerting/teams"
 	"github.com/JamesClonk/home-info-dashboard/lib/database"
 )
 
@@ -16,10 +17,12 @@ type Messenger interface {
 
 func Init(db database.HomeInfoDB) {
 	hdb = db
-	slack.Init(hdb)
-	//telebot.Init(hdb)
+	slack.Init()
+	teams.Init()
+	//telebot.Init()
 
 	messengers = append(messengers, slack.Get())
+	messengers = append(messengers, teams.Get())
 	//messengers = append(messengers, telebot.Get())
 }
 

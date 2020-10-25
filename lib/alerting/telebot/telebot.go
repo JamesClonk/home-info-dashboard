@@ -5,7 +5,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/JamesClonk/home-info-dashboard/lib/database"
 	"github.com/JamesClonk/home-info-dashboard/lib/env"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -17,7 +16,6 @@ var (
 
 type Telebot struct {
 	*sync.Mutex
-	hdb    database.HomeInfoDB
 	API    *tgbotapi.BotAPI
 	ChatID int64
 }
@@ -26,9 +24,9 @@ func Get() *Telebot {
 	return telebot
 }
 
-func Init(hdb database.HomeInfoDB) {
+func Init() {
 	once.Do(func() {
-		telebot = &Telebot{&sync.Mutex{}, hdb, nil, 0}
+		telebot = &Telebot{&sync.Mutex{}, nil, 0}
 		telebot.UpdateAPI()      // setup api
 		telebot.WatchForChatID() // background checking for chatID
 	})

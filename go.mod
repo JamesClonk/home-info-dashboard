@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/Microsoft/go-winio v0.4.14 // indirect
+	github.com/atc0005/go-teams-notify/v2 v2.3.0
 	github.com/cloudfoundry-community/go-cfenv v1.17.0
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.13.1 // indirect
@@ -23,7 +24,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/prometheus/client_golang v1.7.1
 	github.com/robfig/cron v1.2.0
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.6.1
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	github.com/unrolled/render v0.0.0-20171006150303-32bf1ea2a39e
 	github.com/urfave/negroni v0.2.1-0.20171016041905-079cf0c7a6b0
