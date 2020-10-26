@@ -43,9 +43,10 @@ func (teams *Teams) Send(message string) error {
 	if err := msg.AddSection(&goteamsnotify.MessageCardSection{
 		ActivityImage:    "https://home-info.jamesclonk.io/images/smart_temperature.png",
 		ActivityTitle:    "Home Automation Dashboard",
-		ActivitySubtitle: "Alert!",
-		ActivityText:     message,
-		Markdown:         true,
+		ActivitySubtitle: "Alert Notification!",
+		//ActivityText:     message,
+		Text:     message,
+		Markdown: true,
 	}); err != nil {
 		return err
 	}

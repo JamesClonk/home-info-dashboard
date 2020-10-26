@@ -69,7 +69,7 @@ func Check(alertID int) {
 	// read alert
 	alert, err := hdb.GetAlertById(alertID)
 	if err != nil {
-		message := fmt.Sprintf("alert check [ID:%d] failed: could not select from database: %v", alertID, err)
+		message := fmt.Sprintf("alert check [*ID:%d*] failed: could not select from database: %v", alertID, err)
 		log.Println(message)
 		if err := Send(message); err != nil {
 			log.Printf("could not send alert message: %v\n", err)
@@ -111,7 +111,7 @@ func Check(alertID int) {
 	hours := 6
 	count, err := hdb.NumOfSensorDataWithinLastHours(alert.Sensor.Id, hours)
 	if err != nil {
-		message := fmt.Sprintf("deadman check for alert [%s] failed: could not select data: %v", alert.Name, err)
+		message := fmt.Sprintf("deadman check for alert [**%s**] failed: could not select data: %v", alert.Name, err)
 		log.Println(message)
 		if err := Send(message); err != nil {
 			log.Printf("could not send alert message: %v\n", err)
@@ -122,7 +122,7 @@ func Check(alertID int) {
 		return
 	}
 	if count <= 0 {
-		message := fmt.Sprintf("deadman check for alert [%s] found no data within the last [%d] hours", alert.Name, hours)
+		message := fmt.Sprintf("deadman check for alert [**%s**] found no data within the last [%d] hours", alert.Name, hours)
 		log.Println(message)
 		if err := Send(message); err != nil {
 			log.Printf("could not send alert message: %v\n", err)
@@ -136,7 +136,7 @@ func Check(alertID int) {
 	// get values
 	data, err := hdb.GetSensorData(alert.Sensor.Id, limit)
 	if err != nil {
-		message := fmt.Sprintf("alert check [%s] failed: could not select data: %v", alert.Name, err)
+		message := fmt.Sprintf("alert check [**%s**] failed: could not select data: %v", alert.Name, err)
 		log.Println(message)
 		if err := Send(message); err != nil {
 			log.Printf("could not send alert message: %v\n", err)
@@ -168,7 +168,7 @@ func Check(alertID int) {
 	}
 	if match {
 		log.Printf("matched alert condition [%s] for sensor [%s], value: [%d]\n", alert.Condition, alert.Sensor.Name, value)
-		if err := Send(fmt.Sprintf("Alert [*%s*] with Condition `%s` for Sensor [*%s*] triggered with a value of `%d`", alert.Name, alert.Condition, alert.Sensor.Name, value)); err != nil {
+		if err := Send(fmt.Sprintf("Alert [**%s**] with Condition `%s` for Sensor [*%s*] triggered with a value of `%d`", alert.Name, alert.Condition, alert.Sensor.Name, value)); err != nil {
 			log.Printf("could not send alert message: %v\n", err)
 			alertingError.Inc()
 		}
