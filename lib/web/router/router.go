@@ -1,6 +1,7 @@
 package router
 
 import (
+	"crypto/subtle"
 	"net/http"
 
 	"github.com/JamesClonk/home-info-dashboard/lib/database"
@@ -101,7 +102,13 @@ func basicAuth(fn http.HandlerFunc) http.HandlerFunc {
 
 		user, pass, _ := req.BasicAuth()
 		username, password := util.GetUserAndPassword()
-		if user != username && pass != password {
+		if len(username) < 8 && len(password) < 8 {
+			http.Error(rw, "Unauthorized", 401)
+			return
+		}
+
+		if subtle.ConstantTimeCompare([]byte(user), []byte(username)) != 1 ||
+			subtle.ConstantTimeCompare([]byte(pass), []byte(password)) != 1 {
 			http.Error(rw, "Unauthorized.", 401)
 			return
 		}
