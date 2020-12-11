@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/lib/pq"
 	"github.com/mattes/migrate"
@@ -22,6 +23,10 @@ func newPostgresAdapter(uri string) *PostgresAdapter {
 	if err != nil {
 		panic(err)
 	}
+	db.SetMaxIdleConns(2)
+	db.SetMaxOpenConns(5)
+	db.SetConnMaxLifetime(time.Hour)
+
 	return &PostgresAdapter{
 		Database: db,
 		URI:      uri,
