@@ -79,8 +79,8 @@ func spawnHousekeeping(hdb database.HomeInfoDB) {
 		time.Sleep(24 * time.Hour) // initial waiting period
 
 		for {
-			// retention policy of 33 days and minimum 55'555 values
-			if err := hdb.Housekeeping(33, 55555); err != nil {
+			// retention policy of 44 days and minimum 99'999 values
+			if err := hdb.Housekeeping(44, 99999); err != nil {
 				log.Println("Database housekeeping failed")
 				log.Fatal(err)
 			}
@@ -119,7 +119,7 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 			}
 
 			time.Sleep(time.Duration(rand.Intn(5)) * time.Minute)
-			time.Sleep(20 * time.Minute)
+			time.Sleep(15 * time.Minute)
 		}
 	}(hdb)
 }
