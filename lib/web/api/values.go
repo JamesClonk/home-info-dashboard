@@ -138,21 +138,7 @@ func DeleteSensorValues(hdb database.HomeInfoDB) func(rw http.ResponseWriter, re
 
 func Housekeeping(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
-		req.ParseForm()
-		days, err := strconv.ParseInt(req.Form.Get("days"), 10, 64)
-		if err != nil {
-			Error(rw, err)
-			sensorError.Inc()
-			return
-		}
-		rows, err := strconv.ParseInt(req.Form.Get("rows"), 10, 64)
-		if err != nil {
-			Error(rw, err)
-			sensorError.Inc()
-			return
-		}
-
-		if err := hdb.Housekeeping(int(days), int(rows)); err != nil {
+		if err := hdb.Housekeeping(); err != nil {
 			Error(rw, err)
 			sensorError.Inc()
 			return

@@ -37,7 +37,7 @@ type HomeInfoDB interface {
 	DeleteSensorType(int) error
 	DeleteSensorValues(int) error
 	GenerateSensorValues(int, int) error
-	Housekeeping(int, int) error
+	Housekeeping() error
 	GetQueues() ([]*Queue, error)
 	GetQueueByName(string) (*Queue, error)
 	GetMessages() ([]*Message, error)
@@ -857,57 +857,18 @@ func (hdb *homeInfoDB) GenerateSensorValues(id, num int) error {
 	return nil
 }
 
-func (hdb *homeInfoDB) Housekeeping(days, rows int) (err error) {
-	// housekeeping logic: select count(*) from sensor_data where timestamp < now - $days
-	// if count > $rows, then: delete from sensor_data where timestamp < now - $days
-	cutOff := time.Now().AddDate(0, -days, 0).UTC()
-
-	getStmt, err := hdb.Prepare(`
-		select count(*)
-		from sensor_data
-		where fk_sensor_id = $1
-		and timestamp > $2`)
-	if err != nil {
-		return err
-	}
-	defer getStmt.Close()
-
+func (hdb *homeInfoDB) Housekeeping() (err error) {
 	deleteStmt, err := hdb.Prepare(`
 		delete from sensor_data
-		where fk_sensor_id = $1
-		and timestamp < $2`)
+		where timestamp < NOW() - INTERVAL '111 days'`)
 	if err != nil {
 		return err
 	}
 	defer deleteStmt.Close()
 
-	sensors, err := hdb.GetSensors()
-	if err != nil {
+	log.Println("Housekeeping: delete rows older than [111] days ...")
+	if _, err := deleteStmt.Exec(); err != nil {
 		return err
-	}
-
-	for _, sensor := range sensors {
-		row, err := getStmt.Query(sensor.Id, cutOff)
-		if err != nil {
-			return err
-		}
-		defer row.Close()
-
-		if row.Next() {
-			var count int64
-			if err := row.Scan(&count); err != nil {
-				return err
-			}
-			log.Printf("Housekeeping: Sensor [%d:%s] has [%v] minimum rows ...\n", sensor.Id, sensor.Name, count)
-
-			if count > int64(rows) {
-				log.Printf("Housekeeping: Will now delete excess rows of sensor [%d:%s] ...\n", sensor.Id, sensor.Name)
-				_, err := deleteStmt.Exec(sensor.Id, cutOff)
-				if err != nil {
-					return err
-				}
-			}
-		}
 	}
 	return nil
 }
