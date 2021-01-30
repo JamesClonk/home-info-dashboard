@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -78,6 +79,7 @@ func AddAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Re
 			Condition:       req.Form.Get("condition"),
 			Execution:       req.Form.Get("execution"),
 			SilenceDuration: silenceDuration,
+			Active:          sql.NullBool{true, true},
 			Sensor: database.Sensor{
 				Id: sensorId,
 			},
@@ -123,6 +125,15 @@ func UpdateAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http
 				Error(rw, err)
 				return
 			}
+			activeStr := req.Form.Get("active")
+			if len(activeStr) == 0 {
+				activeStr = "true"
+			}
+			active, err := strconv.ParseBool(activeStr)
+			if err != nil {
+				Error(rw, err)
+				return
+			}
 			lastAlert, err := time.Parse(time.RFC3339, req.Form.Get("last_alert"))
 			if err != nil {
 				Error(rw, err)
@@ -136,6 +147,7 @@ func UpdateAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http
 				Execution:       req.Form.Get("execution"),
 				LastAlert:       &lastAlert,
 				SilenceDuration: silenceDuration,
+				Active:          sql.NullBool{active, true},
 				Sensor: database.Sensor{
 					Id: sensorId,
 				},

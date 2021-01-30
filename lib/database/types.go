@@ -1,6 +1,9 @@
 package database
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type SensorType struct {
 	Id          int    `json:"id" xml:"id,attr"`
@@ -29,14 +32,15 @@ type SensorValue struct {
 }
 
 type Alert struct {
-	Id              int        `json:"id" xml:"id,attr"`
-	Sensor          Sensor     `json:"sensor" xml:"sensor"`
-	Name            string     `json:"name" xml:"name"`
-	Description     string     `json:"description" xml:"description"`
-	Condition       string     `json:"alert_condition" xml:"alert_condition"`
-	Execution       string     `json:"execution_schedule" xml:"execution_schedule"`
-	LastAlert       *time.Time `json:"last_alert_timestamp" xml:"last_alert_timestamp"`
-	SilenceDuration int64      `json:"silence_duration_in_minutes" xml:"silence_duration_in_minutes"`
+	Id              int          `json:"id" xml:"id,attr"`
+	Sensor          Sensor       `json:"sensor" xml:"sensor"`
+	Name            string       `json:"name" xml:"name"`
+	Description     string       `json:"description" xml:"description"`
+	Condition       string       `json:"alert_condition" xml:"alert_condition"`
+	Execution       string       `json:"execution_schedule" xml:"execution_schedule"`
+	LastAlert       *time.Time   `json:"last_alert_timestamp" xml:"last_alert_timestamp"`
+	SilenceDuration int64        `json:"silence_duration_in_minutes" xml:"silence_duration_in_minutes"`
+	Active          sql.NullBool `json:"active" xml:"active"`
 }
 
 type Queue struct {

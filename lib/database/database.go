@@ -62,7 +62,7 @@ func NewHomeInfoDB(adapter Adapter) HomeInfoDB {
 func (hdb *homeInfoDB) GetAllAlerts() ([]*Alert, error) {
 	rows, err := hdb.Query(`
 		select
-			a.pk_alert_id, a.name, a.description, a.condition, a.execution, a.last_alert, a.silence_duration,
+			a.pk_alert_id, a.name, a.description, a.condition, a.execution, a.last_alert, a.silence_duration, a.active,
 			s.pk_sensor_id, s.name, s.description,
 			st.pk_sensor_type_id, st.type, st.unit, st.symbol, st.description
 		from alert a
@@ -80,7 +80,7 @@ func (hdb *homeInfoDB) GetAllAlerts() ([]*Alert, error) {
 		var s Sensor
 		var st SensorType
 		if err := rows.Scan(
-			&a.Id, &a.Name, &a.Description, &a.Condition, &a.Execution, &a.LastAlert, &a.SilenceDuration,
+			&a.Id, &a.Name, &a.Description, &a.Condition, &a.Execution, &a.LastAlert, &a.SilenceDuration, &a.Active,
 			&s.Id, &s.Name, &s.Description,
 			&st.Id, &st.Type, &st.Unit, &st.Symbol, &st.Description,
 		); err != nil {
@@ -100,7 +100,7 @@ func (hdb *homeInfoDB) GetActiveAlerts() ([]*Alert, error) {
 func (hdb *homeInfoDB) GetAlertsByState(active bool) ([]*Alert, error) {
 	stmt, err := hdb.Prepare(`
 		select
-			a.pk_alert_id, a.name, a.description, a.condition, a.execution, a.last_alert, a.silence_duration,
+			a.pk_alert_id, a.name, a.description, a.condition, a.execution, a.last_alert, a.silence_duration, a.active,
 			s.pk_sensor_id, s.name, s.description,
 			st.pk_sensor_type_id, st.type, st.unit, st.symbol, st.description
 		from alert a
@@ -125,7 +125,7 @@ func (hdb *homeInfoDB) GetAlertsByState(active bool) ([]*Alert, error) {
 		var s Sensor
 		var st SensorType
 		if err := rows.Scan(
-			&a.Id, &a.Name, &a.Description, &a.Condition, &a.Execution, &a.LastAlert, &a.SilenceDuration,
+			&a.Id, &a.Name, &a.Description, &a.Condition, &a.Execution, &a.LastAlert, &a.SilenceDuration, &a.Active,
 			&s.Id, &s.Name, &s.Description,
 			&st.Id, &st.Type, &st.Unit, &st.Symbol, &st.Description,
 		); err != nil {
@@ -141,7 +141,7 @@ func (hdb *homeInfoDB) GetAlertsByState(active bool) ([]*Alert, error) {
 func (hdb *homeInfoDB) GetAlertById(id int) (*Alert, error) {
 	stmt, err := hdb.Prepare(`
 		select
-			a.pk_alert_id, a.name, a.description, a.condition, a.execution, a.last_alert, a.silence_duration,
+			a.pk_alert_id, a.name, a.description, a.condition, a.execution, a.last_alert, a.silence_duration, a.active,
 			s.pk_sensor_id, s.name, s.description,
 			st.pk_sensor_type_id, st.type, st.unit, st.symbol, st.description
 		from alert a
@@ -157,7 +157,7 @@ func (hdb *homeInfoDB) GetAlertById(id int) (*Alert, error) {
 	var s Sensor
 	var st SensorType
 	if err := stmt.QueryRow(id).Scan(
-		&a.Id, &a.Name, &a.Description, &a.Condition, &a.Execution, &a.LastAlert, &a.SilenceDuration,
+		&a.Id, &a.Name, &a.Description, &a.Condition, &a.Execution, &a.LastAlert, &a.SilenceDuration, &a.Active,
 		&s.Id, &s.Name, &s.Description,
 		&st.Id, &st.Type, &st.Unit, &st.Symbol, &st.Description,
 	); err != nil {
@@ -171,7 +171,7 @@ func (hdb *homeInfoDB) GetAlertById(id int) (*Alert, error) {
 func (hdb *homeInfoDB) GetAlertsByName(name string) ([]*Alert, error) {
 	stmt, err := hdb.Prepare(`
 		select
-			a.pk_alert_id, a.name, a.description, a.condition, a.execution, a.last_alert, a.silence_duration,
+			a.pk_alert_id, a.name, a.description, a.condition, a.execution, a.last_alert, a.silence_duration, a.active,
 			s.pk_sensor_id, s.name, s.description,
 			st.pk_sensor_type_id, st.type, st.unit, st.symbol, st.description
 		from alert a
@@ -196,7 +196,7 @@ func (hdb *homeInfoDB) GetAlertsByName(name string) ([]*Alert, error) {
 		var s Sensor
 		var st SensorType
 		if err := rows.Scan(
-			&a.Id, &a.Name, &a.Description, &a.Condition, &a.Execution, &a.LastAlert, &a.SilenceDuration,
+			&a.Id, &a.Name, &a.Description, &a.Condition, &a.Execution, &a.LastAlert, &a.SilenceDuration, &a.Active,
 			&s.Id, &s.Name, &s.Description,
 			&st.Id, &st.Type, &st.Unit, &st.Symbol, &st.Description,
 		); err != nil {
@@ -342,13 +342,13 @@ func (hdb *homeInfoDB) InsertAlert(alert *Alert) (err error) {
 	}
 
 	stmt, err := hdb.Prepare(`
-		insert into alert (name, fk_sensor_id, description, condition, execution, silence_duration) values ($1, $2, $3, $4, $5, $6)`)
+		insert into alert (name, fk_sensor_id, description, condition, execution, silence_duration, active) values ($1, $2, $3, $4, $5, $6, $7)`)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	if _, err = stmt.Exec(alert.Name, alert.Sensor.Id, alert.Description, alert.Condition, alert.Execution, alert.SilenceDuration); err != nil {
+	if _, err = stmt.Exec(alert.Name, alert.Sensor.Id, alert.Description, alert.Condition, alert.Execution, alert.SilenceDuration, alert.Active); err != nil {
 		return err
 	}
 
@@ -365,6 +365,7 @@ func (hdb *homeInfoDB) InsertAlert(alert *Alert) (err error) {
 	alert.Name = alertNew.Name
 	alert.Sensor = alertNew.Sensor
 	alert.LastAlert = alertNew.LastAlert
+	alert.Active = alertNew.Active
 
 	return nil
 }
@@ -426,14 +427,15 @@ func (hdb *homeInfoDB) UpdateAlert(alert *Alert) (err error) {
 		condition = $4,
 		execution = $5,
 		silence_duration = $6,
-		last_alert = $7
-		where pk_alert_id = $8`)
+		last_alert = $7,
+		active = $8
+		where pk_alert_id = $9`)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	if _, err = stmt.Exec(alert.Name, alert.Sensor.Id, alert.Description, alert.Condition, alert.Execution, alert.SilenceDuration, alert.LastAlert, alert.Id); err != nil {
+	if _, err = stmt.Exec(alert.Name, alert.Sensor.Id, alert.Description, alert.Condition, alert.Execution, alert.SilenceDuration, alert.LastAlert, alert.Active, alert.Id); err != nil {
 		return err
 	}
 
@@ -450,6 +452,7 @@ func (hdb *homeInfoDB) UpdateAlert(alert *Alert) (err error) {
 	alert.Execution = alertNew.Execution
 	alert.LastAlert = alertNew.LastAlert
 	alert.SilenceDuration = alertNew.SilenceDuration
+	alert.Active = alertNew.Active
 
 	return nil
 }
