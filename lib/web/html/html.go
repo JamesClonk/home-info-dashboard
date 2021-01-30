@@ -202,7 +202,7 @@ func Alerts(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 			Active: "alerts",
 		}
 
-		alerts, err := hdb.GetAlerts()
+		alerts, err := hdb.GetAllAlerts()
 		if err != nil {
 			Error(rw, err)
 			return

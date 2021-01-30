@@ -13,12 +13,12 @@ import (
 
 func GetAlerts(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
-		alerts, err := hdb.GetAlerts()
+		alerts, err := hdb.GetAllAlerts()
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		web.Render().JSON(rw, http.StatusOK, alerts)
+		_ = web.Render().JSON(rw, http.StatusOK, alerts)
 	}
 }
 
@@ -45,10 +45,10 @@ func GetAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Re
 				return
 			}
 
-			web.Render().JSON(rw, http.StatusOK, alert)
+			_ = web.Render().JSON(rw, http.StatusOK, alert)
 			return
 		}
-		web.Render().JSON(rw, http.StatusNotFound, nil)
+		_ = web.Render().JSON(rw, http.StatusNotFound, nil)
 	}
 }
 
@@ -87,7 +87,7 @@ func AddAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Re
 			Error(rw, err)
 			return
 		}
-		web.Render().JSON(rw, http.StatusCreated, *alert)
+		_ = web.Render().JSON(rw, http.StatusCreated, *alert)
 	}
 }
 
@@ -108,7 +108,7 @@ func UpdateAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http
 				}
 			}
 
-			req.ParseForm()
+			_ = req.ParseForm()
 			sensorId, err := strconv.Atoi(req.Form.Get("sensor_id"))
 			if err != nil {
 				Error(rw, err)
@@ -145,10 +145,10 @@ func UpdateAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http
 				Error(rw, err)
 				return
 			}
-			web.Render().JSON(rw, http.StatusOK, *alert)
+			_ = web.Render().JSON(rw, http.StatusOK, *alert)
 			return
 		}
-		web.Render().JSON(rw, http.StatusNotFound, nil)
+		_ = web.Render().JSON(rw, http.StatusNotFound, nil)
 	}
 }
 
@@ -173,9 +173,9 @@ func DeleteAlert(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http
 				Error(rw, err)
 				return
 			}
-			web.Render().JSON(rw, http.StatusNoContent, nil)
+			_ = web.Render().JSON(rw, http.StatusNoContent, nil)
 			return
 		}
-		web.Render().JSON(rw, http.StatusNotFound, nil)
+		_ = web.Render().JSON(rw, http.StatusNotFound, nil)
 	}
 }

@@ -46,6 +46,7 @@ psql -h 127.0.0.1 -U dev-user -d home_info_db  < lib/database/migrations/postgre
 psql -h 127.0.0.1 -U dev-user -d home_info_db  < lib/database/migrations/postgres/003_alert_tables.up.sql
 psql -h 127.0.0.1 -U dev-user -d home_info_db  < lib/database/migrations/postgres/004_setup_alerts.up.sql
 psql -h 127.0.0.1 -U dev-user -d home_info_db  < lib/database/migrations/postgres/005_message_queue.up.sql
+psql -h 127.0.0.1 -U dev-user -d home_info_db  < lib/database/migrations/postgres/006_alert_active_flag.up.sql
 psql -h 127.0.0.1 -U dev-user -d home_info_db  < _fixtures/migration.sql
 #psql -h 127.0.0.1 -U dev-user -d home_info_db  < _fixtures/values.sql
 psql -h 127.0.0.1 -U dev-user -d home_info_db  < _fixtures/export.sql

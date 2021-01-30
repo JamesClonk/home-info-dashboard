@@ -10,7 +10,9 @@ import (
 )
 
 type HomeInfoDB interface {
-	GetAlerts() ([]*Alert, error)
+	GetAllAlerts() ([]*Alert, error)
+	GetActiveAlerts() ([]*Alert, error)
+	GetAlertsByState(bool) ([]*Alert, error)
 	GetAlertById(int) (*Alert, error)
 	GetAlertsByName(string) ([]*Alert, error)
 	GetSensors() ([]*Sensor, error)
@@ -57,7 +59,7 @@ func NewHomeInfoDB(adapter Adapter) HomeInfoDB {
 	return &homeInfoDB{adapter.GetDatabase(), adapter.GetType()}
 }
 
-func (hdb *homeInfoDB) GetAlerts() ([]*Alert, error) {
+func (hdb *homeInfoDB) GetAllAlerts() ([]*Alert, error) {
 	rows, err := hdb.Query(`
 		select
 			a.pk_alert_id, a.name, a.description, a.condition, a.execution, a.last_alert, a.silence_duration,
@@ -67,6 +69,51 @@ func (hdb *homeInfoDB) GetAlerts() ([]*Alert, error) {
 		join sensor s on a.fk_sensor_id = s.pk_sensor_id
 		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
 		order by a.name asc, s.name asc, st.type asc`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	aa := []*Alert{}
+	for rows.Next() {
+		var a Alert
+		var s Sensor
+		var st SensorType
+		if err := rows.Scan(
+			&a.Id, &a.Name, &a.Description, &a.Condition, &a.Execution, &a.LastAlert, &a.SilenceDuration,
+			&s.Id, &s.Name, &s.Description,
+			&st.Id, &st.Type, &st.Unit, &st.Symbol, &st.Description,
+		); err != nil {
+			return nil, err
+		}
+		s.SensorType = st
+		a.Sensor = s
+		aa = append(aa, &a)
+	}
+	return aa, nil
+}
+
+func (hdb *homeInfoDB) GetActiveAlerts() ([]*Alert, error) {
+	return hdb.GetAlertsByState(true)
+}
+
+func (hdb *homeInfoDB) GetAlertsByState(active bool) ([]*Alert, error) {
+	stmt, err := hdb.Prepare(`
+		select
+			a.pk_alert_id, a.name, a.description, a.condition, a.execution, a.last_alert, a.silence_duration,
+			s.pk_sensor_id, s.name, s.description,
+			st.pk_sensor_type_id, st.type, st.unit, st.symbol, st.description
+		from alert a
+		join sensor s on a.fk_sensor_id = s.pk_sensor_id
+		join sensor_type st on s.fk_sensor_type_id = st.pk_sensor_type_id
+		where a.active = $1
+		order by a.name asc, s.name asc, st.type asc`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(active)
 	if err != nil {
 		return nil, err
 	}

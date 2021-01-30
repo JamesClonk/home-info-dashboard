@@ -43,11 +43,11 @@ func StopScheduler() {
 }
 
 func RegisterAlerts() {
-	log.Println("registering monitoring alerts in scheduler")
+	log.Println("registering monitoring active alerts in scheduler")
 
-	alerts, err := hdb.GetAlerts()
+	alerts, err := hdb.GetActiveAlerts()
 	if err != nil {
-		log.Fatalf("could not read alert checks from database: %v\n", err)
+		log.Fatalf("could not read active alert checks from database: %v\n", err)
 	}
 
 	for _, alert := range alerts {
