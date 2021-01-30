@@ -28,7 +28,7 @@
           <td>{{ .Execution }}</td>
           <td>{{ .LastAlert }}</td>
           <td>{{ .SilenceDuration }} min.</td>
-          <td>{{ .Active }}</td>
+          <td>{{ .Active.Bool }}</td>
         </tr>
         {{ end }}
       </tbody>
