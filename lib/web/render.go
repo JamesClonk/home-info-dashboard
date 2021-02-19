@@ -30,6 +30,8 @@ func init() {
 						return "🖥️"
 					case "bedroom":
 						return "🛏️"
+					case "bedroom lamp":
+						return "💡"
 					case "plant room lamp":
 						return "💡"
 					case "air quality lamp":
