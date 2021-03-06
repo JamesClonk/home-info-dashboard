@@ -1,7 +1,7 @@
 // Copyright 2020 Enrico Hoffmann
 // Copyright 2020 Adam Chalkley
 //
-// https:#github.com/atc0005/go-teams-notify
+// https://github.com/atc0005/go-teams-notify
 //
 // Licensed under the MIT License. See LICENSE file in the project root for
 // full license information.
@@ -12,12 +12,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -28,23 +30,63 @@ var logger *log.Logger
 
 // Known webhook URL prefixes for submitting messages to Microsoft Teams
 const (
-	WebhookURLOfficecomPrefix = "https://outlook.office.com"
-	WebhookURLOffice365Prefix = "https://outlook.office365.com"
+	WebhookURLOfficecomPrefix  = "https://outlook.office.com"
+	WebhookURLOffice365Prefix  = "https://outlook.office365.com"
+	WebhookURLOrgWebhookPrefix = "https://example.webhook.office.com"
 )
+
+// DisableWebhookURLValidation is a special keyword used to indicate to
+// validation function(s) that webhook URL validation should be disabled.
+const DisableWebhookURLValidation string = "DISABLE_WEBHOOK_URL_VALIDATION"
+
+// Regular Expression related constants that we can use to validate incoming
+// webhook URLs provided by the user.
+const (
+
+	// webhookURLRegexPrefixOnly is a minimal regex for matching known valid
+	// webhook URL prefix patterns.
+	webhookURLRegexPrefixOnly = `^https:\/\/(?:.*\.webhook|outlook)\.office(?:365)?\.com`
+
+	// Note: The regex allows for capital letters in the GUID patterns. This is
+	// allowed based on light testing which shows that mixed case works and the
+	// assumption that since Teams and Office 365 are Microsoft products case
+	// would be ignored (e.g., Windows, IIS do not consider 'A' and 'a' to be
+	// different).
+	// webhookURLRegex           = `^https:\/\/(?:.*\.webhook|outlook)\.office(?:365)?\.com\/webhook(?:b2)?\/[-a-zA-Z0-9]{36}@[-a-zA-Z0-9]{36}\/IncomingWebhook\/[-a-zA-Z0-9]{32}\/[-a-zA-Z0-9]{36}$`
+
+	// webhookURLSubURIWebhookPrefix         = "webhook"
+	// webhookURLSubURIWebhookb2Prefix       = "webhookb2"
+	// webhookURLOfficialDocsSampleURI       = "a1269812-6d10-44b1-abc5-b84f93580ba0@9e7b80c7-d1eb-4b52-8582-76f921e416d9/IncomingWebhook/3fdd6767bae44ac58e5995547d66a4e4/f332c8d9-3397-4ac5-957b-b8e3fc465a8c"
+)
+
+// ExpectedWebhookURLResponseText represents the expected response text
+// provided by the remote webhook endpoint when submitting messages.
+const ExpectedWebhookURLResponseText string = "1"
 
 // DefaultWebhookSendTimeout specifies how long the message operation may take
 // before it times out and is cancelled.
 const DefaultWebhookSendTimeout = 5 * time.Second
+
+// ErrWebhookURLUnexpectedPrefix is returned when a provided webhook URL does
+// not match a set of confirmed webhook URL prefixes.
+var ErrWebhookURLUnexpectedPrefix = errors.New("webhook URL does not contain expected prefix")
+
+// ErrInvalidWebhookURLResponseText is returned when the remote webhook
+// endpoint indicates via response text that a message submission was
+// unsuccessful.
+var ErrInvalidWebhookURLResponseText = errors.New("invalid webhook URL response text")
 
 // API - interface of MS Teams notify
 type API interface {
 	Send(webhookURL string, webhookMessage MessageCard) error
 	SendWithContext(ctx context.Context, webhookURL string, webhookMessage MessageCard) error
 	SendWithRetry(ctx context.Context, webhookURL string, webhookMessage MessageCard, retries int, retriesDelay int) error
+	SkipWebhookURLValidationOnSend(skip bool)
 }
 
 type teamsClient struct {
-	httpClient *http.Client
+	httpClient               *http.Client
+	skipWebhookURLValidation bool
 }
 
 func init() {
@@ -75,6 +117,7 @@ func NewClient() API {
 			// We're using a context instead of setting this directly
 			// Timeout: DefaultWebhookSendTimeout,
 		},
+		skipWebhookURLValidation: false,
 	}
 	return &client
 }
@@ -95,8 +138,15 @@ func (c teamsClient) Send(webhookURL string, webhookMessage MessageCard) error {
 func (c teamsClient) SendWithContext(ctx context.Context, webhookURL string, webhookMessage MessageCard) error {
 	logger.Printf("SendWithContext: Webhook message received: %#v\n", webhookMessage)
 
+	// optionally skip webhook validation
+	webhookURLToValidate := webhookURL
+	if c.skipWebhookURLValidation {
+		logger.Printf("SendWithContext: Webhook URL will not be validated: %#v\n", webhookURL)
+		webhookURLToValidate = DisableWebhookURLValidation
+	}
+
 	// Validate input data
-	if valid, err := IsValidInput(webhookMessage, webhookURL); !valid {
+	if valid, err := IsValidInput(webhookMessage, webhookURLToValidate); !valid {
 		return err
 	}
 
@@ -105,7 +155,7 @@ func (c teamsClient) SendWithContext(ctx context.Context, webhookURL string, web
 	webhookMessageBuffer := bytes.NewBuffer(webhookMessageByte)
 
 	// Basic, unformatted JSON
-	//logger.Printf("SendWithContext: %+v\n", string(webhookMessageByte))
+	// logger.Printf("SendWithContext: %+v\n", string(webhookMessageByte))
 
 	var prettyJSON bytes.Buffer
 	if err := json.Indent(&prettyJSON, webhookMessageByte, "", "\t"); err != nil {
@@ -144,23 +194,44 @@ func (c teamsClient) SendWithContext(ctx context.Context, webhookURL string, web
 	}
 	responseString := string(responseData)
 
-	if res.StatusCode >= 299 {
-		// 400 Bad Response is likely an indicator that we failed to provide a
-		// required field in our JSON payload. For example, when leaving out
-		// the top level MessageCard Summary or Text field, the remote API
-		// returns "Summary or Text is required." as a text string. We include
-		// that response text in the error message that we return to the
-		// caller.
-
+	switch {
+	// 400 Bad Response is likely an indicator that we failed to provide a
+	// required field in our JSON payload. For example, when leaving out the
+	// top level MessageCard Summary or Text field, the remote API returns
+	// "Summary or Text is required." as a text string. We include that
+	// response text in the error message that we return to the caller.
+	case res.StatusCode >= 299:
 		err = fmt.Errorf("error on notification: %v, %q", res.Status, responseString)
 		logger.Println(err)
 		return err
+
+	// Microsoft Teams developers have indicated that a 200 status code is
+	// insufficient to confirm that a message was successfully submitted.
+	// Instead, clients should ensure that a specific response string was also
+	// returned along with a 200 status code to confirm that a message was
+	// sent successfully. Because there is a chance that unintentional
+	// whitespace could be included, we explicitly strip it out.
+	//
+	// See atc0005/go-teams-notify#59 for more information.
+	case responseString != strings.TrimSpace(ExpectedWebhookURLResponseText):
+
+		err = fmt.Errorf(
+			"got %q, expected %q: %w",
+			responseString,
+			ExpectedWebhookURLResponseText,
+			ErrInvalidWebhookURLResponseText,
+		)
+
+		logger.Println(err)
+		return err
+
+	default:
+
+		// log the response string
+		logger.Printf("SendWithContext: Response string from Microsoft Teams API: %v\n", responseString)
+
+		return nil
 	}
-
-	// log the response string
-	logger.Printf("SendWithContext: Response string from Microsoft Teams API: %v\n", responseString)
-
-	return nil
 }
 
 // SendWithRetry is a wrapper function around the SendWithContext method in
@@ -168,9 +239,6 @@ func (c teamsClient) SendWithContext(ctx context.Context, webhookURL string, web
 // provided the desired context timeout, the number of retries and retries
 // delay.
 func (c teamsClient) SendWithRetry(ctx context.Context, webhookURL string, webhookMessage MessageCard, retries int, retriesDelay int) error {
-	// init the client
-	mstClient := NewClient()
-
 	var result error
 
 	// initial attempt + number of specified retries
@@ -180,7 +248,7 @@ func (c teamsClient) SendWithRetry(ctx context.Context, webhookURL string, webho
 	// times before giving up
 	for attempt := 1; attempt <= attemptsAllowed; attempt++ {
 		// the result from the last attempt is returned to the caller
-		result = mstClient.SendWithContext(ctx, webhookURL, webhookMessage)
+		result = c.SendWithContext(ctx, webhookURL, webhookMessage)
 
 		switch {
 		case result == nil:
@@ -237,6 +305,12 @@ func (c teamsClient) SendWithRetry(ctx context.Context, webhookURL string, webho
 	return result
 }
 
+// SkipWebhookURLValidationOnSend allows the caller to optionally disable
+// webhook URL validation.
+func (c *teamsClient) SkipWebhookURLValidationOnSend(skip bool) {
+	c.skipWebhookURLValidation = skip
+}
+
 // helper --------------------------------------------------------------------------------------------------------------
 
 // IsValidInput is a validation "wrapper" function. This function is intended
@@ -259,25 +333,34 @@ func IsValidInput(webhookMessage MessageCard, webhookURL string) (bool, error) {
 // IsValidWebhookURL performs validation checks on the webhook URL used to
 // submit messages to Microsoft Teams.
 func IsValidWebhookURL(webhookURL string) (bool, error) {
-	switch {
-	case strings.HasPrefix(webhookURL, WebhookURLOfficecomPrefix):
-	case strings.HasPrefix(webhookURL, WebhookURLOffice365Prefix):
-	default:
-		u, err := url.Parse(webhookURL)
-		if err != nil {
-			return false, fmt.Errorf(
-				"unable to parse webhook URL %q: %w",
-				webhookURL,
-				err,
-			)
-		}
+	// Skip validation if requested
+	if webhookURL == DisableWebhookURLValidation {
+		return true, nil
+	}
+
+	u, err := url.Parse(webhookURL)
+	if err != nil {
+		return false, fmt.Errorf(
+			"unable to parse webhook URL %q: %w",
+			webhookURL,
+			err,
+		)
+	}
+
+	matched, err := regexp.MatchString(webhookURLRegexPrefixOnly, webhookURL)
+	if !matched {
 		userProvidedWebhookURLPrefix := u.Scheme + "://" + u.Host
 
+		errMsg := "validation failed"
+		if err != nil {
+			errMsg = err.Error()
+		}
+
 		return false, fmt.Errorf(
-			"webhook URL does not contain expected prefix; got %q, expected one of %q or %q",
+			"webhook URL %q received; %v: %w",
 			userProvidedWebhookURLPrefix,
-			WebhookURLOfficecomPrefix,
-			WebhookURLOffice365Prefix,
+			errMsg,
+			ErrWebhookURLUnexpectedPrefix,
 		)
 	}
 

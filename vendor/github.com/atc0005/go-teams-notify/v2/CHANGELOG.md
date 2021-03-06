@@ -26,6 +26,67 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v2.4.2] - 2021-01-28
+
+### Changed
+
+- Apply regex pattern match for webhook URL validation instead of fixed
+  strings in order to support matching private org webhook URL subdomains
+
+### Fixed
+
+- Updating an exiting webhook connector in Microsoft Teams switches the URL to
+  unsupported `https://*.webhook.office.com/webhookb2/` format
+- `SendWithRetry` method does not honor setting to disable webhook URL prefix
+  validation
+- Support for disabling webhook URL validation limited to just disabling
+  validation of prefixes
+
+## [v2.4.1] - 2021-01-28
+
+### Changed
+
+- (GH-59) Webhook URL API endpoint response validation now requires a `1` text
+  string as the response body
+
+### Fixed
+
+- (GH-59) Microsoft Teams Webhook Connector "200 OK" status insufficient
+  indication of success
+
+## [v2.4.0] - 2021-01-28
+
+### Added
+
+- Add (optional) support for disabling webhook URL prefix validation
+  - credit: [@odise](https://github.com/odise)
+
+### Changed
+
+- Documentation
+  - Refresh "basic" example
+  - Add example for disabling webhook URL prefix validation
+  - Update "about this project" coverage
+  - Swap GoDoc badge for pkg.go.dev badge
+
+- Tests
+  - Extend test coverage
+  - Verbose test output by default (Makefile, GitHub Actions Workflow)
+
+- Dependencies
+  - `actions/setup-node`
+    - `v2.1.1` to `v2.1.4`
+  - `actions/checkout`
+    - `v2.3.2` to `v2.3.4`
+  - `stretchr/testify`
+    - `v1.6.1` to `v1.7.0`
+
+### Fixed
+
+- minor linting error for commented code
+- Tests fail to assert that any errors which occur are expected, only the
+  types
+
 ## [v2.3.0] - 2020-08-29
 
 ### Added
@@ -256,7 +317,10 @@ The following types of changes will be recorded in this file:
 
 - add initial functionality of sending messages to MS Teams channel
 
-[Unreleased]: https://github.com/atc0005/go-teams-notify/compare/v2.3.0...HEAD
+[Unreleased]: https://github.com/atc0005/go-teams-notify/compare/v2.4.2...HEAD
+[v2.4.2]: https://github.com/atc0005/go-teams-notify/releases/tag/v2.4.2
+[v2.4.1]: https://github.com/atc0005/go-teams-notify/releases/tag/v2.4.1
+[v2.4.0]: https://github.com/atc0005/go-teams-notify/releases/tag/v2.4.0
 [v2.3.0]: https://github.com/atc0005/go-teams-notify/releases/tag/v2.3.0
 [v2.2.0]: https://github.com/atc0005/go-teams-notify/releases/tag/v2.2.0
 [v2.1.1]: https://github.com/atc0005/go-teams-notify/releases/tag/v2.1.1
