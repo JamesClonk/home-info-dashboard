@@ -73,16 +73,26 @@ func init() {
 						return "🌿"
 					}
 
+					if strings.Contains(strings.ToLower(name), "weight") {
+						return "🏋️"
+					}
+					if strings.Contains(strings.ToLower(name), "calorie") {
+						return "🍕"
+					}
+					if strings.Contains(strings.ToLower(name), "bmi") {
+						return "🧍"
+					}
+
 					return "❓"
 				},
 				"moisture": func(value int64) string {
-					if value >= 86 {
+					if value >= 84 {
 						return "🤢🌊"
 					}
 					if value >= 70 {
 						return "😄🌊"
 					}
-					if value >= 64 {
+					if value >= 62 {
 						return "😅💦"
 					}
 					if value >= 52 {
