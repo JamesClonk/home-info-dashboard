@@ -73,10 +73,12 @@ func init() {
 						return "🌿"
 					}
 
-					if strings.Contains(strings.ToLower(name), "weight") {
+					if strings.Contains(strings.ToLower(name), "weight") ||
+						strings.Contains(strings.ToLower(name), "scale") {
 						return "🏋️"
 					}
-					if strings.Contains(strings.ToLower(name), "calorie") {
+					if strings.Contains(strings.ToLower(name), "calorie") ||
+						strings.Contains(strings.ToLower(name), "food") {
 						return "🍕"
 					}
 					if strings.Contains(strings.ToLower(name), "bmi") {

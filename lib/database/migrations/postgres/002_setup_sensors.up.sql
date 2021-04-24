@@ -73,4 +73,4 @@ INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
 VALUES(19, 'bathroom scale', (select pk_sensor_type_id from sensor_type where type = 'weight'), 'Shows weight measurement on bathroom scale');
 
 INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
-VALUES(20, 'food', (select pk_sensor_type_id from sensor_type where type = 'calories'), 'Shows calories of eaten food');
+VALUES(20, 'food intake', (select pk_sensor_type_id from sensor_type where type = 'calories'), 'Shows calories of eaten food');
