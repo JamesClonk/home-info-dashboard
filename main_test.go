@@ -577,7 +577,7 @@ func Test_Main_Alerts(t *testing.T) {
 
 	body = response.Body.String()
 	assert.Contains(t, body, `{
-  "id": 21,
+  "id": 27,
   "sensor": {
     "id": 3,
     "name": "temperature #1",
@@ -587,13 +587,12 @@ func Test_Main_Alerts(t *testing.T) {
       "unit": "celsius",
       "symbol": "°",
       "description": "Shows temperature"
-    },
-    "description": "Shows temperature"
-  },
-  "name": "Alerteroni",
-  "description": "Alert for fun!",
-  "alert_condition": "\u003e 20",
-  "execution_schedule": "15 * * * *",`)
+    },`)
+	assert.Contains(t, body, `"description": "Shows temperature"`)
+	assert.Contains(t, body, `"name": "Alerteroni",`)
+	assert.Contains(t, body, `"description": "Alert for fun!",`)
+	assert.Contains(t, body, `"alert_condition": "\u003e 20",`)
+	assert.Contains(t, body, `"execution_schedule": "15 * * * *",`)
 	assert.Contains(t, body, `"silence_duration_in_minutes": 300`)
 
 	// ----------------------- READ -----------------------
@@ -642,7 +641,7 @@ func Test_Main_Alerts(t *testing.T) {
     },
     "name": "living room low humidity",
     "description": "Alerts if living room humidity gets too low",
-    "alert_condition": "5;\u003c;30",
+    "alert_condition": "5;\u003c;25",
     "execution_schedule": "*/10 * * * *",`)
 	assert.Contains(t, body, `"silence_duration_in_minutes": 300`)
 
