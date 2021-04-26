@@ -78,6 +78,20 @@ func Get() *Configuration {
 			log.Fatal(err)
 		}
 		config.Forecast.TemperatureSensorID = int(sensorId)
+
+		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_WEIGHT_SENSOR_ID"), 10, 64)
+		if err != nil {
+			log.Printf("Could not parse weight sensor id: [%v]\n", sensorId)
+			log.Fatal(err)
+		}
+		config.Fitness.WeightID = int(sensorId)
+
+		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_CALORIES_SENSOR_ID"), 10, 64)
+		if err != nil {
+			log.Printf("Could not parse calories sensor id: [%v]\n", sensorId)
+			log.Fatal(err)
+		}
+		config.Fitness.CaloriesID = int(sensorId)
 	})
 	return config
 }

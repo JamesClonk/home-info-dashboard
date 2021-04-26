@@ -1,0 +1,117 @@
+<script src="/js/chart.bundle.min.2.7.1.js"></script>
+<script src="/js/palette.min.js"></script>
+
+<section class="section">
+  <div class="container">
+    <h4 class="title is-4">📅 99 days - <span class="has-text-danger">weight</span> and <span class="has-text-info">calorie intake</span></h4>
+    <canvas id="daily_chart" width="100%" height="25%"></canvas>
+    <script>
+    var weightColors = palette('cb-OrRd', 4).map(function(hex) { return '#' + hex; });
+    var weightColorIndex = weightColors.length;
+    var weightColor = function() {
+        if (weightColorIndex == 0) {
+            weightColorIndex = weightColors.length;
+        }
+        var color = weightColors[weightColorIndex-1]
+        weightColorIndex--;
+        return color;
+    }
+
+    var caloriesColors = palette('cb-PuBuGn', 4).map(function(hex) { return '#' + hex; });
+    var caloriesColorIndex = caloriesColors.length;
+    var caloriesColor = function() {
+        if (caloriesColorIndex == 0) {
+            caloriesColorIndex = caloriesColors.length;
+        }
+        var color = caloriesColors[caloriesColorIndex-1]
+        caloriesColorIndex--;
+        return color;
+    }
+
+    var data = {
+        labels: [{{ range $index, $element := .Content.Graphs.Labels }}{{ if $index }},{{ end }}"{{ $element }}"{{ end }}],
+        datasets: [
+        {{ range $sensor, $data := .Content.Graphs.Calories }}
+            {
+                label: "{{ $sensor.Name }} - {{ $sensor.SensorType.Type }}",
+                yAxisID: 'C',
+                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
+                borderColor: caloriesColor()
+            },
+        {{ end }}
+        {{ range $sensor, $data := .Content.Graphs.Weight }}
+            {
+                label: "{{ $sensor.Name }} - {{ $sensor.SensorType.Type }}",
+                yAxisID: 'W',
+                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
+                borderColor: weightColor()
+            },
+        {{ end }}
+        ]
+    };
+
+    var ctx = document.getElementById("daily_chart").getContext('2d');
+    var daily_chart = new Chart.Line(ctx, {
+        data: data,
+        options: {
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                    label: function (tooltipItem, d) {
+                        if (tooltipItem.datasetIndex >= 0 && tooltipItem.datasetIndex < {{ len .Content.Graphs.Weight }}) {
+                            return tooltipItem.yLabel + 'kcal - ' + data.datasets[tooltipItem.datasetIndex].label
+                        } else {
+                            return tooltipItem.yLabel + 'kg - ' + data.datasets[tooltipItem.datasetIndex].label
+                        }
+                    }
+                }
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    type: "time",
+                    time: {
+                        format: 'DD.MM. - HH:mm',
+                        tooltipFormat: 'll HH:mm'
+                    },
+                    scaleLabel: {
+                        display: true
+                    }
+                }],
+                yAxes: [{
+                    id: 'C',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Kilocalories'
+                    },
+                    type: 'linear',
+                    position: 'right',
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return value + ' kcal';
+                        }
+                    }
+                },{
+                    id: 'W',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Kilogram'
+                    },
+                    type: 'linear',
+                    position: 'left',
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return value + ' kg';
+                        }
+                    }
+                }]
+            }
+        }
+    });
+    </script>
+  </div>
+</section>

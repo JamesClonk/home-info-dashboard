@@ -12,7 +12,7 @@ INSERT INTO sensor_type (type, unit, symbol, description)
 VALUES('weight', 'kilogram', 'kg', 'Shows weight');
 
 INSERT INTO sensor_type (type, unit, symbol, description)
-VALUES('calories', 'kilocalorie', kcal 'Shows calories');
+VALUES('calories', 'kilocalorie', 'kcal', 'Shows calories');
 
 -- sensors
 INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)

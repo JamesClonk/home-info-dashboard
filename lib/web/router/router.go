@@ -37,6 +37,7 @@ func setupRoutes(hdb database.HomeInfoDB, router *mux.Router) *mux.Router {
 	router.HandleFunc("/forecasts/{canton}/{city}", html.Forecasts)
 
 	// secure HTML
+	router.HandleFunc("/fitness", basicAuth(html.Fitness(hdb)))
 	router.HandleFunc("/message_queue", basicAuth(html.Messages(hdb)))
 
 	// API

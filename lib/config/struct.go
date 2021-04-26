@@ -8,6 +8,10 @@ type Configuration struct {
 	Forecast   struct {
 		TemperatureSensorID int
 	}
+	Fitness struct {
+		WeightID   int
+		CaloriesID int
+	}
 }
 
 type Room struct {

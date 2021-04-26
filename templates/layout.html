@@ -41,6 +41,10 @@
                   <span class="icon"><i class="fa fa-bell"></i></span>
                   <span>Alerts</span>
                 </a>
+                <a class="navbar-item {{ if eq .Active `fitness`}}is-active{{ end }}" href="/fitness">
+                  <span class="icon"><i class="fa fa-heartbeat"></i></span>
+                  <span>Fitness</span>
+                </a>
                 <a class="navbar-item {{ if eq .Active `message_queue`}}is-active{{ end }}" href="/message_queue">
                   <span class="icon"><i class="fa fa-envelope"></i></span>
                   <span>Message Queue</span>
