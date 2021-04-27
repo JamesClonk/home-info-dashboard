@@ -3,10 +3,57 @@
 
 <section class="section">
   <div class="container">
+    <form action="/fitness" method="post">
+      <label class="label">New Calorie Intake:</label>
+      <div class="field has-addons">
+        <div class="control has-icons-left">
+          <span class="input is-primary is-rounded">
+            <input type="text" name="calories" value="0">
+          </span>
+          <span class="icon is-small is-left">
+            <i class="fa fa-yelp"></i>
+          </span>
+        </div>
+        <div class="control has-icons-left">
+          <span class="select is-info is-rounded">
+            <select name="day">
+              <option>today</option>
+              <option>yesterday</option>
+              <option>the day before</option>
+            </select>
+          </span>
+          <span class="icon is-small is-left">
+            <i class="fa fa-calendar-o"></i>
+          </span>
+        </div>
+        <div class="control">
+          <input type="submit" class="button is-info" value="Nom Nom">
+        </div>
+      </div>
+      <label class="label">Weight:</label>
+      <div class="field has-addons">
+        <div class="control has-icons-left">
+          <span class="input is-primary is-rounded">
+            <input type="text" name="weight" value="0">
+          </span>
+          <span class="icon is-small is-left">
+            <i class="fa fa-balance-scale"></i>
+          </span>
+        </div>
+        <div class="control">
+          <input type="submit" class="button is-info" value="Save">
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
     <h4 class="title is-4">📅 99 days - <span class="has-text-danger">weight</span> and <span class="has-text-info">calorie intake</span></h4>
     <canvas id="daily_chart" width="100%" height="25%"></canvas>
     <script>
-    var weightColors = palette('cb-OrRd', 4).map(function(hex) { return '#' + hex; });
+    var weightColors = palette('cb-OrRd', 2).map(function(hex) { return '#' + hex; }).reverse();
     var weightColorIndex = weightColors.length;
     var weightColor = function() {
         if (weightColorIndex == 0) {
@@ -17,7 +64,7 @@
         return color;
     }
 
-    var caloriesColors = palette('cb-PuBuGn', 4).map(function(hex) { return '#' + hex; });
+    var caloriesColors = palette('cb-PuBuGn', 3).map(function(hex) { return '#' + hex; });
     var caloriesColorIndex = caloriesColors.length;
     var caloriesColor = function() {
         if (caloriesColorIndex == 0) {
@@ -59,10 +106,10 @@
                 intersect: false,
                 callbacks: {
                     label: function (tooltipItem, d) {
-                        if (tooltipItem.datasetIndex >= 0 && tooltipItem.datasetIndex < {{ len .Content.Graphs.Weight }}) {
-                            return tooltipItem.yLabel + 'kcal - ' + data.datasets[tooltipItem.datasetIndex].label
+                        if (tooltipItem.datasetIndex >= 0 && tooltipItem.datasetIndex < {{ len .Content.Graphs.Calories }}) {
+                            return tooltipItem.yLabel + ' kcal - ' + data.datasets[tooltipItem.datasetIndex].label
                         } else {
-                            return tooltipItem.yLabel + 'kg - ' + data.datasets[tooltipItem.datasetIndex].label
+                            return tooltipItem.yLabel + ' kg - ' + data.datasets[tooltipItem.datasetIndex].label
                         }
                     }
                 }
@@ -75,8 +122,8 @@
                 xAxes: [{
                     type: "time",
                     time: {
-                        format: 'DD.MM. - HH:mm',
-                        tooltipFormat: 'll HH:mm'
+                        format: 'DD.MM.',
+                        tooltipFormat: 'll'
                     },
                     scaleLabel: {
                         display: true

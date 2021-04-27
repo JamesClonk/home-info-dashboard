@@ -27,6 +27,8 @@ type HomeInfoDB interface {
 	GetSensorValues(int, int) ([]*SensorValue, error)
 	GetHourlyAverages(int, int) ([]*SensorValue, error)
 	GetDailyAverages(int, int) ([]*SensorValue, error)
+	GetDailySums(int, int) ([]*SensorValue, error)
+	InsertSensorData(*SensorData) error
 	InsertAlert(*Alert) error
 	InsertSensor(*Sensor) error
 	InsertSensorType(*SensorType) error
@@ -333,6 +335,23 @@ func (hdb *homeInfoDB) GetSensorsByName(name string) ([]*Sensor, error) {
 		ss = append(ss, &s)
 	}
 	return ss, nil
+}
+
+func (hdb *homeInfoDB) InsertSensorData(data *SensorData) error {
+	// require sensor id
+	if data.Sensor.Id <= 0 {
+		return fmt.Errorf("sensor_id missing!")
+	}
+
+	stmt, err := hdb.Prepare(`
+		insert into sensor_data (fk_sensor_id, value, timestamp) values ($1, $2, $3)`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(data.Sensor.Id, data.Value, data.Timestamp)
+	return err
 }
 
 func (hdb *homeInfoDB) InsertAlert(alert *Alert) (err error) {
@@ -784,6 +803,49 @@ func (hdb *homeInfoDB) GetDailyAverages(id, limit int) ([]*SensorValue, error) {
     from (select
         date(sd.timestamp) as day,
         round(avg(sd.value)) as value
+        from sensor_data sd
+        where sd.fk_sensor_id = $1
+        group by 1
+        order by 1 desc
+        limit $2) sort
+    order by 1 asc`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(id, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	values := []*SensorValue{}
+	for rows.Next() {
+		var value SensorValue
+		if hdb.DatabaseType == "sqlite" {
+			var toConvert string
+			if err := rows.Scan(&toConvert, &value.Value); err != nil {
+				return nil, err
+			}
+			hour, _ := time.Parse("2006-01-02 15:04:05", toConvert)
+			value.Timestamp = &hour
+		} else {
+			if err := rows.Scan(&value.Timestamp, &value.Value); err != nil {
+				return nil, err
+			}
+		}
+		values = append(values, &value)
+	}
+	return values, nil
+}
+
+func (hdb *homeInfoDB) GetDailySums(id, limit int) ([]*SensorValue, error) {
+	stmt, err := hdb.Prepare(`
+    select day, value
+    from (select
+        date(sd.timestamp) as day,
+        round(sum(sd.value)) as value
         from sensor_data sd
         where sd.fk_sensor_id = $1
         group by 1
