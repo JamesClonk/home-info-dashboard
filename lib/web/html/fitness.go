@@ -3,12 +3,12 @@ package html
 import (
 	"net/http"
 	"sort"
-	"strconv"
 	"time"
 
 	"github.com/JamesClonk/home-info-dashboard/lib/config"
 	"github.com/JamesClonk/home-info-dashboard/lib/database"
 	"github.com/JamesClonk/home-info-dashboard/lib/web"
+	"github.com/Knetic/govaluate"
 )
 
 func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Request) {
@@ -39,11 +39,23 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 						Error(rw, err)
 						return
 					}
-					value, _ := strconv.ParseInt(weight, 10, 64)
+
+					// evaluate possible expression
+					expression, err := govaluate.NewEvaluableExpression(weight)
+					if err != nil {
+						Error(rw, err)
+						return
+					}
+					result, err := expression.Evaluate(nil)
+					if err != nil {
+						Error(rw, err)
+						return
+					}
+					value, _ := result.(float64)
 					if value > 0 {
 						if err := hdb.InsertSensorData(&database.SensorData{
 							Sensor:    *weightSensor,
-							Value:     value,
+							Value:     int64(value * 10),
 							Timestamp: &timestamp,
 						}); err != nil {
 							Error(rw, err)
@@ -57,11 +69,23 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 						Error(rw, err)
 						return
 					}
-					value, _ := strconv.ParseInt(calories, 10, 64)
+
+					// evaluate possible expression
+					expression, err := govaluate.NewEvaluableExpression(calories)
+					if err != nil {
+						Error(rw, err)
+						return
+					}
+					result, err := expression.Evaluate(nil)
+					if err != nil {
+						Error(rw, err)
+						return
+					}
+					value, _ := result.(float64)
 					if value > 0 {
 						if err := hdb.InsertSensorData(&database.SensorData{
 							Sensor:    *caloriesSensor,
-							Value:     value,
+							Value:     int64(value),
 							Timestamp: &timestamp,
 						}); err != nil {
 							Error(rw, err)
@@ -115,7 +139,7 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 				SensorType: weightSensor.SensorType,
 			}
 			graphWeight[targetWeight] = append(graphWeight[targetWeight], &database.SensorValue{
-				Value:     74,
+				Value:     740,
 				Timestamp: &timestamp,
 			})
 		}
@@ -159,34 +183,6 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 			return graphCalories[*caloriesSensor][i].Timestamp.After(*graphCalories[*caloriesSensor][j].Timestamp)
 		})
 
-		// collect the top column
-		weight, err := hdb.GetSensorData(config.Get().Fitness.WeightID, 1)
-		if err != nil {
-			Error(rw, err)
-			return
-		}
-		if len(weight) == 0 {
-			timestamp := time.Now()
-			weight = append(weight, &database.SensorData{
-				Timestamp: &timestamp,
-				Value:     1000,
-				Sensor:    *weightSensor,
-			})
-		}
-		calories, err := hdb.GetSensorData(config.Get().Fitness.CaloriesID, 1)
-		if err != nil {
-			Error(rw, err)
-			return
-		}
-		if len(calories) == 0 {
-			timestamp := time.Now()
-			calories = append(calories, &database.SensorData{
-				Timestamp: &timestamp,
-				Value:     2000,
-				Sensor:    *caloriesSensor,
-			})
-		}
-
 		type Graphs struct {
 			Labels   []string
 			Weight   map[database.Sensor][]*database.SensorValue
@@ -200,15 +196,10 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 		}
 
 		page.Content = struct {
-			Graphs   Graphs
-			Weight   *database.SensorData
-			Calories *database.SensorData
+			Graphs Graphs
 		}{
-			Graphs:   graphs,
-			Weight:   weight[0],
-			Calories: calories[0],
+			Graphs: graphs,
 		}
-
 		_ = web.Render().HTML(rw, http.StatusOK, "fitness", page)
 	}
 }

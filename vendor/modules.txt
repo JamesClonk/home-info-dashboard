@@ -1,3 +1,6 @@
+# github.com/Knetic/govaluate v3.0.0+incompatible
+## explicit
+github.com/Knetic/govaluate
 # github.com/Microsoft/go-winio v0.4.14
 ## explicit
 # github.com/atc0005/go-teams-notify/v2 v2.4.2

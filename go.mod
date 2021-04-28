@@ -3,6 +3,7 @@ module github.com/JamesClonk/home-info-dashboard
 go 1.14
 
 require (
+	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/atc0005/go-teams-notify/v2 v2.4.2
 	github.com/cloudfoundry-community/go-cfenv v1.17.0

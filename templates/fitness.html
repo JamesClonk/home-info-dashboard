@@ -92,7 +92,7 @@
             {
                 label: "{{ $sensor.Name }} - {{ $sensor.SensorType.Type }}",
                 yAxisID: 'W',
-                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ if gt $element.Value 0 }}{{ $element.Value }}{{ else }}null{{ end }}{{ end }}],
+                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ if gt $element.Value 0 }}{{ $element.Value }}/10{{ else }}null{{ end }}{{ end }}],
                 borderColor: weightColor(),
                 pointStyle: "line",
                 spanGaps: false
@@ -142,6 +142,8 @@
                     type: 'linear',
                     position: 'right',
                     ticks: {
+                        suggestedMin: 1000,
+                        suggestedMax: 2500,
                         callback: function(value, index, values) {
                             return value + ' kcal';
                         }
@@ -155,6 +157,8 @@
                     type: 'linear',
                     position: 'left',
                     ticks: {
+                        suggestedMin: 50,
+                        suggestedMax: 100,
                         callback: function(value, index, values) {
                             return value + ' kg';
                         }
@@ -164,5 +168,40 @@
         }
     });
     </script>
+  </div>
+</section>
+
+<section class="hero is-small is-info">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">Food Information</h1>
+      <h2 class="subtitle">What to eat...</h2>
+      <pre>
+Lang anhaltend sättigend:
+1. Artischocken
+2. Leinsamen
+3. Blumenkohl
+4. Edamame
+5. Rüebli
+6. Avocado Dips (anstatt Käse-basierend)
+7. Linsen / Hülsenfrüchte
+8. Nüsse
+9. Haferflocken
+10. Chiasamen
+11. Kichererbsen
+12. Weisse Bohnen
+
+Grundsätzlich Gemüse!
+
+Eiweiss:
+- Hülsenfrüchte (Linsen, Kichererbsen, Bohnen, Erbsen)
+- Sojaprodukte (Sojaprotein, Tempeh, Tofu oder Sojamilch)
+- Getreide (Haferflocken, Dinkel- oder Roggenmehl, Reis)
+- Pseudogetreide (Quinoa, Bulgur, Amaranth)
+- Nüsse und Samen (Walnüsse, Haselnüsse, Mandeln, Cashewkerne, Leinsamen, Chiasamen, Kürbiskerne)
+- Gemüse (Kohl, Spinat, Blumenkohl, Karotten)
+- Pilze (Champignons, Pfifferlinge, Shiitake)
+      </pre>
+    </div>
   </div>
 </section>
