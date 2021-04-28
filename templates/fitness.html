@@ -82,16 +82,20 @@
             {
                 label: "{{ $sensor.Name }} - {{ $sensor.SensorType.Type }}",
                 yAxisID: 'C',
-                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
-                borderColor: caloriesColor()
+                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ if gt $element.Value 0 }}{{ $element.Value }}{{ else }}null{{ end }}{{ end }}],
+                borderColor: caloriesColor(),
+                pointStyle: "line",
+                spanGaps: false
             },
         {{ end }}
         {{ range $sensor, $data := .Content.Graphs.Weight }}
             {
                 label: "{{ $sensor.Name }} - {{ $sensor.SensorType.Type }}",
                 yAxisID: 'W',
-                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
-                borderColor: weightColor()
+                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ if gt $element.Value 0 }}{{ $element.Value }}{{ else }}null{{ end }}{{ end }}],
+                borderColor: weightColor(),
+                pointStyle: "line",
+                spanGaps: false
             },
         {{ end }}
         ]

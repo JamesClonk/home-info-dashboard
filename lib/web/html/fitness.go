@@ -121,18 +121,19 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 		}
 
 		// fill missing values
+		var lastValue int64
 		for _, label := range graphLabels {
-
 			var found bool
 			for _, value := range graphWeight[*weightSensor] {
 				if value.Timestamp.Format("02.01.2006") == label {
 					found = true
+					lastValue = value.Value
 				}
 			}
 			if !found {
 				timestamp, _ := time.Parse("02.01.2006", label)
 				graphWeight[*weightSensor] = append(graphWeight[*weightSensor], &database.SensorValue{
-					Value:     0,
+					Value:     lastValue,
 					Timestamp: &timestamp,
 				})
 			}
