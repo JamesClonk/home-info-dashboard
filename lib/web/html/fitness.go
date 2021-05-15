@@ -128,6 +128,13 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 		}
 		graphCalories[*caloriesSensor] = values
 
+		// collect calorie timeline
+		calorieIntake, err := hdb.GetTodaysData(caloriesSensor.Id)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+
 		// set labels & target weight
 		for d := 0; d < 99; d++ {
 			timestamp := time.Now().Add(-time.Duration(d) * 24 * time.Hour)
@@ -182,6 +189,10 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 		sort.Slice(graphCalories[*caloriesSensor][:], func(i, j int) bool {
 			return graphCalories[*caloriesSensor][i].Timestamp.After(*graphCalories[*caloriesSensor][j].Timestamp)
 		})
+		// sort ascending
+		sort.Slice(calorieIntake[:], func(i, j int) bool {
+			return calorieIntake[i].Timestamp.Before(*calorieIntake[j].Timestamp)
+		})
 
 		type Graphs struct {
 			Labels   []string
@@ -196,9 +207,15 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 		}
 
 		page.Content = struct {
-			Graphs Graphs
+			Graphs        Graphs
+			Weight        *database.SensorValue
+			Calories      *database.SensorValue
+			CalorieIntake []*database.SensorValue
 		}{
-			Graphs: graphs,
+			Graphs:        graphs,
+			Weight:        graphWeight[*weightSensor][0],
+			Calories:      graphCalories[*caloriesSensor][0],
+			CalorieIntake: calorieIntake,
 		}
 		_ = web.Render().HTML(rw, http.StatusOK, "fitness", page)
 	}

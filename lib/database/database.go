@@ -28,6 +28,7 @@ type HomeInfoDB interface {
 	GetHourlyAverages(int, int) ([]*SensorValue, error)
 	GetDailyAverages(int, int) ([]*SensorValue, error)
 	GetDailySums(int, int) ([]*SensorValue, error)
+	GetTodaysData(int) ([]*SensorValue, error)
 	InsertSensorData(*SensorData) error
 	InsertAlert(*Alert) error
 	InsertSensor(*Sensor) error
@@ -858,6 +859,46 @@ func (hdb *homeInfoDB) GetDailySums(id, limit int) ([]*SensorValue, error) {
 	defer stmt.Close()
 
 	rows, err := stmt.Query(id, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	values := []*SensorValue{}
+	for rows.Next() {
+		var value SensorValue
+		if hdb.DatabaseType == "sqlite" {
+			var toConvert string
+			if err := rows.Scan(&toConvert, &value.Value); err != nil {
+				return nil, err
+			}
+			hour, _ := time.Parse("2006-01-02 15:04:05", toConvert)
+			value.Timestamp = &hour
+		} else {
+			if err := rows.Scan(&value.Timestamp, &value.Value); err != nil {
+				return nil, err
+			}
+		}
+		values = append(values, &value)
+	}
+	return values, nil
+}
+
+func (hdb *homeInfoDB) GetTodaysData(id int) ([]*SensorValue, error) {
+	stmt, err := hdb.Prepare(`
+    select
+        sd.timestamp as timestamp,
+        sd.value as value
+    from sensor_data sd
+    where sd.fk_sensor_id = $1
+    and date(sd.timestamp) >= CURRENT_DATE
+    order by 1 desc`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(id)
 	if err != nil {
 		return nil, err
 	}

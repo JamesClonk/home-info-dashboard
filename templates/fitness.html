@@ -48,7 +48,31 @@
   </div>
 </section>
 
-<section class="section">
+<section class="section" style="padding-top: 0px">
+  <div class="container">
+    <div class="columns">
+      <div class="column is-one-quarter">
+        <h4 class="title is-4">Latest:</h4>
+      </div>
+      <div class="column">
+        <h5 class="subtitle is-5">Weight: {{ divide .Content.Weight.Value 10 }} kg <small class="has-text-warning">({{ .Content.Weight.Timestamp.Format "2006-01-02" }})</small></h5>
+      </div>
+      <div class="column">
+        <h5 class="subtitle is-5">Calories: {{ .Content.Calories.Value }} kcal <small class="has-text-warning">({{ .Content.Calories.Timestamp.Format "2006-01-02" }})</small></h5>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column is-one-quarter">
+        <h4 class="title is-4">Calorie intake today:</h4>
+      </div>
+      <div class="column is-three-quarters">
+        <h5 class="subtitle is-5">{{ range .Content.CalorieIntake }}{{ .Value }} <small class="has-text-info" style="font-size: 0.8rem">({{ .Timestamp.Format "15:04" }})</small>, {{ end }}</h5>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top: 0px">
   <div class="container">
     <h4 class="title is-4">📅 99 days - <span class="has-text-danger">weight</span> and <span class="has-text-info">calorie intake</span></h4>
     <canvas id="daily_chart" width="100%" height="25%"></canvas>
