@@ -93,10 +93,11 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 						}
 					}
 				}
-				req.Method = http.MethodGet
-				http.Redirect(rw, req, req.URL.RequestURI(), 303) // redirect to GET
-				return
 			}
+			// finish POST and redirect to GET, so the user can safely reload the page
+			req.Method = http.MethodGet
+			http.Redirect(rw, req, req.URL.RequestURI(), 303) // redirect to GET
+			return
 		}
 
 		// collect the graph data
