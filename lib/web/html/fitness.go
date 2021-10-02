@@ -147,7 +147,7 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 				SensorType: weightSensor.SensorType,
 			}
 			graphWeight[targetWeight] = append(graphWeight[targetWeight], &database.SensorValue{
-				Value:     740,
+				Value:     730,
 				Timestamp: &timestamp,
 			})
 		}
