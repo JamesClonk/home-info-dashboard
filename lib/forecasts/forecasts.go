@@ -1,7 +1,7 @@
 package forecasts
 
 import (
-	"encoding/xml"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -20,7 +20,16 @@ func init() {
 }
 
 func getData(url string) ([]byte, error) {
-	resp, err := http.Get(url)
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("GET error: %v", err)
+	}
+
+	// identify ourselves for yr.no / api.met.no
+	req.Header.Set("User-Agent", "home-info.jamesclonk.io github.com/home-info-dashboard")
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("GET error: %v", err)
 	}
@@ -39,52 +48,52 @@ func getData(url string) ([]byte, error) {
 
 func parseWeatherForecast(data []byte) (WeatherForecast, error) {
 	var forecast WeatherForecast
-	if err := xml.Unmarshal(data, &forecast); err != nil {
+	if err := json.Unmarshal(data, &forecast); err != nil {
 		return WeatherForecast{}, err
 	}
 	forecast.Timestamp = time.Now()
 	return forecast, nil
 }
 
-func Get(canton, city string) (data WeatherForecast, err error) {
-	if len(canton) == 0 {
-		canton = "Bern"
-	}
-	if len(city) == 0 {
-		city = "Bern"
+func Get(lat, lon, alt string) (data WeatherForecast, err error) {
+	if len(lat) == 0 || len(lon) == 0 || len(alt) == 0 {
+		// default to Bern
+		lat = "46.94809"
+		lon = "7.44744"
+		alt = "549"
 	}
 
 	// check memory first
-	if forecast, ok := readMemo(canton, city); ok {
+	if forecast, ok := readMemo(lat, lon, alt); ok {
 		// is it older than ~1 hour?
 		if time.Now().After(forecast.Timestamp.Add(58 * time.Minute)) {
-			if err := updateWeatherForecast(canton, city); err != nil {
+			if err := updateWeatherForecast(lat, lon, alt); err != nil {
 				return WeatherForecast{}, err
 			}
 		}
 	} else {
-		if err := updateWeatherForecast(canton, city); err != nil {
+		if err := updateWeatherForecast(lat, lon, alt); err != nil {
 			return WeatherForecast{}, err
 		}
 	}
 
-	forecast, _ := readMemo(canton, city)
+	forecast, _ := readMemo(lat, lon, alt)
 	return forecast, nil
 }
 
-func readMemo(canton, city string) (WeatherForecast, bool) {
+func readMemo(lat, lon, alt string) (WeatherForecast, bool) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	value, ok := memo[fmt.Sprintf("%s:%s", canton, city)]
+	value, ok := memo[fmt.Sprintf("%s:%s:%s", lat, lon, alt)]
 	return value, ok
 }
 
-func updateWeatherForecast(canton, city string) error {
-	log.Printf("update weather forecast data for [%s/%s] ...\n", canton, city)
+func updateWeatherForecast(lat, lon, alt string) error {
+	log.Printf("update weather forecast data for [lat:%s / lon:%s / alt:%s] ...\n", lat, lon, alt)
 
-	data, err := getData(fmt.Sprintf("http://www.yr.no/place/Switzerland/%s/%s/forecast_hour_by_hour.xml", canton, city))
-	//data, err := getData(fmt.Sprintf("http://www.yr.no/place/Switzerland/%s/%s/forecast.xml", canton, city))
+	data, err := getData(fmt.Sprintf("https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=%s&lon=%s&altitude=%s", lat, lon, alt))
+	//data, err := getData(fmt.Sprintf("http://www.yr.no/place/Switzerland/%s/%s/forecast_hour_by_hour.xml", canton, city))
 	if err != nil {
 		return err
 	}
@@ -96,6 +105,6 @@ func updateWeatherForecast(canton, city string) error {
 
 	mutex.Lock()
 	defer mutex.Unlock()
-	memo[fmt.Sprintf("%s:%s", canton, city)] = forecast
+	memo[fmt.Sprintf("%s:%s:%s", lat, lon, alt)] = forecast
 	return nil
 }

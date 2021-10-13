@@ -2,13 +2,16 @@ package util
 
 import "github.com/JamesClonk/home-info-dashboard/lib/env"
 
-func GetDefaultLocation(canton, city string) (string, string) {
+func GetDefaultLocation(lat, lon, alt string) (string, string, string) {
 	// try to read defaults from ENV, with reasonable defaults otherwise
-	if len(canton) == 0 {
-		canton = env.Get("DEFAULT_CANTON", "Bern")
+	if len(lat) == 0 {
+		lat = env.Get("DEFAULT_LATITUDE", "46.94809") // Bern
 	}
-	if len(city) == 0 {
-		city = env.Get("DEFAULT_CITY", "Bern")
+	if len(lon) == 0 {
+		lon = env.Get("DEFAULT_LONGITUDE", "7.44744") // Bern
 	}
-	return canton, city
+	if len(alt) == 0 {
+		alt = env.Get("DEFAULT_ALTITUDE", "549") // Bern
+	}
+	return lat, lon, alt
 }

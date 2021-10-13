@@ -218,21 +218,23 @@ func Alerts(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 }
 
 func Forecasts(rw http.ResponseWriter, req *http.Request) {
-	canton, city := web.GetLocation(req)
+	lat, lon, alt := web.GetLocation(req)
 	page := &Page{
-		Title:  fmt.Sprintf("Home Automation - Forecasts - %s", city),
+		Title:  fmt.Sprintf("Home Automation - Forecasts - %s:%s", lat, lon),
 		Active: "forecasts",
 	}
 
-	forecast, err := forecasts.Get(canton, city)
+	forecast, err := forecasts.Get(lat, lon, alt)
 	if err != nil {
 		page.Content = struct {
-			Canton string
-			City   string
-			Error  error
+			Latitude  string
+			Longitude string
+			Altitude  string
+			Error     error
 		}{
-			canton,
-			city,
+			lat,
+			lon,
+			alt,
 			err,
 		}
 		_ = web.Render().HTML(rw, http.StatusNotFound, "forecast_error", page)
@@ -240,15 +242,17 @@ func Forecasts(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	page.Content = struct {
-		Canton           string
-		City             string
+		Latitude         string
+		Longitude        string
+		Altitude         string
 		Forecast         forecasts.WeatherForecast
 		Today            time.Time
 		Tomorrow         time.Time
 		DayAfterTomorrow time.Time
 	}{
-		canton,
-		city,
+		lat,
+		lon,
+		alt,
 		forecast,
 		time.Now(),
 		time.Now().AddDate(0, 0, 1),

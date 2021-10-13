@@ -99,8 +99,8 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 
 		sensorId := config.Get().Forecast.TemperatureSensorID
 		for {
-			canton, city := util.GetDefaultLocation("", "")
-			forecast, err := forecasts.Get(canton, city)
+			lat, lon, alt := util.GetDefaultLocation("", "", "")
+			forecast, err := forecasts.Get(lat, lon, alt)
 			if err != nil {
 				log.Println("Weather forecast collection failed")
 				log.Fatal(err)
@@ -117,7 +117,7 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 					log.Println("Could not insert temperature value for forecast temperature")
 					log.Fatal(err)
 				}
-				log.Printf("Weather forecast temperature:%v for %s/%s stored to database\n", value, canton, city)
+				log.Printf("Weather forecast temperature:%v for [%s/%s/%s] stored to database\n", value, lat, lon, alt)
 			}
 
 			time.Sleep(time.Duration(rand.Intn(5)) * time.Minute)
