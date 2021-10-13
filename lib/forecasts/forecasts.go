@@ -58,8 +58,8 @@ func parseWeatherForecast(data []byte) (WeatherForecast, error) {
 func Get(lat, lon, alt string) (data WeatherForecast, err error) {
 	if len(lat) == 0 || len(lon) == 0 || len(alt) == 0 {
 		// default to Bern
-		lat = "46.94809"
-		lon = "7.44744"
+		lat = "46.9481"
+		lon = "7.4474"
 		alt = "549"
 	}
 
@@ -93,7 +93,6 @@ func updateWeatherForecast(lat, lon, alt string) error {
 	log.Printf("update weather forecast data for [lat:%s / lon:%s / alt:%s] ...\n", lat, lon, alt)
 
 	data, err := getData(fmt.Sprintf("https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=%s&lon=%s&altitude=%s", lat, lon, alt))
-	//data, err := getData(fmt.Sprintf("http://www.yr.no/place/Switzerland/%s/%s/forecast_hour_by_hour.xml", canton, city))
 	if err != nil {
 		return err
 	}

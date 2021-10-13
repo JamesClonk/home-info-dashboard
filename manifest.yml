@@ -25,8 +25,9 @@ applications:
     TZ: Europe/Zurich
     AUTH_USERNAME: ((auth_username))
     AUTH_PASSWORD: ((auth_password))
-    DEFAULT_CANTON: Bern
-    DEFAULT_CITY: Bern
+    DEFAULT_LATITUDE: "46.9481"
+    DEFAULT_LONGITUDE: "7.4474"
+    DEFAULT_ALTITUDE: "549"
     TELEBOT_TOKEN: ((telebot_token))
     TELEBOT_USERNAME: ((telebot_username))
     TELEBOT_DEBUG: false

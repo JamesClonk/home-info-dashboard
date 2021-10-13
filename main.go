@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 	"time"
 
@@ -59,10 +58,7 @@ func setupDatabase() database.HomeInfoDB {
 	// background jobs
 	spawnAlertMonitor(hdb)
 	spawnHousekeeping(hdb)
-
-	// https://developer.yr.no/doc/guides/getting-started-from-forecast-xml/
-	// https://developer.yr.no/doc/TermsOfService/
-	//spawnForecastCollection(hdb) // TODO: fix this, change to new JSON format for YR.NO API
+	spawnForecastCollection(hdb)
 
 	return hdb
 }
@@ -106,18 +102,30 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 				log.Fatal(err)
 			}
 
-			if len(forecast.Forecast.Tabular.Time) > 0 {
-				value, err := strconv.ParseInt(forecast.Forecast.Tabular.Time[0].Temperature.Value, 10, 64)
-				if err != nil {
-					log.Println("Could not read temperature value for forecast temperature")
-					log.Fatal(err)
+			if len(forecast.Properties.Timeseries) > 0 {
+				var temp float64
+
+				// try to get an entry for "current" hour
+				var foundCurrent bool
+				for _, entry := range forecast.Properties.Timeseries {
+					now := time.Now()
+					if entry.Time.Local().Day() == now.Local().Day() && entry.Time.Local().Hour() == now.Local().Hour() {
+						temp = entry.Data.Instant.Details.AirTemperature
+						foundCurrent = true
+						break
+					}
+				}
+				// else fallback to first entry
+				if !foundCurrent {
+					temp = forecast.Properties.Timeseries[0].Data.Instant.Details.AirTemperature
 				}
 
-				if err := hdb.InsertSensorValue(sensorId, int(value), time.Now()); err != nil {
+				// store temp
+				if err := hdb.InsertSensorValue(sensorId, int(temp), time.Now()); err != nil {
 					log.Println("Could not insert temperature value for forecast temperature")
 					log.Fatal(err)
 				}
-				log.Printf("Weather forecast temperature:%v for [%s/%s/%s] stored to database\n", value, lat, lon, alt)
+				log.Printf("Weather forecast temperature:%v for [%s/%s/%s] stored to database\n", temp, lat, lon, alt)
 			}
 
 			time.Sleep(time.Duration(rand.Intn(5)) * time.Minute)

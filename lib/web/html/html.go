@@ -220,7 +220,7 @@ func Alerts(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 func Forecasts(rw http.ResponseWriter, req *http.Request) {
 	lat, lon, alt := web.GetLocation(req)
 	page := &Page{
-		Title:  fmt.Sprintf("Home Automation - Forecasts - %s:%s", lat, lon),
+		Title:  fmt.Sprintf("Home Automation - Forecasts - %s/%s", lat, lon),
 		Active: "forecasts",
 	}
 
@@ -254,9 +254,9 @@ func Forecasts(rw http.ResponseWriter, req *http.Request) {
 		lon,
 		alt,
 		forecast,
-		time.Now(),
-		time.Now().AddDate(0, 0, 1),
-		time.Now().AddDate(0, 0, 2),
+		time.Now().Local(),
+		time.Now().Local().AddDate(0, 0, 1),
+		time.Now().Local().AddDate(0, 0, 2),
 	}
 	_ = web.Render().HTML(rw, http.StatusOK, "forecasts", page)
 }

@@ -22,8 +22,9 @@ var (
 func init() {
 	os.Setenv("PORT", "9090")
 
-	os.Setenv("DEFAULT_CANTON", "Bern")
-	os.Setenv("DEFAULT_CITY", "Bern")
+	os.Setenv("DEFAULT_LATITUDE", "46.9481")
+	os.Setenv("DEFAULT_LONGITUDE", "7.4474")
+	os.Setenv("DEFAULT_ALTITUDE", "549")
 
 	os.Setenv("AUTH_USERNAME", testUser)
 	os.Setenv("AUTH_PASSWORD", testPassword)
@@ -100,25 +101,23 @@ func Test_Main_Index(t *testing.T) {
 	assert.Contains(t, body, `<img src="/images/smart_temperature.png">`)
 }
 
-// TODO: fix this here!
-// func Test_Main_Forecasts(t *testing.T) {
-// 	response := httptest.NewRecorder()
-// 	req, err := http.NewRequest("GET", "/forecasts", nil)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
+func Test_Main_Forecasts(t *testing.T) {
+	response := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/forecasts", nil)
+	if err != nil {
+		t.Error(err)
+	}
 
-// 	n.ServeHTTP(response, req)
-// 	assert.Equal(t, http.StatusOK, response.Code)
+	n.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
 
-// 	body := response.Body.String()
-// 	assert.Contains(t, body, `<title>Home Automation - Forecasts - Bern</title>`)
-// 	assert.Contains(t, body, `<h1 class="title">Berne</h1>`)
-// 	assert.Contains(t, body, `<h2 class="subtitle">Switzerland</h2>`)
-// 	assert.Contains(t, body, `<p>549m</p>`)
-// 	assert.Contains(t, body, `<a href="https://www.google.ch/maps/place/46.94809%C2%B0+7.44744%C2%B0" target="_blank" rel="noopener noreferrer">46.94809°/7.44744°</a>`)
-// 	assert.Contains(t, body, `<p>Weather forecast from Yr, delivered by the Norwegian Meteorological Institute and the NRK<br/><a href="http://www.yr.no/place/Switzerland/Bern/Berne/">http://www.yr.no/place/Switzerland/Bern/Berne/</a></p>`)
-// }
+	body := response.Body.String()
+	assert.Contains(t, body, `<title>Home Automation - Forecasts - 46.9481/7.4474</title>`)
+	assert.Contains(t, body, `<h1 class="title">46.9481° / 7.4474°</h1>`)
+	assert.Contains(t, body, `<h2 class="subtitle">549m</h2>`)
+	assert.Contains(t, body, `<a href="https://www.google.ch/maps/place/46.9481%C2%B0+7.4474%C2%B0" target="_blank" rel="noopener noreferrer">🌍 Google Maps 💻️</a>`)
+	assert.Contains(t, body, `<p>Based on data from MET Norway<br/><a href="https://developer.yr.no/">https://developer.yr.no/</a></p>`)
+}
 
 func Test_Main_SensorTypes(t *testing.T) {
 	// ----------------------- Unauthorized -----------------------

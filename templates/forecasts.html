@@ -4,12 +4,11 @@
   <div class="container">
     <div class="columns">
       <div class="column is-narrow">
-        <h1 class="title">{{ .Content.Forecast.Location.Name }}</h1>
-        <h2 class="subtitle">{{ .Content.Forecast.Location.Country }}</h2>
+        <h1 class="title">{{ .Content.Latitude }}° / {{ .Content.Longitude }}°</h1>
+        <h2 class="subtitle">{{ .Content.Altitude }}m</h2>
       </div>
       <div class="column">
-        <p>{{ .Content.Forecast.Location.Location.Altitude }}m</p>
-        <p><a href="https://www.google.ch/maps/place/{{ .Content.Forecast.Location.Location.Latitude }}%C2%B0+{{ .Content.Forecast.Location.Location.Longitude }}%C2%B0" target="_blank" rel="noopener noreferrer">{{ .Content.Forecast.Location.Location.Latitude }}°/{{ .Content.Forecast.Location.Location.Longitude }}°</a></p>
+        <p><a href="https://www.google.ch/maps/place/{{ .Content.Latitude }}%C2%B0+{{ .Content.Longitude }}%C2%B0" target="_blank" rel="noopener noreferrer">🌍 Google Maps 💻️</a></p>
       </div>
     </div>
   </div>
@@ -24,19 +23,23 @@
         <tr>
           <th>Date</th>
           <th>Weather</th>
+          <th>Clouds</th>
           <th>Wind</th>
           <th>Temperature</th>
+          <th>Humidity</th>
           <th>Pressure</th>
         </tr>
       </thead>
       <tbody>
-        {{ range $i, $e := .Content.Forecast.Forecast.Tabular.Time }}{{ if eq $e.From.Day $.Content.Today.Day }}
+        {{ range $i, $e := .Content.Forecast.Properties.Timeseries }}{{ if eq $e.Time.Local.Day $.Content.Today.Day }}
         <tr {{ if eq $i 0 }}class="is-selected"{{ end }}>
-          <td>{{ $e.From.Format `15:04` }} - {{ $e.To.Format `15:04` }}</td>
-          <td>{{ $e.Symbol.Name }}<br/>{{ $e.Precipitation.Value }} mm</td>
-          <td>{{ $e.WindSpeed.Name }}<br/>{{ $e.WindSpeed.MPS }} mps<br/>{{ $e.WindDirection.Name }}</td>
-          <td>{{ $e.Temperature.Value }}° {{ $e.Temperature.Unit }}</td>
-          <td>{{ $e.Pressure.Value }} {{ $e.Pressure.Unit }}</td>
+          <td>{{ $e.Time.Local.Format `15:04` }}</td>
+          <td>{{ $e.Data.Next1Hour.Summary.SymbolCode }}<br/>{{ $e.Data.Next1Hour.Details.PrecipitationAmount }} {{ $.Content.Forecast.Properties.Meta.Units.PrecipitationAmount }}</td>
+          <td>{{ $e.Data.Instant.Details.CloudAreaFraction }} {{ $.Content.Forecast.Properties.Meta.Units.CloudAreaFraction }}</td>
+          <td>{{ $e.Data.Instant.Details.WindSpeed }} {{ $.Content.Forecast.Properties.Meta.Units.WindSpeed }}</td>
+          <td>{{ $e.Data.Instant.Details.AirTemperature }}° {{ $.Content.Forecast.Properties.Meta.Units.AirTemperature }}</td>
+          <td>{{ $e.Data.Instant.Details.RelativeHumidity }} {{ $.Content.Forecast.Properties.Meta.Units.RelativeHumidity }}</td>
+          <td>{{ $e.Data.Instant.Details.AirPressureAtSeaLevel }} {{ $.Content.Forecast.Properties.Meta.Units.AirPressureAtSeaLevel }}</td>
         </tr>
         {{ end }}{{ end }}
       </tbody>
@@ -48,19 +51,23 @@
         <tr>
           <th>Date</th>
           <th>Weather</th>
+          <th>Clouds</th>
           <th>Wind</th>
           <th>Temperature</th>
+          <th>Humidity</th>
           <th>Pressure</th>
         </tr>
       </thead>
       <tbody>
-        {{ range $i, $e := .Content.Forecast.Forecast.Tabular.Time }}{{ if eq $e.From.Day $.Content.Tomorrow.Day }}
+        {{ range $i, $e := .Content.Forecast.Properties.Timeseries }}{{ if eq $e.Time.Local.Day $.Content.Tomorrow.Day }}
         <tr>
-          <td>{{ $e.From.Format `15:04` }} - {{ $e.To.Format `15:04` }}</td>
-          <td>{{ $e.Symbol.Name }}<br/>{{ $e.Precipitation.Value }} mm</td>
-          <td>{{ $e.WindSpeed.Name }}<br/>{{ $e.WindSpeed.MPS }} mps<br/>{{ $e.WindDirection.Name }}</td>
-          <td>{{ $e.Temperature.Value }}° {{ $e.Temperature.Unit }}</td>
-          <td>{{ $e.Pressure.Value }} {{ $e.Pressure.Unit }}</td>
+          <td>{{ $e.Time.Local.Format `15:04` }}</td>
+          <td>{{ $e.Data.Next1Hour.Summary.SymbolCode }}<br/>{{ $e.Data.Next1Hour.Details.PrecipitationAmount }} {{ $.Content.Forecast.Properties.Meta.Units.PrecipitationAmount }}</td>
+          <td>{{ $e.Data.Instant.Details.CloudAreaFraction }} {{ $.Content.Forecast.Properties.Meta.Units.CloudAreaFraction }}</td>
+          <td>{{ $e.Data.Instant.Details.WindSpeed }} {{ $.Content.Forecast.Properties.Meta.Units.WindSpeed }}</td>
+          <td>{{ $e.Data.Instant.Details.AirTemperature }}° {{ $.Content.Forecast.Properties.Meta.Units.AirTemperature }}</td>
+          <td>{{ $e.Data.Instant.Details.RelativeHumidity }} {{ $.Content.Forecast.Properties.Meta.Units.RelativeHumidity }}</td>
+          <td>{{ $e.Data.Instant.Details.AirPressureAtSeaLevel }} {{ $.Content.Forecast.Properties.Meta.Units.AirPressureAtSeaLevel }}</td>
         </tr>
         {{ end }}{{ end }}
       </tbody>
@@ -72,19 +79,23 @@
         <tr>
           <th>Date</th>
           <th>Weather</th>
+          <th>Clouds</th>
           <th>Wind</th>
           <th>Temperature</th>
+          <th>Humidity</th>
           <th>Pressure</th>
         </tr>
       </thead>
       <tbody>
-        {{ range $i, $e := .Content.Forecast.Forecast.Tabular.Time }}{{ if eq $e.From.Day $.Content.DayAfterTomorrow.Day }}
+        {{ range $i, $e := .Content.Forecast.Properties.Timeseries }}{{ if eq $e.Time.Day $.Content.DayAfterTomorrow.Day }}
         <tr>
-          <td>{{ $e.From.Format `15:04` }} - {{ $e.To.Format `15:04` }}</td>
-          <td>{{ $e.Symbol.Name }}<br/>{{ $e.Precipitation.Value }} mm</td>
-          <td>{{ $e.WindSpeed.Name }}<br/>{{ $e.WindSpeed.MPS }} mps<br/>{{ $e.WindDirection.Name }}</td>
-          <td>{{ $e.Temperature.Value }}° {{ $e.Temperature.Unit }}</td>
-          <td>{{ $e.Pressure.Value }} {{ $e.Pressure.Unit }}</td>
+          <td>{{ $e.Time.Local.Format `15:04` }}</td>
+          <td>{{ $e.Data.Next1Hour.Summary.SymbolCode }}<br/>{{ $e.Data.Next1Hour.Details.PrecipitationAmount }} {{ $.Content.Forecast.Properties.Meta.Units.PrecipitationAmount }}</td>
+          <td>{{ $e.Data.Instant.Details.CloudAreaFraction }} {{ $.Content.Forecast.Properties.Meta.Units.CloudAreaFraction }}</td>
+          <td>{{ $e.Data.Instant.Details.WindSpeed }} {{ $.Content.Forecast.Properties.Meta.Units.WindSpeed }}</td>
+          <td>{{ $e.Data.Instant.Details.AirTemperature }}° {{ $.Content.Forecast.Properties.Meta.Units.AirTemperature }}</td>
+          <td>{{ $e.Data.Instant.Details.RelativeHumidity }} {{ $.Content.Forecast.Properties.Meta.Units.RelativeHumidity }}</td>
+          <td>{{ $e.Data.Instant.Details.AirPressureAtSeaLevel }} {{ $.Content.Forecast.Properties.Meta.Units.AirPressureAtSeaLevel }}</td>
         </tr>
         {{ end }}{{ end }}
       </tbody>

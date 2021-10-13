@@ -9,17 +9,13 @@ type WeatherForecast struct {
 	Timestamp time.Time `json:"time"`
 
 	Location struct {
-		Coordinates struct {
-			Latitude  float64 `json:"0"`
-			Longitude float64 `json:"1"`
-			Altitude  float64 `json:"2"`
-		} `json:"coordinates"`
+		Coordinates []float64 `json:"coordinates"`
 	} `json:"geometry"`
 
 	Properties struct {
 		Meta struct {
 			UpdatedAt time.Time `json:"updated_at"`
-			Meta      struct {
+			Units     struct {
 				AirPressureAtSeaLevel string `json:"air_pressure_at_sea_level"`
 				AirTemperature        string `json:"air_temperature"`
 				CloudAreaFraction     string `json:"cloud_area_fraction"`
@@ -30,8 +26,8 @@ type WeatherForecast struct {
 			} `json:"units"`
 		} `json:"meta"`
 		Timeseries []struct {
-			Timestamp time.Time `json:"time"`
-			Data      struct {
+			Time time.Time `json:"time"`
+			Data struct {
 				Instant struct {
 					Details struct {
 						AirPressureAtSeaLevel float64 `json:"air_pressure_at_sea_level"`
