@@ -59,7 +59,10 @@ func setupDatabase() database.HomeInfoDB {
 	// background jobs
 	spawnAlertMonitor(hdb)
 	spawnHousekeeping(hdb)
-	spawnForecastCollection(hdb)
+
+	// https://developer.yr.no/doc/guides/getting-started-from-forecast-xml/
+	// https://developer.yr.no/doc/TermsOfService/
+	//spawnForecastCollection(hdb) // TODO: fix this, change to new JSON format for YR.NO API
 
 	return hdb
 }
