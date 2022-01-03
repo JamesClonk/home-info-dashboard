@@ -101,7 +101,7 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 
 		// graph labels
 		for _, value := range values {
-			graphLabels = append(graphLabels, value.Timestamp.Format("02.01. - 15:04"))
+			graphLabels = append(graphLabels, value.Timestamp.Format("02.01.2006 - 15:04"))
 		}
 
 		type Room struct {

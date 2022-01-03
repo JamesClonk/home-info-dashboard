@@ -75,7 +75,7 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 				if len(hourlyLabels) == 0 && sensor.Id == config.Get().LivingRoom.TemperatureSensorID {
 					// collect labels
 					for _, value := range values {
-						hourlyLabels = append(hourlyLabels, value.Timestamp.Format("02.01. - 15:04"))
+						hourlyLabels = append(hourlyLabels, value.Timestamp.Format("02.01.2006 - 15:04"))
 					}
 				}
 
