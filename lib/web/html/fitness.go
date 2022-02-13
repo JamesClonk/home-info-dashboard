@@ -154,7 +154,7 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 			Error(rw, err)
 			return
 		}
-		values, err := hdb.GetDailyAverages(bodyfatSensor.Id, 99)
+		values, err = hdb.GetDailyAverages(bodyfatSensor.Id, 99)
 		if err != nil {
 			Error(rw, err)
 			return
