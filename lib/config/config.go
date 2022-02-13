@@ -85,6 +85,13 @@ func Get() *Configuration {
 			log.Fatal(err)
 		}
 		config.Fitness.WeightID = int(sensorId)
+		
+		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_BODYFAT_SENSOR_ID"), 10, 64)
+		if err != nil {
+			log.Printf("Could not parse weight sensor id: [%v]\n", sensorId)
+			log.Fatal(err)
+		}
+		config.Fitness.BodyFatID = int(sensorId)
 
 		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_CALORIES_SENSOR_ID"), 10, 64)
 		if err != nil {
