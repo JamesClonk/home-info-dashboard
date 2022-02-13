@@ -10,6 +10,7 @@ type Configuration struct {
 	}
 	Fitness struct {
 		WeightID   int
+		BodyFatID   int
 		CaloriesID int
 	}
 }
