@@ -22,9 +22,10 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 			// parse the form and try to read the values from POST data
 			_ = req.ParseForm()
 			weight := req.Form.Get("weight")
+			bodyfat := req.Form.Get("bodyfat")
 			calories := req.Form.Get("calories")
 			day := req.Form.Get("day")
-			if (len(weight) > 0 || len(calories) > 0) && len(day) > 0 {
+			if (len(weight) > 0 || len(bodyfat) > 0 || len(calories) > 0) && len(day) > 0 {
 				timestamp := time.Now()
 				if day == "yesterday" {
 					timestamp = timestamp.Add(-24 * time.Hour)
@@ -55,6 +56,36 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 					if value > 0 {
 						if err := hdb.InsertSensorData(&database.SensorData{
 							Sensor:    *weightSensor,
+							Value:     int64(value * 10),
+							Timestamp: &timestamp,
+						}); err != nil {
+							Error(rw, err)
+							return
+						}
+					}
+				}
+				if len(bodyfat) > 0 && bodyfat != "0" {
+					bodyfatSensor, err := hdb.GetSensorById(config.Get().Fitness.BodyFatID)
+					if err != nil {
+						Error(rw, err)
+						return
+					}
+
+					// evaluate possible expression
+					expression, err := govaluate.NewEvaluableExpression(bodyfat)
+					if err != nil {
+						Error(rw, err)
+						return
+					}
+					result, err := expression.Evaluate(nil)
+					if err != nil {
+						Error(rw, err)
+						return
+					}
+					value, _ := result.(float64)
+					if value > 0 {
+						if err := hdb.InsertSensorData(&database.SensorData{
+							Sensor:    *bodyfatSensor,
 							Value:     int64(value * 10),
 							Timestamp: &timestamp,
 						}); err != nil {
@@ -103,6 +134,7 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 		// collect the graph data
 		var graphLabels []string
 		graphWeight := make(map[database.Sensor][]*database.SensorValue)
+		graphBodyFat := make(map[database.Sensor][]*database.SensorValue)
 		graphCalories := make(map[database.Sensor][]*database.SensorValue)
 
 		weightSensor, err := hdb.GetSensorById(config.Get().Fitness.WeightID)
@@ -116,6 +148,18 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 			return
 		}
 		graphWeight[*weightSensor] = values
+		
+		bodyfatSensor, err := hdb.GetSensorById(config.Get().Fitness.BodyFatID)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		values, err := hdb.GetDailyAverages(bodyfatSensor.Id, 99)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		graphBodyFat[*bodyfatSensor] = values
 
 		caloriesSensor, err := hdb.GetSensorById(config.Get().Fitness.CaloriesID)
 		if err != nil {
@@ -136,7 +180,7 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 			return
 		}
 
-		// set labels & target weight
+		// set labels & target weight / body fat
 		for d := 0; d < 99; d++ {
 			timestamp := time.Now().Add(-time.Duration(d) * 24 * time.Hour)
 			graphLabels = append(graphLabels, timestamp.Format("02.01.2006"))
@@ -150,25 +194,51 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 				Value:     730,
 				Timestamp: &timestamp,
 			})
+			
+			// add target body fat
+			targetBodyFat := database.Sensor{
+				Name:       "target",
+				SensorType: bodyfatSensor.SensorType,
+			}
+			graphBodyFat[targetBodyFat] = append(graphBodyFat[targetBodyFat], &database.SensorValue{
+				Value:     190,
+				Timestamp: &timestamp,
+			})
 		}
 
 		// fill missing values
-		var lastValue int64
+		var lastWeightValue, lastBodyFatValue int64
 		for _, label := range graphLabels {
 			var found bool
 			for _, value := range graphWeight[*weightSensor] {
 				if value.Timestamp.Format("02.01.2006") == label {
 					found = true
-					lastValue = value.Value
+					lastWeightValue = value.Value
 				}
 			}
 			if !found {
 				timestamp, _ := time.Parse("02.01.2006", label)
 				graphWeight[*weightSensor] = append(graphWeight[*weightSensor], &database.SensorValue{
-					Value:     lastValue,
+					Value:     lastWeightValue,
 					Timestamp: &timestamp,
 				})
 			}
+			
+			found = false
+			for _, value := range graphBodyFat[*bodyfatSensor] {
+				if value.Timestamp.Format("02.01.2006") == label {
+					found = true
+					lastBodyFatValue = value.Value
+				}
+			}
+			if !found {
+				timestamp, _ := time.Parse("02.01.2006", label)
+				graphBodyFat[*bodyfatSensor] = append(graphBodyFat[*bodyfatSensor], &database.SensorValue{
+					Value:     lastBodyFatValue,
+					Timestamp: &timestamp,
+				})
+			}
+			
 			found = false
 			for _, value := range graphCalories[*caloriesSensor] {
 				if value.Timestamp.Format("02.01.2006") == label {
@@ -187,6 +257,9 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 		sort.Slice(graphWeight[*weightSensor][:], func(i, j int) bool {
 			return graphWeight[*weightSensor][i].Timestamp.After(*graphWeight[*weightSensor][j].Timestamp)
 		})
+		sort.Slice(graphBodyFat[*bodyfatSensor][:], func(i, j int) bool {
+			return graphBodyFat[*bodyfatSensor][i].Timestamp.After(*graphBodyFat[*bodyfatSensor][j].Timestamp)
+		})
 		sort.Slice(graphCalories[*caloriesSensor][:], func(i, j int) bool {
 			return graphCalories[*caloriesSensor][i].Timestamp.After(*graphCalories[*caloriesSensor][j].Timestamp)
 		})
@@ -198,23 +271,27 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 		type Graphs struct {
 			Labels   []string
 			Weight   map[database.Sensor][]*database.SensorValue
+			BodyFat  map[database.Sensor][]*database.SensorValue
 			Calories map[database.Sensor][]*database.SensorValue
 		}
 
 		graphs := Graphs{
 			Labels:   graphLabels,
 			Weight:   graphWeight,
+			BodyFat:  graphBodyFat,
 			Calories: graphCalories,
 		}
 
 		page.Content = struct {
 			Graphs        Graphs
 			Weight        *database.SensorValue
+			BodyFat       *database.SensorValue
 			Calories      *database.SensorValue
 			CalorieIntake []*database.SensorValue
 		}{
 			Graphs:        graphs,
 			Weight:        graphWeight[*weightSensor][0],
+			BodyFat:       graphBodyFat[*bodyfatSensor][0],
 			Calories:      graphCalories[*caloriesSensor][0],
 			CalorieIntake: calorieIntake,
 		}
