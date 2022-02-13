@@ -30,7 +30,7 @@
           <input type="submit" class="button is-info" value="Nom Nom">
         </div>
       </div>
-      <label class="label">Weight:</label>
+      <label class="label">Weight / Body Fat:</label>
       <div class="field has-addons">
         <div class="control has-icons-left">
           <span class="input is-primary is-rounded">
@@ -38,6 +38,14 @@
           </span>
           <span class="icon is-small is-left">
             <i class="fa fa-balance-scale"></i>
+          </span>
+        </div>
+        <div class="control has-icons-left">
+          <span class="input is-primary is-rounded">
+            <input type="text" name="bodyfat" value="">
+          </span>
+          <span class="icon is-small is-left">
+            <i class="fa fa-pie-chart"></i>
           </span>
         </div>
         <div class="control">
@@ -56,6 +64,9 @@
       </div>
       <div class="column">
         <h5 class="subtitle is-5">Weight: {{ divide .Content.Weight.Value 10 }} kg <small class="has-text-warning">({{ .Content.Weight.Timestamp.Format "2006-01-02" }})</small></h5>
+      </div>
+      <div class="column">
+        <h5 class="subtitle is-5">Body Fat: {{ .Content.BodyFat.Value }} % <small class="has-text-warning">({{ .Content.BodyFat.Timestamp.Format "2006-01-02" }})</small></h5>
       </div>
       <div class="column">
         <h5 class="subtitle is-5">Calories: {{ .Content.Calories.Value }} kcal <small class="has-text-warning">({{ .Content.Calories.Timestamp.Format "2006-01-02" }})</small></h5>
