@@ -2,7 +2,7 @@
   <div class="container">
     <form action="/message_queue" method="post">
       <label class="label">New Event:</label>
-      <div class="field has-addons">
+      <div class="field has-addons is-horizontal">
         <div class="control has-icons-left">
           <span class="select is-primary is-rounded">
             <select name="queue">
@@ -21,20 +21,22 @@
             <i class="fa fa-envelope-o"></i>
           </span>
         </div>
+      </div>
+      <div class="field has-addons is-horizontal">
         <div class="control has-icons-left">
-          <span class="select is-info is-rounded">
+          <span class="select is-medium is-info is-rounded">
             <select name="message">
               <option>toggle</option>
               <option>on</option>
               <option>off</option>
             </select>
           </span>
-          <span class="icon is-small is-left">
+          <span class="icon is-medium is-left">
             <i class="fa fa-file-text-o"></i>
           </span>
         </div>
         <div class="control">
-          <input type="submit" class="button is-info" value="Create">
+          <input type="submit" class="button is-medium is-info is-rounded" value="Create">
         </div>
       </div>
     </form>

@@ -30,7 +30,7 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 				if day == "yesterday" {
 					timestamp = timestamp.Add(-24 * time.Hour)
 				}
-				if day == "the day before" {
+				if day == "ereyesterday" {
 					timestamp = timestamp.Add(-48 * time.Hour)
 				}
 
@@ -148,7 +148,7 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 			return
 		}
 		graphWeight[*weightSensor] = values
-		
+
 		bodyfatSensor, err := hdb.GetSensorById(config.Get().Fitness.BodyFatID)
 		if err != nil {
 			Error(rw, err)
@@ -194,7 +194,7 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 				Value:     730,
 				Timestamp: &timestamp,
 			})
-			
+
 			// add target body fat
 			targetBodyFat := database.Sensor{
 				Name:       "target",
@@ -223,7 +223,7 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 					Timestamp: &timestamp,
 				})
 			}
-			
+
 			found = false
 			for _, value := range graphBodyFat[*bodyfatSensor] {
 				if value.Timestamp.Format("02.01.2006") == label {
@@ -238,7 +238,7 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 					Timestamp: &timestamp,
 				})
 			}
-			
+
 			found = false
 			for _, value := range graphCalories[*caloriesSensor] {
 				if value.Timestamp.Format("02.01.2006") == label {
