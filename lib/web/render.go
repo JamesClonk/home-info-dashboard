@@ -77,6 +77,10 @@ func init() {
 						strings.Contains(strings.ToLower(name), "scale") {
 						return "🏋️"
 					}
+					if strings.Contains(strings.ToLower(name), "body fat") ||
+						strings.Contains(strings.ToLower(name), "bodyfat") {
+						return "🏃"
+					}
 					if strings.Contains(strings.ToLower(name), "calorie") ||
 						strings.Contains(strings.ToLower(name), "food") {
 						return "🍕"

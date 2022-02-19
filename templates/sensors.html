@@ -44,7 +44,7 @@
             {{ range . }}
             <tr>
               <td>{{ .Timestamp.Format `2006-01-02 15:04:05` }}</td>
-              <td>{{ if eq .Sensor.SensorType.Symbol "kg" }}{{ divide .Value 10 }}{{ else }}{{ .Value }}{{ end }}{{ .Sensor.SensorType.Symbol }}</td>
+              <td>{{ if or (eq .Sensor.SensorType.Type "weight") (eq .Sensor.SensorType.Type "body fat") }}{{ divide .Value 10 }}{{ else }}{{ .Value }}{{ end }}{{ .Sensor.SensorType.Symbol }}</td>
             </tr>
             {{ end }}
             {{ end }}
