@@ -12,9 +12,8 @@ workflows:
 jobs:
   build:
     docker:
-    - image: circleci/golang:1.15
-
-    working_directory: /go/src/github.com/JamesClonk/home-info-dashboard
+    - image: cimg/go:1.19
+    working_directory: ~/home-info-dashboard
 
     steps:
     - setup_remote_docker:
