@@ -1,6 +1,6 @@
 # Home Automation :house_with_garden:
 
-[![CircleCI](https://circleci.com/gh/JamesClonk/home-info-dashboard.svg?style=svg)](https://circleci.com/gh/JamesClonk/home-info-dashboard)
-[![Platform](https://img.shields.io/badge/platform-Cloud%20Foundry-lightgrey)](https://developer.swisscom.com/)
+[![Build](https://img.shields.io/github/actions/workflow/status/JamesClonk/home-info-dashboard/build.yml?branch=master&label=Build)](https://github.com/JamesClonk/home-info-dashboard/actions/workflows/build.yml)
+[![Platform](https://img.shields.io/badge/Platform-Kubernetes-blue)](https://kubernetes.io/)
 
 The management dashboard for all my *Raspberry Pi / Arduino / ESP8266* stuff!
