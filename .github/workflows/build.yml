@@ -19,7 +19,7 @@ jobs:
     - uses: actions/setup-go@v4
       with:
         go-version-file: 'go.mod'
-        go-version: '1.19' # fallback if no version in go.mod present
+        # go-version: '1.19' # use as fallback if no version in go.mod
 
     # login to dockerhub
     - name: dockerhub login
