@@ -40,6 +40,8 @@ func init() {
 						return "💡"
 					case "weather forecast":
 						return "🌧️"
+					case "carbon dioxide":
+						return "🤯"
 					}
 
 					if strings.Contains(strings.ToLower(name), "chili") ||
