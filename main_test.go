@@ -577,7 +577,7 @@ func Test_Main_Alerts(t *testing.T) {
 
 	body = response.Body.String()
 	assert.Contains(t, body, `{
-  "id": 27,
+  "id": 28,
   "sensor": {
     "id": 3,
     "name": "temperature #1",
