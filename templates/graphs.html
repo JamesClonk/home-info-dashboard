@@ -240,6 +240,85 @@
 
 <section class="section is-paddingless">
   <div class="container" style="min-width: 800px;">
+    <label class="label">🕓  48 hours - <span class="has-text-warning">carbon dioxide</span></label>
+    <canvas id="co2_hour_chart" width="100%" height="25%"></canvas>
+    <script>
+    var co2Colors = palette('cb-YlOrRd', 3).map(function(hex) { return '#' + hex; });
+    var co2ColorIndex = co2Colors.length;
+    var co2Color = function() {
+        if (co2ColorIndex == 0) {
+            co2ColorIndex = co2Colors.length;
+        }
+        var color = co2Colors[co2ColorIndex-1]
+        co2ColorIndex--;
+        return color;
+    }
+
+    var co2_hour_data = {
+        labels: [{{ range $index, $element := .Content.HourlyLabels }}{{ if $index }},{{ end }}"{{ $element }}"{{ end }}],
+        datasets: [
+        {{ range $sensor, $data := .Content.HourlyCo2 }}
+            {
+                label: "{{ $sensor }}",
+                yAxisID: 'C',
+                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
+                borderColor: co2Color()
+            },
+        {{ end }}
+        ]
+    };
+
+    var ctx = document.getElementById("co2_hour_chart").getContext('2d');
+    var co2_hour_chart = new Chart.Line(ctx, {
+        data: co2_hour_data,
+        options: {
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                    label: function (tooltipItem, d) {
+                        return tooltipItem.yLabel + 'ppm - ' + co2_hour_data.datasets[tooltipItem.datasetIndex].label
+                    }
+                }
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    type: "time",
+                    time: {
+                        format: 'DD.MM.YYYY - HH:mm',
+                        tooltipFormat: 'll HH:mm'
+                    },
+                    scaleLabel: {
+                        display: true
+                    }
+                }],
+                yAxes: [{
+                    id: 'C',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Carbon Dioxide (ppm)'
+                    },
+                    type: 'linear',
+                    position: 'left',
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return value + 'ppm';
+                        }
+                    }
+                }]
+            }
+        }
+    });
+    </script>
+  </div>
+</section>
+
+<section class="section is-paddingless">
+  <div class="container" style="min-width: 800px;">
     <label class="label">🗓️  4 weeks - <span class="has-text-danger">temperature</span></label>
     <canvas id="temp_weekly_chart" width="100%" height="25%"></canvas>
     <script>
@@ -465,6 +544,85 @@
                     ticks: {
                         callback: function(value, index, values) {
                             return value + '%';
+                        }
+                    }
+                }]
+            }
+        }
+    });
+    </script>
+  </div>
+</section>
+
+<section class="section is-paddingless">
+  <div class="container" style="min-width: 800px;">
+    <label class="label">🗓️  4 weeks - <span class="has-text-warning">carbon dioxide</span></label>
+    <canvas id="co2_weekly_chart" width="100%" height="25%"></canvas>
+    <script>
+    var co2Colors = palette('cb-YlOrRd', 3).map(function(hex) { return '#' + hex; });
+    var co2ColorIndex = co2Colors.length;
+    var co2Color = function() {
+        if (co2ColorIndex == 0) {
+            co2ColorIndex = co2Colors.length;
+        }
+        var color = co2Colors[co2ColorIndex-1]
+        co2ColorIndex--;
+        return color;
+    }
+
+    var co2_weekly_data = {
+        labels: [{{ range $index, $element := .Content.WeeklyLabels }}{{ if $index }},{{ end }}"{{ $element }}"{{ end }}],
+        datasets: [
+        {{ range $sensor, $data := .Content.WeeklyCo2 }}
+            {
+                label: "{{ $sensor }}",
+                yAxisID: 'C',
+                data: [{{ range $index, $element := $data }}{{ if $index }},{{ end }}{{ $element.Value }}{{ end }}],
+                borderColor: co2Color()
+            },
+        {{ end }}
+        ]
+    };
+
+    var ctx = document.getElementById("co2_weekly_chart").getContext('2d');
+    var co2_weekly_chart = new Chart.Line(ctx, {
+        data: co2_weekly_data,
+        options: {
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                    label: function (tooltipItem, d) {
+                        return tooltipItem.yLabel + 'ppm - ' + co2_weekly_data.datasets[tooltipItem.datasetIndex].label
+                    }
+                }
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    type: "time",
+                    time: {
+                        format: 'DD.MM.YYYY - HH:mm',
+                        tooltipFormat: 'll HH:mm'
+                    },
+                    scaleLabel: {
+                        display: true
+                    }
+                }],
+                yAxes: [{
+                    id: 'C',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Carbon Dioxide (ppm)'
+                    },
+                    type: 'linear',
+                    position: 'left',
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return value + 'ppm';
                         }
                     }
                 }]

@@ -17,6 +17,9 @@ VALUES('calories', 'kilocalorie', 'kcal', 'Shows calories');
 INSERT INTO sensor_type (type, unit, symbol, description)
 VALUES('body fat', 'percentage', '%', 'Shows body fat');
 
+INSERT INTO sensor_type (type, unit, symbol, description)
+VALUES('co2', 'parts per million', 'ppm', 'Shows carbon dioxide');
+
 -- sensors
 INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
 VALUES(1, 'living room', (select pk_sensor_type_id from sensor_type where type = 'temperature'), 'Shows temperature in living room');
@@ -80,3 +83,6 @@ VALUES(20, 'food intake', (select pk_sensor_type_id from sensor_type where type 
 
 INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
 VALUES(21, 'body fat', (select pk_sensor_type_id from sensor_type where type = 'body fat'), 'Shows body fat measurement');
+
+INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
+VALUES(22, 'co2', (select pk_sensor_type_id from sensor_type where type = 'co2'), 'Shows carbon dioxide measurement');

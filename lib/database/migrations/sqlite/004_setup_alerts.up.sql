@@ -76,3 +76,6 @@ VALUES(25, 17, 'plant room low humidity', 'Alerts if plant room humidity gets to
 
 INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
 VALUES(26, 17, 'plant room too humid', 'Alerts if plant room humidity gets too much', '5;>;65', '*/10 * * * *', 300);
+
+INSERT INTO alert (pk_alert_id, fk_sensor_id, name, description, condition, execution, silence_duration)
+VALUES(27, 22, 'co2 too high', 'Alerts if carbon dioxide gets too high', '3;>;1600', '*/15 * * * *', 720);

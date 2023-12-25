@@ -59,6 +59,8 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 		hourlyHumidity := make(map[string][]*database.SensorValue)
 		weeklyMoisture := make(map[string][]*database.SensorValue)
 		hourlyMoisture := make(map[string][]*database.SensorValue)
+		weeklyCo2 := make(map[string][]*database.SensorValue)
+		hourlyCo2 := make(map[string][]*database.SensorValue)
 		for _, sensor := range sensors {
 			switch sensor.SensorType.Type {
 			case "temperature":
@@ -126,6 +128,23 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 					return
 				}
 				weeklyMoisture[sensor.Name] = values
+			case "co2":
+				values, err := hdb.GetHourlyAverages(sensor.Id, 48)
+				if err != nil {
+					Error(rw, err)
+					return
+				}
+				if len(values) == 0 { // dont show empty sensors
+					continue
+				}
+				hourlyCo2[sensor.Name] = values
+
+				values, err = hdb.GetDailyAverages(sensor.Id, 28)
+				if err != nil {
+					Error(rw, err)
+					return
+				}
+				weeklyCo2[sensor.Name] = values
 			}
 		}
 
@@ -133,19 +152,23 @@ func Graphs(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Requ
 			HourlyTemperature map[string][]*database.SensorValue
 			HourlyHumidity    map[string][]*database.SensorValue
 			HourlyMoisture    map[string][]*database.SensorValue
+			HourlyCo2         map[string][]*database.SensorValue
 			HourlyLabels      []string
 			WeeklyTemperature map[string][]*database.SensorValue
 			WeeklyHumidity    map[string][]*database.SensorValue
 			WeeklyMoisture    map[string][]*database.SensorValue
+			WeeklyCo2         map[string][]*database.SensorValue
 			WeeklyLabels      []string
 		}{
 			hourlyTemperature,
 			hourlyHumidity,
 			hourlyMoisture,
+			hourlyCo2,
 			hourlyLabels,
 			weeklyTemperature,
 			weeklyHumidity,
 			weeklyMoisture,
+			weeklyCo2,
 			weeklyLabels,
 		}
 
