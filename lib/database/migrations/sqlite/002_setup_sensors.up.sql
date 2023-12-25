@@ -85,4 +85,4 @@ INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
 VALUES(21, 'body fat', (select pk_sensor_type_id from sensor_type where type = 'body fat'), 'Shows body fat measurement');
 
 INSERT INTO sensor (pk_sensor_id, name, fk_sensor_type_id, description)
-VALUES(22, 'co2', (select pk_sensor_type_id from sensor_type where type = 'co2'), 'Shows carbon dioxide measurement');
+VALUES(22, 'carbon dioxide', (select pk_sensor_type_id from sensor_type where type = 'co2'), 'Shows carbon dioxide measurement');
