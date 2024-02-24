@@ -75,6 +75,15 @@
         <h5 class="subtitle is-5">{{ range .Content.CalorieIntake }}{{ .Value }} <small class="has-text-info" style="font-size: 0.8rem">({{ .Timestamp.Format "15:04" }})</small>, {{ end }}</h5>
       </div>
     </div>
+    <div class="columns">
+      <div class="column is-one-quarter">
+        <h4 class="title is-4">⌀ last weeks:</h4>
+      </div>
+      <div class="column is-three-quarters">
+        <h5 class="subtitle is-5">{{ range .Content.CalorieAvgWeekly }}{{ . }} <small style="font-size: 0.8rem">kcal</small>,  {{ end }}</h5>
+      </div>
+      </div>
+    </div>
   </div>
 </section>
 

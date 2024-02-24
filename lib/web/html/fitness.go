@@ -268,6 +268,20 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 			return calorieIntake[i].Timestamp.Before(*calorieIntake[j].Timestamp)
 		})
 
+		// calculate weekly calorie averages
+		calorieAvgWeekly := make([]int, 0)
+		daysValue := 0
+		for i, day := range graphCalories[*caloriesSensor] {
+			daysValue = daysValue + int(day.Value)
+			if i%7 == 0 && i > 0 {
+				calorieAvgWeekly = append(calorieAvgWeekly, int(daysValue/7))
+				daysValue = 0
+			}
+			if i > 42 {
+				break
+			}
+		}
+
 		type Graphs struct {
 			Labels   []string
 			Weight   map[database.Sensor][]*database.SensorValue
@@ -283,17 +297,19 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 		}
 
 		page.Content = struct {
-			Graphs        Graphs
-			Weight        *database.SensorValue
-			BodyFat       *database.SensorValue
-			Calories      *database.SensorValue
-			CalorieIntake []*database.SensorValue
+			Graphs           Graphs
+			Weight           *database.SensorValue
+			BodyFat          *database.SensorValue
+			Calories         *database.SensorValue
+			CalorieIntake    []*database.SensorValue
+			CalorieAvgWeekly []int
 		}{
-			Graphs:        graphs,
-			Weight:        graphWeight[*weightSensor][0],
-			BodyFat:       graphBodyFat[*bodyfatSensor][0],
-			Calories:      graphCalories[*caloriesSensor][0],
-			CalorieIntake: calorieIntake,
+			Graphs:           graphs,
+			Weight:           graphWeight[*weightSensor][0],
+			BodyFat:          graphBodyFat[*bodyfatSensor][0],
+			Calories:         graphCalories[*caloriesSensor][0],
+			CalorieIntake:    calorieIntake,
+			CalorieAvgWeekly: calorieAvgWeekly,
 		}
 		_ = web.Render().HTML(rw, http.StatusOK, "fitness", page)
 	}
