@@ -1,6 +1,7 @@
 package html
 
 import (
+	"fmt"
 	"net/http"
 	"sort"
 	"time"
@@ -53,7 +54,7 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 						return
 					}
 					value, _ := result.(float64)
-					if value > 0 {
+					if value >= 66 && value <= 86 { // guard against implausible values, we don't want to be anorexic nor obese
 						if err := hdb.InsertSensorData(&database.SensorData{
 							Sensor:    *weightSensor,
 							Value:     int64(value * 10),
@@ -62,6 +63,9 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 							Error(rw, err)
 							return
 						}
+					} else {
+						Error(rw, fmt.Errorf("Body weight [%v kg] exceeds bounds, what the heck is wrong with you?!", value))
+						return
 					}
 				}
 				if len(bodyfat) > 0 && bodyfat != "0" {
@@ -83,7 +87,7 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 						return
 					}
 					value, _ := result.(float64)
-					if value > 0 {
+					if value >= 10 && value <= 26 { // guard against implausible values
 						if err := hdb.InsertSensorData(&database.SensorData{
 							Sensor:    *bodyfatSensor,
 							Value:     int64(value * 10),
@@ -92,6 +96,9 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 							Error(rw, err)
 							return
 						}
+					} else {
+						Error(rw, fmt.Errorf("Body fat [%v%%] exceeds bounds, what the heck is wrong with you?!", value))
+						return
 					}
 				}
 				if len(calories) > 0 && calories != "0" {
@@ -113,7 +120,7 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 						return
 					}
 					value, _ := result.(float64)
-					if value > 0 {
+					if value > 0 && value < 4444 { // guard against implausible values
 						if err := hdb.InsertSensorData(&database.SensorData{
 							Sensor:    *caloriesSensor,
 							Value:     int64(value),
@@ -122,6 +129,9 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 							Error(rw, err)
 							return
 						}
+					} else {
+						Error(rw, fmt.Errorf("Calorie intake [%v kcal] exceeds bounds, what the heck is wrong with you?!", value))
+						return
 					}
 				}
 			}
@@ -272,8 +282,11 @@ func Fitness(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.Req
 		calorieAvgWeekly := make([]int, 0)
 		daysValue := 0
 		for i, day := range graphCalories[*caloriesSensor] {
+			if i == 0 {
+				continue // skip first day as its still incomplete, dont count it towards history
+			}
 			daysValue = daysValue + int(day.Value)
-			if i%7 == 0 && i > 0 {
+			if i%7 == 0 {
 				calorieAvgWeekly = append(calorieAvgWeekly, int(daysValue/7))
 				daysValue = 0
 			}
