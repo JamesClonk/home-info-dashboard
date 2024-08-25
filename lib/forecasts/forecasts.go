@@ -27,7 +27,7 @@ func getData(url string) ([]byte, error) {
 	}
 
 	// identify ourselves for yr.no / api.met.no
-	req.Header.Set("User-Agent", "home-info.jamesclonk.io github.com/home-info-dashboard")
+	req.Header.Set("User-Agent", "home-info.jamesclonk.io github.com/JamesClonk/home-info-dashboard")
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -90,6 +90,9 @@ func readMemo(lat, lon, alt string) (WeatherForecast, bool) {
 }
 
 func updateWeatherForecast(lat, lon, alt string) error {
+	mutex.Lock()
+	defer mutex.Unlock()
+	
 	log.Printf("update weather forecast data for [lat:%s / lon:%s / alt:%s] ...\n", lat, lon, alt)
 
 	data, err := getData(fmt.Sprintf("https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=%s&lon=%s&altitude=%s", lat, lon, alt))
@@ -101,9 +104,7 @@ func updateWeatherForecast(lat, lon, alt string) error {
 	if err != nil {
 		return err
 	}
-
-	mutex.Lock()
-	defer mutex.Unlock()
+	
 	memo[fmt.Sprintf("%s:%s:%s", lat, lon, alt)] = forecast
 	return nil
 }
