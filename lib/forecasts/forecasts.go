@@ -57,10 +57,10 @@ func parseWeatherForecast(data []byte) (WeatherForecast, error) {
 
 func Get(lat, lon, alt string) (data WeatherForecast, err error) {
 	if len(lat) == 0 || len(lon) == 0 || len(alt) == 0 {
-		// default to Bern
-		lat = "46.9481"
-		lon = "7.4474"
-		alt = "549"
+		// default
+		lat = "47.02115"
+		lon = "7.44914"
+		alt = "555"
 	}
 
 	// check memory first
@@ -92,7 +92,7 @@ func readMemo(lat, lon, alt string) (WeatherForecast, bool) {
 func updateWeatherForecast(lat, lon, alt string) error {
 	mutex.Lock()
 	defer mutex.Unlock()
-	
+
 	log.Printf("update weather forecast data for [lat:%s / lon:%s / alt:%s] ...\n", lat, lon, alt)
 
 	data, err := getData(fmt.Sprintf("https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=%s&lon=%s&altitude=%s", lat, lon, alt))
@@ -104,7 +104,7 @@ func updateWeatherForecast(lat, lon, alt string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	memo[fmt.Sprintf("%s:%s:%s", lat, lon, alt)] = forecast
 	return nil
 }

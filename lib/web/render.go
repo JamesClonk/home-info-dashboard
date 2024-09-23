@@ -25,11 +25,17 @@ func init() {
 					case "plant room":
 						return "🌻"
 					case "living room":
+						return "🛋️"
+					case "gallery":
 						return "📺"
+					case "balcony":
+						return "🏖️"
 					case "home office":
 						return "🖥️"
 					case "bedroom":
 						return "🛏️"
+					case "basement":
+						return "🏛️"
 					case "bedroom lamp":
 						return "💡"
 					case "plant room lamp":
