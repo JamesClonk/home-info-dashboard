@@ -96,6 +96,9 @@ func init() {
 					if strings.Contains(strings.ToLower(name), "bmi") {
 						return "🧍"
 					}
+					if strings.Contains(strings.ToLower(name), "wind speed") {
+						return "🌬️"
+					}
 
 					return "❓"
 				},

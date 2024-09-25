@@ -93,7 +93,9 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 		time.Sleep(time.Duration(rand.Intn(10)) * time.Minute)
 		time.Sleep(2 * time.Minute) // initial waiting period
 
-		sensorId := config.Get().Forecast.TemperatureSensorID
+		tempSensorId := config.Get().Forecast.TemperatureSensorID
+		humSensorId := config.Get().Forecast.HumiditySensorID
+		windSensorId := config.Get().Forecast.WindSpeedSensorID
 		for {
 			lat, lon, alt := util.GetDefaultLocation("", "", "")
 			forecast, err := forecasts.Get(lat, lon, alt)
@@ -103,7 +105,7 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 			}
 
 			if len(forecast.Properties.Timeseries) > 0 {
-				var temp float64
+				var temp, hum, wind float64
 
 				// try to get an entry for "current" hour
 				var foundCurrent bool
@@ -111,6 +113,8 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 					now := time.Now()
 					if entry.Time.Local().Day() == now.Local().Day() && entry.Time.Local().Hour() == now.Local().Hour() {
 						temp = entry.Data.Instant.Details.AirTemperature
+						hum = entry.Data.Instant.Details.RelativeHumidity
+						wind = entry.Data.Instant.Details.WindSpeed
 						foundCurrent = true
 						break
 					}
@@ -118,14 +122,28 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 				// else fallback to first entry
 				if !foundCurrent {
 					temp = forecast.Properties.Timeseries[0].Data.Instant.Details.AirTemperature
+					temp = forecast.Properties.Timeseries[0].Data.Instant.Details.RelativeHumidity
+					temp = forecast.Properties.Timeseries[0].Data.Instant.Details.WindSpeed
 				}
 
 				// store temp
-				if err := hdb.InsertSensorValue(sensorId, int(temp), time.Now()); err != nil {
-					log.Println("Could not insert temperature value for forecast temperature")
+				if err := hdb.InsertSensorValue(tempSensorId, int(temp), time.Now()); err != nil {
+					log.Println("Could not insert temperature value for forecast")
 					log.Fatal(err)
 				}
 				log.Printf("Weather forecast temperature:%v for [%s/%s/%s] stored to database\n", temp, lat, lon, alt)
+				// store humidity
+				if err := hdb.InsertSensorValue(humSensorId, int(temp), time.Now()); err != nil {
+					log.Println("Could not insert humidity value for forecast")
+					log.Fatal(err)
+				}
+				log.Printf("Weather forecast humidity:%v for [%s/%s/%s] stored to database\n", hum, lat, lon, alt)
+				// store wind speed
+				if err := hdb.InsertSensorValue(windSensorId, int(wind), time.Now()); err != nil {
+					log.Println("Could not insert wind speed value for forecast")
+					log.Fatal(err)
+				}
+				log.Printf("Weather forecast wind speed:%v for [%s/%s/%s] stored to database\n", wind, lat, lon, alt)
 			}
 
 			time.Sleep(time.Duration(rand.Intn(5)) * time.Minute)
