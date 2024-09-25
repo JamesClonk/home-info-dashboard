@@ -9,6 +9,8 @@ type Configuration struct {
 	HomeOffice Room
 	Forecast   struct {
 		TemperatureSensorID int
+		HumiditySensorID    int
+		WindSpeedSensorID   int
 	}
 	Fitness struct {
 		WeightID   int

@@ -114,6 +114,20 @@ func Get() *Configuration {
 		}
 		config.Forecast.TemperatureSensorID = int(sensorId)
 
+		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_FORECAST_HUMIDITY_SENSOR_ID"), 10, 64)
+		if err != nil {
+			log.Printf("Could not parse forecast humidty sensor id: [%v]\n", sensorId)
+			log.Fatal(err)
+		}
+		config.Forecast.HumiditySensorID = int(sensorId)
+
+		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_FORECAST_WIND_SPEED_SENSOR_ID"), 10, 64)
+		if err != nil {
+			log.Printf("Could not parse forecast wind speed sensor id: [%v]\n", sensorId)
+			log.Fatal(err)
+		}
+		config.Forecast.WindSpeedSensorID = int(sensorId)
+
 		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_WEIGHT_SENSOR_ID"), 10, 64)
 		if err != nil {
 			log.Printf("Could not parse weight sensor id: [%v]\n", sensorId)

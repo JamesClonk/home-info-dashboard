@@ -13,10 +13,10 @@
         <h2 class="title is-2">{{ if (emoji $room.Humidity.Sensor.Name) }}{{ emoji $room.Humidity.Sensor.Name }} {{ end }}{{ $room.Humidity.Sensor.Name }}: <span class="has-text-info">{{ $room.Humidity.Value }}{{ $room.Humidity.Sensor.SensorType.Symbol }}</span></h2>
         <h5 class="subtitle is-5"><small class="has-text-info">{{ $room.Humidity.Sensor.SensorType.Type }}</small><small> - Last Update: {{ $room.Humidity.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
       </div>
-      {{ if $room.Co2 }}
+      {{ if $room.CO2 }}
       <div class="column">
-        <h2 class="title is-2">{{ if (emoji $room.Humidity.Sensor.Name) }}{{ emoji $room.Humidity.Sensor.Name }} {{ end }}{{ $room.Humidity.Sensor.Name }}: <span class="has-text-info">{{ $room.Humidity.Value }}{{ $room.Humidity.Sensor.SensorType.Symbol }}</span></h2>
-        <h5 class="subtitle is-5"><small class="has-text-info">{{ $room.Humidity.Sensor.SensorType.Type }}</small><small> - Last Update: {{ $room.Humidity.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
+        <h2 class="title is-2">{{ if (emoji $room.CO2.Sensor.Name) }}{{ emoji $room.CO2.Sensor.Name }} {{ end }}{{ $room.CO2.Sensor.Name }}: <span class="has-text-info">{{ $room.CO2.Value }}{{ $room.CO2.Sensor.SensorType.Symbol }}</span></h2>
+        <h5 class="subtitle is-5"><small class="has-text-info">{{ $room.CO2.Sensor.SensorType.Type }}</small><small> - Last Update: {{ $room.CO2.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
       </div>
       {{ end }}
     </div>
