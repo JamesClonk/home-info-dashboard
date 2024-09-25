@@ -17,22 +17,27 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 		}
 
 		// collect the top column
-		plantRoomTemp, err := hdb.GetSensorData(config.Get().PlantRoom.TemperatureSensorID, 5)
+		plantRoomTemp, err := hdb.GetSensorData(config.Get().PlantRoom.TemperatureSensorID, 3)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		plantRoomHum, err := hdb.GetSensorData(config.Get().PlantRoom.HumiditySensorID, 5)
+		plantRoomHum, err := hdb.GetSensorData(config.Get().PlantRoom.HumiditySensorID, 3)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		livingRoomTemp, err := hdb.GetSensorData(config.Get().LivingRoom.TemperatureSensorID, 5)
+		livingRoomTemp, err := hdb.GetSensorData(config.Get().LivingRoom.TemperatureSensorID, 3)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		livingRoomHum, err := hdb.GetSensorData(config.Get().LivingRoom.HumiditySensorID, 5)
+		livingRoomHum, err := hdb.GetSensorData(config.Get().LivingRoom.HumiditySensorID, 3)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		livingRoomCO2, err := hdb.GetSensorData(config.Get().LivingRoom.CO2SensorID, 3)
 		if err != nil {
 			Error(rw, err)
 			return
@@ -43,6 +48,26 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			return
 		}
 		bedRoomHum, err := hdb.GetSensorData(config.Get().BedRoom.HumiditySensorID, 3)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		galleryTemp, err := hdb.GetSensorData(config.Get().Gallery.TemperatureSensorID, 3)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		galleryHum, err := hdb.GetSensorData(config.Get().Gallery.HumiditySensorID, 3)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		basementTemp, err := hdb.GetSensorData(config.Get().Basement.TemperatureSensorID, 3)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		basementHum, err := hdb.GetSensorData(config.Get().Basement.HumiditySensorID, 3)
 		if err != nil {
 			Error(rw, err)
 			return
@@ -107,6 +132,7 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 		type Room struct {
 			Temperature *database.SensorData
 			Humidity    *database.SensorData
+			CO2         *database.SensorData
 		}
 		type Plant struct {
 			Data *database.SensorData
@@ -137,23 +163,38 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			return int64(math.RoundToEven(float64(value) / float64(counter)))
 		}
 		// average values because of multiple sensor for the same room
-		if len(plantRoomHum) > 3 {
-			plantRoomHum[0].Value = getAverage(plantRoomHum, 4)
+		if len(plantRoomHum) > 1 {
+			plantRoomHum[0].Value = getAverage(plantRoomHum, 2)
 		}
-		if len(plantRoomTemp) > 3 {
-			plantRoomTemp[0].Value = getAverage(plantRoomTemp, 4)
+		if len(plantRoomTemp) > 1 {
+			plantRoomTemp[0].Value = getAverage(plantRoomTemp, 2)
 		}
-		if len(livingRoomHum) > 3 {
-			livingRoomHum[0].Value = getAverage(livingRoomHum, 4)
+		if len(livingRoomHum) > 1 {
+			livingRoomHum[0].Value = getAverage(livingRoomHum, 2)
 		}
-		if len(livingRoomTemp) > 3 {
-			livingRoomTemp[0].Value = getAverage(livingRoomTemp, 4)
+		if len(livingRoomTemp) > 1 {
+			livingRoomTemp[0].Value = getAverage(livingRoomTemp, 2)
+		}
+		if len(livingRoomCO2) > 1 {
+			livingRoomCO2[0].Value = getAverage(livingRoomCO2, 2)
 		}
 		if len(bedRoomTemp) > 1 {
 			bedRoomTemp[0].Value = getAverage(bedRoomTemp, 2)
 		}
 		if len(bedRoomHum) > 1 {
 			bedRoomHum[0].Value = getAverage(bedRoomHum, 2)
+		}
+		if len(galleryTemp) > 1 {
+			galleryTemp[0].Value = getAverage(galleryTemp, 2)
+		}
+		if len(galleryHum) > 1 {
+			galleryHum[0].Value = getAverage(galleryHum, 2)
+		}
+		if len(basementTemp) > 1 {
+			basementTemp[0].Value = getAverage(basementTemp, 2)
+		}
+		if len(basementHum) > 1 {
+			basementHum[0].Value = getAverage(basementHum, 2)
 		}
 		if len(homeOfficeTemp) > 1 {
 			homeOfficeTemp[0].Value = getAverage(homeOfficeTemp, 2)
@@ -173,12 +214,25 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			rooms = append(rooms, Room{
 				Temperature: livingRoomTemp[0],
 				Humidity:    livingRoomHum[0],
+				CO2:         livingRoomCO2[0],
 			})
 		}
 		if len(bedRoomTemp) > 0 {
 			rooms = append(rooms, Room{
 				Temperature: bedRoomTemp[0],
 				Humidity:    bedRoomHum[0],
+			})
+		}
+		if len(galleryTemp) > 0 {
+			rooms = append(rooms, Room{
+				Temperature: galleryTemp[0],
+				Humidity:    galleryHum[0],
+			})
+		}
+		if len(basementTemp) > 0 {
+			rooms = append(rooms, Room{
+				Temperature: basementTemp[0],
+				Humidity:    basementHum[0],
 			})
 		}
 		if len(homeOfficeTemp) > 0 {

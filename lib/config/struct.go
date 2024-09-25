@@ -4,6 +4,8 @@ type Configuration struct {
 	PlantRoom  Room
 	LivingRoom Room
 	BedRoom    Room
+	Gallery    Room
+	Basement   Room
 	HomeOffice Room
 	Forecast   struct {
 		TemperatureSensorID int
@@ -18,4 +20,5 @@ type Configuration struct {
 type Room struct {
 	TemperatureSensorID int
 	HumiditySensorID    int
+	CO2SensorID         int
 }
