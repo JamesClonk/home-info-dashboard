@@ -122,8 +122,8 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 				// else fallback to first entry
 				if !foundCurrent {
 					temp = forecast.Properties.Timeseries[0].Data.Instant.Details.AirTemperature
-					temp = forecast.Properties.Timeseries[0].Data.Instant.Details.RelativeHumidity
-					temp = forecast.Properties.Timeseries[0].Data.Instant.Details.WindSpeed
+					hum = forecast.Properties.Timeseries[0].Data.Instant.Details.RelativeHumidity
+					wind = forecast.Properties.Timeseries[0].Data.Instant.Details.WindSpeed
 				}
 
 				// store temp
@@ -133,7 +133,7 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 				}
 				log.Printf("Weather forecast temperature:%v for [%s/%s/%s] stored to database\n", temp, lat, lon, alt)
 				// store humidity
-				if err := hdb.InsertSensorValue(humSensorId, int(temp), time.Now()); err != nil {
+				if err := hdb.InsertSensorValue(humSensorId, int(hum), time.Now()); err != nil {
 					log.Println("Could not insert humidity value for forecast")
 					log.Fatal(err)
 				}
