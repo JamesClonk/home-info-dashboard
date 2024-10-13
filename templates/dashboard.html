@@ -18,6 +18,11 @@
         <h2 class="title is-2">{{ if (emoji $room.CO2.Sensor.Name) }}{{ emoji $room.CO2.Sensor.Name }} {{ end }}{{ $room.CO2.Sensor.Name }}: <span class="has-text-warning">{{ $room.CO2.Value }}{{ $room.CO2.Sensor.SensorType.Symbol }}</span></h2>
         <h5 class="subtitle is-5"><small class="has-text-warning">{{ $room.CO2.Sensor.SensorType.Type }}</small><small> - Last Update: {{ $room.CO2.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
       </div>
+      {{ else if $room.AirPressure }}
+      <div class="column">
+        <h2 class="title is-2">{{ if (emoji $room.AirPressure.Sensor.Name) }}{{ emoji $room.AirPressure.Sensor.Name }} {{ end }}{{ $room.AirPressure.Sensor.Name }}: <span class="has-text-warning">{{ $room.AirPressure.Value }}{{ $room.AirPressure.Sensor.SensorType.Symbol }}</span></h2>
+        <h5 class="subtitle is-5"><small class="has-text-warning">{{ $room.AirPressure.Sensor.SensorType.Type }}</small><small> - Last Update: {{ $room.AirPressure.Timestamp.Format "2006-01-02 15:04:05" }}</small></h5>
+      </div>
       {{ else }}
       <div class="column">
         <h2 class="title is-2"></h2>

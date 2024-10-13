@@ -65,6 +65,13 @@ func Get() *Configuration {
 		}
 		config.BedRoom.HumiditySensorID = int(sensorId)
 
+		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_BEDROOM_CO2_SENSOR_ID"), 10, 64)
+		if err != nil {
+			log.Printf("Could not parse bedroom co2 sensor id: [%v]\n", sensorId)
+			log.Fatal(err)
+		}
+		config.BedRoom.CO2SensorID = int(sensorId)
+
 		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_GALLERY_TEMPERATURE_SENSOR_ID"), 10, 64)
 		if err != nil {
 			log.Printf("Could not parse gallery temperature sensor id: [%v]\n", sensorId)
@@ -78,6 +85,13 @@ func Get() *Configuration {
 			log.Fatal(err)
 		}
 		config.Gallery.HumiditySensorID = int(sensorId)
+
+		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_GALLERY_AIR_PRESSURE_SENSOR_ID"), 10, 64)
+		if err != nil {
+			log.Printf("Could not parse gallery air pressure sensor id: [%v]\n", sensorId)
+			log.Fatal(err)
+		}
+		config.Gallery.AirPressureSensorID = int(sensorId)
 
 		sensorId, err = strconv.ParseInt(env.MustGet("CONFIG_BASEMENT_TEMPERATURE_SENSOR_ID"), 10, 64)
 		if err != nil {

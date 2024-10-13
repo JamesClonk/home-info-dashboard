@@ -23,4 +23,6 @@ type Room struct {
 	TemperatureSensorID int
 	HumiditySensorID    int
 	CO2SensorID         int
+	AirPressureSensorID int
+	AltitudeSensorID    int
 }

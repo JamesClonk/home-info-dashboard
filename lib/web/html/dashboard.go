@@ -27,37 +27,47 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			Error(rw, err)
 			return
 		}
-		livingRoomTemp, err := hdb.GetSensorData(config.Get().LivingRoom.TemperatureSensorID, 3)
+		livingRoomTemp, err := hdb.GetSensorData(config.Get().LivingRoom.TemperatureSensorID, 5)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		livingRoomHum, err := hdb.GetSensorData(config.Get().LivingRoom.HumiditySensorID, 3)
+		livingRoomHum, err := hdb.GetSensorData(config.Get().LivingRoom.HumiditySensorID, 5)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		livingRoomCO2, err := hdb.GetSensorData(config.Get().LivingRoom.CO2SensorID, 3)
+		livingRoomCO2, err := hdb.GetSensorData(config.Get().LivingRoom.CO2SensorID, 5)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		bedRoomTemp, err := hdb.GetSensorData(config.Get().BedRoom.TemperatureSensorID, 3)
+		bedRoomTemp, err := hdb.GetSensorData(config.Get().BedRoom.TemperatureSensorID, 5)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		bedRoomHum, err := hdb.GetSensorData(config.Get().BedRoom.HumiditySensorID, 3)
+		bedRoomHum, err := hdb.GetSensorData(config.Get().BedRoom.HumiditySensorID, 5)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		galleryTemp, err := hdb.GetSensorData(config.Get().Gallery.TemperatureSensorID, 3)
+		bedRoomCO2, err := hdb.GetSensorData(config.Get().BedRoom.CO2SensorID, 5)
 		if err != nil {
 			Error(rw, err)
 			return
 		}
-		galleryHum, err := hdb.GetSensorData(config.Get().Gallery.HumiditySensorID, 3)
+		galleryTemp, err := hdb.GetSensorData(config.Get().Gallery.TemperatureSensorID, 5)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		galleryHum, err := hdb.GetSensorData(config.Get().Gallery.HumiditySensorID, 5)
+		if err != nil {
+			Error(rw, err)
+			return
+		}
+		galleryPa, err := hdb.GetSensorData(config.Get().Gallery.AirPressureSensorID, 3)
 		if err != nil {
 			Error(rw, err)
 			return
@@ -133,6 +143,7 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			Temperature *database.SensorData
 			Humidity    *database.SensorData
 			CO2         *database.SensorData
+			AirPressure *database.SensorData
 		}
 		type Plant struct {
 			Data *database.SensorData
@@ -163,43 +174,49 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			return int64(math.RoundToEven(float64(value) / float64(counter)))
 		}
 		// average values because of multiple sensor for the same room
-		if len(plantRoomHum) > 1 {
+		if len(plantRoomHum) >= 2 {
 			plantRoomHum[0].Value = getAverage(plantRoomHum, 2)
 		}
-		if len(plantRoomTemp) > 1 {
+		if len(plantRoomTemp) >= 2 {
 			plantRoomTemp[0].Value = getAverage(plantRoomTemp, 2)
 		}
-		if len(livingRoomHum) > 1 {
-			livingRoomHum[0].Value = getAverage(livingRoomHum, 2)
+		if len(livingRoomHum) >= 3 {
+			livingRoomHum[0].Value = getAverage(livingRoomHum, 3)
 		}
-		if len(livingRoomTemp) > 1 {
-			livingRoomTemp[0].Value = getAverage(livingRoomTemp, 2)
+		if len(livingRoomTemp) >= 3 {
+			livingRoomTemp[0].Value = getAverage(livingRoomTemp, 3)
 		}
-		if len(livingRoomCO2) > 1 {
-			livingRoomCO2[0].Value = getAverage(livingRoomCO2, 2)
+		if len(livingRoomCO2) >= 3 {
+			livingRoomCO2[0].Value = getAverage(livingRoomCO2, 3)
 		}
-		if len(bedRoomTemp) > 1 {
-			bedRoomTemp[0].Value = getAverage(bedRoomTemp, 2)
+		if len(bedRoomTemp) >= 3 {
+			bedRoomTemp[0].Value = getAverage(bedRoomTemp, 3)
 		}
-		if len(bedRoomHum) > 1 {
-			bedRoomHum[0].Value = getAverage(bedRoomHum, 2)
+		if len(bedRoomHum) >= 3 {
+			bedRoomHum[0].Value = getAverage(bedRoomHum, 3)
 		}
-		if len(galleryTemp) > 1 {
-			galleryTemp[0].Value = getAverage(galleryTemp, 2)
+		if len(bedRoomCO2) >= 3 {
+			bedRoomCO2[0].Value = getAverage(bedRoomCO2, 3)
 		}
-		if len(galleryHum) > 1 {
-			galleryHum[0].Value = getAverage(galleryHum, 2)
+		if len(galleryTemp) >= 3 {
+			galleryTemp[0].Value = getAverage(galleryTemp, 3)
 		}
-		if len(basementTemp) > 1 {
+		if len(galleryHum) >= 3 {
+			galleryHum[0].Value = getAverage(galleryHum, 3)
+		}
+		if len(galleryPa) >= 2 {
+			galleryPa[0].Value = getAverage(galleryPa, 2)
+		}
+		if len(basementTemp) >= 2 {
 			basementTemp[0].Value = getAverage(basementTemp, 2)
 		}
-		if len(basementHum) > 1 {
+		if len(basementHum) >= 2 {
 			basementHum[0].Value = getAverage(basementHum, 2)
 		}
-		if len(homeOfficeTemp) > 1 {
+		if len(homeOfficeTemp) >= 2 {
 			homeOfficeTemp[0].Value = getAverage(homeOfficeTemp, 2)
 		}
-		if len(homeOfficeHum) > 1 {
+		if len(homeOfficeHum) >= 2 {
 			homeOfficeHum[0].Value = getAverage(homeOfficeHum, 2)
 		}
 
@@ -221,12 +238,14 @@ func Dashboard(hdb database.HomeInfoDB) func(rw http.ResponseWriter, req *http.R
 			rooms = append(rooms, Room{
 				Temperature: bedRoomTemp[0],
 				Humidity:    bedRoomHum[0],
+				CO2:         bedRoomCO2[0],
 			})
 		}
 		if len(galleryTemp) > 0 {
 			rooms = append(rooms, Room{
 				Temperature: galleryTemp[0],
 				Humidity:    galleryHum[0],
+				AirPressure: galleryPa[0],
 			})
 		}
 		if len(basementTemp) > 0 {
