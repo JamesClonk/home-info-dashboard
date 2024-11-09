@@ -1013,13 +1013,13 @@ func (hdb *homeInfoDB) GenerateSensorValues(id, num int) error {
 func (hdb *homeInfoDB) Housekeeping() (err error) {
 	deleteStmt, err := hdb.Prepare(`
 		delete from sensor_data
-		where timestamp < NOW() - INTERVAL '111 days'`)
+		where timestamp < NOW() - INTERVAL '444 days'`)
 	if err != nil {
 		return err
 	}
 	defer deleteStmt.Close()
 
-	log.Println("Housekeeping: delete rows older than [111] days ...")
+	log.Println("Housekeeping: delete rows older than [444] days ...")
 	if _, err := deleteStmt.Exec(); err != nil {
 		return err
 	}
