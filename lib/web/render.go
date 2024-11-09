@@ -24,6 +24,10 @@ func init() {
 					switch strings.ToLower(name) {
 					case "plant room":
 						return "🌻"
+					case "bathroom":
+						return "🚿"
+					case "washroom":
+						return "👕"
 					case "living room":
 						return "🛋️"
 					case "gallery":
