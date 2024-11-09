@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/Knetic/govaluate v3.0.0+incompatible
-	github.com/atc0005/go-teams-notify/v2 v2.4.2
+	github.com/atc0005/go-teams-notify/v2 v2.13.0
 	github.com/cloudfoundry-community/go-cfenv v1.17.0
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/gorilla/mux v1.6.0
@@ -14,7 +14,7 @@ require (
 	github.com/nlopes/slack v0.6.0
 	github.com/prometheus/client_golang v1.11.1
 	github.com/robfig/cron v1.2.0
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.9.0
 	github.com/unrolled/render v0.0.0-20171006150303-32bf1ea2a39e
 	github.com/urfave/negroni v0.2.1-0.20171016041905-079cf0c7a6b0
 )

@@ -3,9 +3,11 @@
 github.com/Knetic/govaluate
 # github.com/Microsoft/go-winio v0.4.14
 ## explicit; go 1.12
-# github.com/atc0005/go-teams-notify/v2 v2.4.2
+# github.com/atc0005/go-teams-notify/v2 v2.13.0
 ## explicit; go 1.14
 github.com/atc0005/go-teams-notify/v2
+github.com/atc0005/go-teams-notify/v2/adaptivecard
+github.com/atc0005/go-teams-notify/v2/internal/validator
 # github.com/beorn7/perks v1.0.1
 ## explicit; go 1.11
 github.com/beorn7/perks/quantile
@@ -112,8 +114,8 @@ github.com/prometheus/procfs/internal/util
 # github.com/robfig/cron v1.2.0
 ## explicit
 github.com/robfig/cron
-# github.com/stretchr/testify v1.7.0
-## explicit; go 1.13
+# github.com/stretchr/testify v1.9.0
+## explicit; go 1.17
 github.com/stretchr/testify/assert
 # github.com/technoweenie/multipartstreamer v1.0.1
 ## explicit

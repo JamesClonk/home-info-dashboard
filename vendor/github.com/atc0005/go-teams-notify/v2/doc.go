@@ -1,4 +1,4 @@
-// Copyright 2020 Adam Chalkley
+// Copyright 2021 Adam Chalkley
 //
 // https://github.com/atc0005/go-teams-notify
 //
@@ -6,55 +6,34 @@
 // full license information.
 
 /*
+Package goteamsnotify is used to send messages to a Microsoft Teams channel.
 
-Package goteamsnotify is used to send messages to Microsoft Teams (channels)
-
-PROJECT HOME
+# Project Home
 
 See our GitHub repo (https://github.com/atc0005/go-teams-notify) for the
 latest code, to file an issue or submit improvements for review and potential
 inclusion into the project.
 
-
-PURPOSE
+# Purpose
 
 Send messages to a Microsoft Teams channel.
 
+# Features
 
-FEATURES
+  - Submit messages to Microsoft Teams consisting of one or more sections,
+    Facts (key/value pairs), Actions or images (hosted externally)
+  - Support for MessageCard and Adaptive Card messages
+  - Support for Actions, allowing users to take quick actions within Microsoft
+    Teams
+  - Support for user mentions
+  - Configurable validation
+  - Configurable timeouts
+  - Configurable retry support
+  - Support for overriding the default http.Client
+  - Support for overriding the default project-specific user agent
 
-• Generate messages with one or more sections, Facts (key/value pairs) or images (hosted externally)
+# Usage
 
-• Submit messages to Microsoft Teams
-
-
-EXAMPLE
-
-	import (
-	"github.com/atc0005/go-teams-notify/v2"
-	)
-
-	func main() {
-		_ = sendTheMessage()
-	}
-
-	func sendTheMessage() error {
-		// init the client
-		mstClient := goteamsnotify.NewClient()
-
-		// setup webhook url
-		webhookUrl := "https://outlook.office.com/webhook/YOUR_WEBHOOK_URL_OF_TEAMS_CHANNEL"
-
-		// setup message card
-		msgCard := goteamsnotify.NewMessageCard()
-		msgCard.Title = "Hello world"
-		msgCard.Text = "Here are some examples of formatted stuff like "+
-			"<br> * this list itself  <br> * **bold** <br> * *italic* <br> * ***bolditalic***"
-		msgCard.ThemeColor = "#DF813D"
-
-		// send
-		return mstClient.Send(webhookUrl, msgCard)
-	}
-
+See our main README for supported settings and examples.
 */
 package goteamsnotify
