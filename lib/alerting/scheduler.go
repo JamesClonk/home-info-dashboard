@@ -107,9 +107,9 @@ func Check(alertID int) {
 		return
 	}
 
-	// deadman check - if no metrics from the last 14h are found it's alerting time baby!
-	// 14h was chosen since some metrics only occur half-daily..
-	hours := 14
+	// deadman check - if no metrics from the last 25h are found it's alerting time baby!
+	// 25h was chosen since some metrics only occur daily..
+	hours := 25
 	count, err := hdb.NumOfSensorDataWithinLastHours(alert.Sensor.Id, hours)
 	if err != nil {
 		message := fmt.Sprintf("deadman check for alert [**%s**] failed: could not select data: %v", alert.Name, err)
