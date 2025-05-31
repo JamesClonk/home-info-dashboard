@@ -96,6 +96,7 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 		tempSensorId := config.Get().Forecast.TemperatureSensorID
 		humSensorId := config.Get().Forecast.HumiditySensorID
 		windSensorId := config.Get().Forecast.WindSpeedSensorID
+		rainSensorId := config.Get().Forecast.RainSensorID
 		for {
 			lat, lon, alt := util.GetDefaultLocation("", "", "")
 			forecast, err := forecasts.Get(lat, lon, alt)
@@ -105,7 +106,7 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 			}
 
 			if len(forecast.Properties.Timeseries) > 0 {
-				var temp, hum, wind float64
+				var temp, hum, wind, rain float64
 
 				// try to get an entry for "current" hour
 				var foundCurrent bool
@@ -115,7 +116,16 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 						temp = entry.Data.Instant.Details.AirTemperature
 						hum = entry.Data.Instant.Details.RelativeHumidity
 						wind = entry.Data.Instant.Details.WindSpeed
+						rain = entry.Data.Next1Hour.Details.PrecipitationAmount
 						foundCurrent = true
+						break
+					}
+				}
+				// look into last hour for rain values too, add them to "current" value
+				for _, entry := range forecast.Properties.Timeseries {
+					now := time.Now().add(time.Duration(-1) * time.Hour)
+					if entry.Time.Local().Day() == now.Local().Day() && entry.Time.Local().Hour() == now.Local().Hour() {
+						rain = rain + entry.Data.Next1Hour.Details.PrecipitationAmount
 						break
 					}
 				}
@@ -124,6 +134,7 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 					temp = forecast.Properties.Timeseries[0].Data.Instant.Details.AirTemperature
 					hum = forecast.Properties.Timeseries[0].Data.Instant.Details.RelativeHumidity
 					wind = forecast.Properties.Timeseries[0].Data.Instant.Details.WindSpeed
+					rain = forecast.Properties.Timeseries[0].Data.Next1Hour.Details.PrecipitationAmount
 				}
 
 				// store temp
@@ -144,6 +155,12 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 					log.Fatal(err)
 				}
 				log.Printf("Weather forecast wind speed:%v for [%s/%s/%s] stored to database\n", wind, lat, lon, alt)
+				// store rain
+				if err := hdb.InsertSensorValue(rainSensorId, int(rain*10), time.Now()); err != nil {
+					log.Println("Could not insert rain value for forecast")
+					log.Fatal(err)
+				}
+				log.Printf("Weather forecast rain:%v for [%s/%s/%s] stored to database\n", rain, lat, lon, alt)
 			}
 
 			time.Sleep(time.Duration(rand.Intn(5)) * time.Minute)
