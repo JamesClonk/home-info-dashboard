@@ -76,8 +76,8 @@ func Get(lat, lon, alt string) (data WeatherForecast, err error) {
 
 	// yr.no - check memory first
 	if forecast, ok := readMemo(lat, lon, alt); ok {
-		// is it older than ~1 hour?
-		if time.Now().After(forecast.Timestamp.Add(58 * time.Minute)) {
+		// is it older than ~0.5 hours?
+		if time.Now().After(forecast.Timestamp.Add(28 * time.Minute)) {
 			if err := updateWeatherForecasts(lat, lon, alt); err != nil {
 				return WeatherForecast{}, err
 			}
