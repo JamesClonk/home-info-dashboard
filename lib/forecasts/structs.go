@@ -5,6 +5,53 @@ import (
 	"time"
 )
 
+type OpenMeteoWeatherForecast struct {
+	Timestamp time.Time `json:"time"`
+	Timezone  string    `json:"timezone"`
+
+	CurrentUnits struct {
+		Time             string `json:"time"`
+		Interval         string `json:"interval"`
+		RelativeHumidity string `json:"relative_humidity_2m"`
+		Temperature      string `json:"temperature_2m"`
+		Precipitation    string `json:"precipitation"`
+		Rain             string `json:"rain"`
+		WindSpeed        string `json:"wind_speed_10m"`
+	} `json:"current_units"`
+
+	CurrentValues struct {
+		Time             string  `json:"time"`
+		Interval         int     `json:"interval"`
+		RelativeHumidity float64 `json:"relative_humidity_2m"`
+		Temperature      float64 `json:"temperature_2m"`
+		Precipitation    float64 `json:"precipitation"`
+		Rain             float64 `json:"rain"`
+		WindSpeed        float64 `json:"wind_speed_10m"`
+	} `json:"current"`
+
+	HourlyUnits struct {
+		Time                     string `json:"time"`
+		RelativeHumidity         string `json:"relative_humidity_2m"`
+		Temperature              string `json:"temperature_2m"`
+		Precipitation            string `json:"precipitation"`
+		PrecipitationProbability string `json:"precipitation_probability"`
+		Rain                     string `json:"rain"`
+		WindSpeed                string `json:"wind_speed_10m"`
+		Showers                  string `json:"showers"`
+	} `json:"hourly_units"`
+
+	HourlyValues struct {
+		Time                     []string  `json:"time"`
+		RelativeHumidity         []float64 `json:"relative_humidity_2m"`
+		Temperature              []float64 `json:"temperature_2m"`
+		Precipitation            []float64 `json:"precipitation"`
+		PrecipitationProbability []float64 `json:"precipitation_probability"`
+		Rain                     []float64 `json:"rain"`
+		WindSpeed                []float64 `json:"wind_speed_10m"`
+		Showers                  []float64 `json:"showers"`
+	} `json:"hourly"`
+}
+
 type WeatherForecast struct {
 	Timestamp time.Time `json:"time"`
 

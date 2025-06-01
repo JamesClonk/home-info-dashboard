@@ -11,6 +11,7 @@ type Configuration struct {
 		TemperatureSensorID int
 		HumiditySensorID    int
 		WindSpeedSensorID   int
+		RainSensorID        int
 	}
 	Fitness struct {
 		WeightID   int

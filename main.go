@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"math"
 	"math/rand"
 	"net/http"
 	"os"
@@ -123,7 +124,7 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 				}
 				// look into last hour for rain values too, add them to "current" value
 				for _, entry := range forecast.Properties.Timeseries {
-					now := time.Now().add(time.Duration(-1) * time.Hour)
+					now := time.Now().Add(time.Duration(-1) * time.Hour)
 					if entry.Time.Local().Day() == now.Local().Day() && entry.Time.Local().Hour() == now.Local().Hour() {
 						rain = rain + entry.Data.Next1Hour.Details.PrecipitationAmount
 						break
@@ -135,6 +136,16 @@ func spawnForecastCollection(hdb database.HomeInfoDB) {
 					hum = forecast.Properties.Timeseries[0].Data.Instant.Details.RelativeHumidity
 					wind = forecast.Properties.Timeseries[0].Data.Instant.Details.WindSpeed
 					rain = forecast.Properties.Timeseries[0].Data.Next1Hour.Details.PrecipitationAmount
+				}
+
+				// merge open-meteo data, take higher value
+				omData := forecasts.GetOpenMeteo(lat, lon)
+				if omData.CurrentUnits.Interval == "seconds" {
+					log.Println("Merging open-meteo.com data ...")
+					temp = math.Max(omData.CurrentValues.Temperature, temp)
+					hum = math.Max(omData.CurrentValues.RelativeHumidity, hum)
+					wind = math.Max(omData.CurrentValues.WindSpeed/3.6, wind)
+					rain = math.Max(omData.CurrentValues.Precipitation, rain)
 				}
 
 				// store temp

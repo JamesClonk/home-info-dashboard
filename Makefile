@@ -13,7 +13,7 @@ help:
 ## run: runs main.go with local sqlite database
 run:
 	@cp _fixtures/test.db _fixtures/temp.db
-	source .env_sqlite; go run -race main.go
+	source .env; source .env_sqlite; go run -race main.go
 
 .PHONY: dev
 ## dev: runs main.go on a local postgres
