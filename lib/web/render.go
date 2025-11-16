@@ -103,6 +103,9 @@ func init() {
 					if strings.Contains(strings.ToLower(name), "wind speed") {
 						return "🌬️"
 					}
+					if strings.Contains(strings.ToLower(name), "obloc") {
+						return "🧗"
+					}
 
 					return "❓"
 				},
